@@ -1,7 +1,7 @@
 "use client";
 
 import { AlertCircle } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -15,6 +15,7 @@ import { useMockData } from "@/features/shared/mock-data-provider";
 import type { ValidationErrors } from "@/features/shared/validation";
 import { useStatusLabel } from "@/i18n/use-labels";
 import type { MenuCategory, MenuCategoryInput, MenuCategoryStatus } from "../types";
+import { localizeMenuCategory } from "../selectors";
 import { validateMenuCategory } from "../validation";
 
 interface MenuCategoryFormProps {
@@ -23,13 +24,15 @@ interface MenuCategoryFormProps {
 
 export function MenuCategoryForm({ category }: MenuCategoryFormProps) {
   const router = useRouter();
+  const locale = useLocale();
   const { menuCategories, addMenuCategory, updateMenuCategory } = useMockData();
   const t = useTranslations("menu.categories.form");
   const tCommon = useTranslations("common");
   const tValidation = useTranslations("validation");
   const statusLabel = useStatusLabel();
-  const [name, setName] = useState(category?.name ?? "");
-  const [description, setDescription] = useState(category?.description ?? "");
+  const categoryContent = category ? localizeMenuCategory(category, locale) : null;
+  const [name, setName] = useState(categoryContent?.name ?? "");
+  const [description, setDescription] = useState(categoryContent?.description ?? "");
   const [status, setStatus] = useState<MenuCategoryStatus>(category?.status ?? "active");
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [submitted, setSubmitted] = useState(false);
@@ -37,7 +40,12 @@ export function MenuCategoryForm({ category }: MenuCategoryFormProps) {
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setSubmitted(true);
-    const input: MenuCategoryInput = { name, description, status };
+    const input: MenuCategoryInput = {
+      name,
+      description,
+      status,
+      contentLocale: locale === "en" ? "en" : "id",
+    };
     const nextErrors = validateMenuCategory(input, menuCategories, category?.id, tValidation);
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) {

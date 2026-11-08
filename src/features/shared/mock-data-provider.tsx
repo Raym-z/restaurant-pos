@@ -14,6 +14,8 @@ import type {
   MenuCategoryInput,
   MenuItem,
   MenuItemInput,
+  MenuText,
+  MenuContentLocale,
 } from "@/features/menu/types";
 
 interface MockDataContextValue {
@@ -120,10 +122,19 @@ export function MockDataProvider({ children }: { children: ReactNode }) {
 
   const addMenuCategory = useCallback(
     (input: MenuCategoryInput) => {
+      const translations: Partial<Record<MenuContentLocale, MenuText>> = {
+        [input.contentLocale]: {
+          name: input.name,
+          description: input.description,
+        },
+      };
       const category: MenuCategory = {
-        ...input,
         id: crypto.randomUUID(),
         organizationId: organization.id,
+        name: input.name,
+        description: input.description,
+        translations,
+        status: input.status,
         sortOrder:
           menuCategories.reduce((highest, entry) => Math.max(highest, entry.sortOrder), 0) + 1,
         createdAt: nowInstant(),
@@ -136,21 +147,55 @@ export function MockDataProvider({ children }: { children: ReactNode }) {
 
   const updateMenuCategory = useCallback((categoryId: string, input: MenuCategoryInput) => {
     setMenuCategories((current) =>
-      current.map((category) =>
-        category.id === categoryId ? { ...category, ...input } : category,
-      ),
+      current.map((category) => {
+        if (category.id !== categoryId) {
+          return category;
+        }
+        const translations = { ...category.translations };
+        if (input.contentLocale === "en") {
+          translations.en = {
+            name: input.name,
+            description: input.description,
+          };
+          return {
+            ...category,
+            name: input.name,
+            description: input.description,
+            status: input.status,
+            translations,
+          };
+        }
+        translations[input.contentLocale] = {
+          name: input.name,
+          description: input.description,
+        };
+        if (!translations.en) {
+          translations.en = {
+            name: category.name,
+            description: category.description,
+          };
+        }
+        return { ...category, status: input.status, translations };
+      }),
     );
   }, []);
 
   const addMenuItem = useCallback(
     (input: MenuItemInput) => {
       const timestamp = nowInstant();
+      const translations: Partial<Record<MenuContentLocale, MenuText>> = {
+        [input.contentLocale]: {
+          name: input.name,
+          description: input.description,
+        },
+      };
       const item: MenuItem = {
         id: crypto.randomUUID(),
         organizationId: organization.id,
         categoryId: input.categoryId,
         name: input.name,
         description: input.description,
+        translations,
         basePrice: {
           amountMinor: input.basePriceMinor,
           currency: organization.currency,
@@ -182,11 +227,30 @@ export function MockDataProvider({ children }: { children: ReactNode }) {
           const existingOverrides = new Map(
             item.branchAvailability.map((entry) => [entry.branchId, entry]),
           );
+          const translations = { ...item.translations };
+          if (input.contentLocale === "en") {
+            translations.en = {
+              name: input.name,
+              description: input.description,
+            };
+          } else {
+            translations[input.contentLocale] = {
+              name: input.name,
+              description: input.description,
+            };
+            if (!translations.en) {
+              translations.en = {
+                name: item.name,
+                description: item.description,
+              };
+            }
+          }
           return {
             ...item,
             categoryId: input.categoryId,
-            name: input.name,
-            description: input.description,
+            name: input.contentLocale === "en" ? input.name : item.name,
+            description: input.contentLocale === "en" ? input.description : item.description,
+            translations,
             basePrice: {
               ...item.basePrice,
               amountMinor: input.basePriceMinor,

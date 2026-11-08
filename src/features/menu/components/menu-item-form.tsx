@@ -16,7 +16,7 @@ import type { ValidationErrors } from "@/features/shared/validation";
 import { formatMoneyInput, parseMoneyInput } from "@/lib/currency";
 import { useStatusLabel } from "@/i18n/use-labels";
 import type { MenuItem, MenuItemInput, MenuItemStatus } from "../types";
-import { localizeMenuCategory } from "../selectors";
+import { localizeMenuCategory, localizeMenuItem } from "../selectors";
 import { validateMenuItem } from "../validation";
 
 interface MenuItemFormProps {
@@ -35,10 +35,11 @@ export function MenuItemForm({ item }: MenuItemFormProps) {
   const activeCategories = menuCategories.filter(
     (category) => category.status === "active" || category.id === item?.categoryId,
   );
+  const itemContent = item ? localizeMenuItem(item, locale) : null;
 
   const [categoryId, setCategoryId] = useState(item?.categoryId ?? activeCategories[0]?.id ?? "");
-  const [name, setName] = useState(item?.name ?? "");
-  const [description, setDescription] = useState(item?.description ?? "");
+  const [name, setName] = useState(itemContent?.name ?? "");
+  const [description, setDescription] = useState(itemContent?.description ?? "");
   const [price, setPrice] = useState(
     item ? formatMoneyInput(item.basePrice.amountMinor, item.basePrice.currency) : "",
   );
@@ -78,6 +79,7 @@ export function MenuItemForm({ item }: MenuItemFormProps) {
         .map((tag) => tag.trim().toLowerCase())
         .filter(Boolean),
       unavailableBranchIds,
+      contentLocale: locale === "en" ? "en" : "id",
     };
     const nextErrors = validateMenuItem(
       input,

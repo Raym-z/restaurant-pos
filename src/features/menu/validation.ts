@@ -5,6 +5,7 @@ import {
   type ValidationTranslator,
 } from "@/features/shared/validation";
 import { DEFAULT_CURRENCY, formatMoney, type CurrencyCode } from "@/lib/currency";
+import { localizeMenuCategory, localizeMenuItem } from "./selectors";
 
 export function validateMenuCategory(
   input: MenuCategoryInput,
@@ -21,7 +22,8 @@ export function validateMenuCategory(
     const duplicate = existingCategories.some(
       (category) =>
         category.id !== currentCategoryId &&
-        category.name.trim().toLowerCase() === input.name.trim().toLowerCase(),
+        localizeMenuCategory(category, input.contentLocale).name.trim().toLowerCase() ===
+          input.name.trim().toLowerCase(),
     );
     if (duplicate) {
       errors.name = t("duplicateCategory");
@@ -59,7 +61,8 @@ export function validateMenuItem(
       (item) =>
         item.id !== currentItemId &&
         item.categoryId === input.categoryId &&
-        item.name.trim().toLowerCase() === input.name.trim().toLowerCase(),
+        localizeMenuItem(item, input.contentLocale).name.trim().toLowerCase() ===
+          input.name.trim().toLowerCase(),
     );
     if (duplicate) {
       errors.name = t("duplicateItem");

@@ -72,6 +72,8 @@ export interface MenuCategoryInput {
   name: string;
   description: string;
   status: MenuCategoryStatus;
+  /** Locale in which name/description were edited. */
+  contentLocale: MenuContentLocale;
 }
 
 export interface MenuItemInput {
@@ -83,6 +85,8 @@ export interface MenuItemInput {
   tags: string[];
   /** Branch ids where the item is not available. */
   unavailableBranchIds: Uuid[];
+  /** Locale in which name/description were edited. */
+  contentLocale: MenuContentLocale;
 }
 
 export const MENU_CATEGORY_STATUS_LABELS: Record<MenuCategoryStatus, string> = {

@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
-import type { StaffRole } from "@/types/workspace";
+import { MANAGER_ROLES, type StaffRole } from "../types/roles";
 
 export interface NavItem {
   /** Translation key under the `navigation.items` namespace. */
@@ -37,9 +37,8 @@ export interface NavSection {
   items: readonly NavItem[];
 }
 
-const MANAGERS: readonly StaffRole[] = ["owner", "org_admin", "branch_manager"];
-const FLOOR: readonly StaffRole[] = [...MANAGERS, "cashier"];
-const FLOOR_AND_KITCHEN: readonly StaffRole[] = [...FLOOR, "kitchen"];
+const FLOOR: readonly StaffRole[] = [...MANAGER_ROLES, "cashier"];
+const FLOOR_AND_KITCHEN: readonly StaffRole[] = [...FLOOR, "kitchen_staff"];
 
 export const NAVIGATION_SECTIONS: readonly NavSection[] = [
   {
@@ -79,7 +78,7 @@ export const NAVIGATION_SECTIONS: readonly NavSection[] = [
         titleKey: "navigation.items.queue",
         href: "/queue",
         icon: ListOrdered,
-        roles: [...FLOOR, "host"],
+        roles: FLOOR,
       },
     ],
   },
@@ -91,7 +90,7 @@ export const NAVIGATION_SECTIONS: readonly NavSection[] = [
         titleKey: "navigation.items.organization",
         href: "/organization",
         icon: Building2,
-        roles: ["owner", "org_admin"],
+        roles: ["owner", "admin"],
       },
       {
         titleKey: "navigation.items.menu",
@@ -103,13 +102,13 @@ export const NAVIGATION_SECTIONS: readonly NavSection[] = [
         titleKey: "navigation.items.staff",
         href: "/staff",
         icon: Users,
-        roles: MANAGERS,
+        roles: MANAGER_ROLES,
       },
       {
         titleKey: "navigation.items.branches",
         href: "/branches",
         icon: Store,
-        roles: MANAGERS,
+        roles: MANAGER_ROLES,
       },
     ],
   },
@@ -121,7 +120,7 @@ export const NAVIGATION_SECTIONS: readonly NavSection[] = [
         titleKey: "navigation.items.reports",
         href: "/reports",
         icon: BarChart3,
-        roles: MANAGERS,
+        roles: MANAGER_ROLES,
       },
     ],
   },
@@ -139,7 +138,7 @@ export const NAVIGATION_SECTIONS: readonly NavSection[] = [
         titleKey: "navigation.items.settings",
         href: "/settings",
         icon: Settings,
-        roles: MANAGERS,
+        roles: MANAGER_ROLES,
       },
     ],
   },

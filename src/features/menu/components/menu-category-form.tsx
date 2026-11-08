@@ -14,8 +14,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { useMockData } from "@/features/shared/mock-data-provider";
 import type { ValidationErrors } from "@/features/shared/validation";
 import { useStatusLabel } from "@/i18n/use-labels";
-import type { MenuCategory, MenuCategoryInput, MenuCategoryStatus } from "../types";
-import { localizeMenuCategory } from "../selectors";
+import { createMenuCategoryContentDraft, resolveContentLocale } from "../content";
+import type {
+  MenuCategory,
+  MenuCategoryInput,
+  MenuCategoryStatus,
+  MenuContentLocale,
+} from "../types";
 import { validateMenuCategory } from "../validation";
 
 interface MenuCategoryFormProps {
@@ -28,9 +33,17 @@ export function MenuCategoryForm({ category }: MenuCategoryFormProps) {
   const { menuCategories, addMenuCategory, updateMenuCategory } = useMockData();
   const t = useTranslations("menu.categories.form");
   const tCommon = useTranslations("common");
+  const tContentEditing = useTranslations("menu.contentEditing");
+  const tLanguages = useTranslations("languages");
   const tValidation = useTranslations("validation");
   const statusLabel = useStatusLabel();
-  const categoryContent = category ? localizeMenuCategory(category, locale) : null;
+
+  // Capture the content-editing locale once. Changing the interface language
+  // after mount must never retarget the draft to another translation.
+  const [editingLocale] = useState<MenuContentLocale>(() => resolveContentLocale(locale));
+  const categoryContent = category ? createMenuCategoryContentDraft(category, editingLocale) : null;
+  const contentLocaleMismatch = resolveContentLocale(locale) !== editingLocale;
+
   const [name, setName] = useState(categoryContent?.name ?? "");
   const [description, setDescription] = useState(categoryContent?.description ?? "");
   const [status, setStatus] = useState<MenuCategoryStatus>(category?.status ?? "active");
@@ -44,7 +57,7 @@ export function MenuCategoryForm({ category }: MenuCategoryFormProps) {
       name,
       description,
       status,
-      contentLocale: locale === "en" ? "en" : "id",
+      contentLocale: editingLocale,
     };
     const nextErrors = validateMenuCategory(input, menuCategories, category?.id, tValidation);
     setErrors(nextErrors);
@@ -61,6 +74,23 @@ export function MenuCategoryForm({ category }: MenuCategoryFormProps) {
 
   return (
     <form onSubmit={handleSubmit} noValidate className="space-y-6">
+      <p
+        role={contentLocaleMismatch ? "alert" : "status"}
+        className={
+          contentLocaleMismatch
+            ? "rounded-lg border border-warning/25 bg-warning-soft/60 px-4 py-3 text-sm text-ink"
+            : "rounded-lg border border-line bg-surface-subtle px-4 py-3 text-sm text-ink-muted"
+        }
+      >
+        {contentLocaleMismatch
+          ? tContentEditing("mismatch", {
+              language: tLanguages(editingLocale),
+            })
+          : tContentEditing("notice", {
+              language: tLanguages(editingLocale),
+            })}
+      </p>
+
       {submitted && Object.keys(errors).length > 0 ? (
         <div
           role="alert"

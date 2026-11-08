@@ -13,13 +13,15 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useMockData } from "@/features/shared/mock-data-provider";
+import { useWorkspace } from "@/providers/workspace-provider";
 import { useLocalizedFormat } from "@/i18n/use-localized-format";
 import { useRoleLabel, useStatusLabel } from "@/i18n/use-labels";
 import { primaryAssignment } from "../selectors";
 
 export function StaffDetailScreen() {
   const params = useParams<{ id: string }>();
-  const { staff, branches, organization, setStaffStatus } = useMockData();
+  const { staff, setStaffStatus } = useMockData();
+  const { branches, organization } = useWorkspace();
   const t = useTranslations("staff.detail");
   const tCommon = useTranslations("common");
   const roleLabel = useRoleLabel();

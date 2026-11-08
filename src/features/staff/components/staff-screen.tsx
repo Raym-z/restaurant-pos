@@ -16,6 +16,7 @@ import { Card } from "@/components/ui/card";
 import { SearchInput } from "@/components/ui/search-input";
 import { Select } from "@/components/ui/select";
 import { useMockData } from "@/features/shared/mock-data-provider";
+import { useWorkspace } from "@/providers/workspace-provider";
 import { useLocalizedFormat } from "@/i18n/use-localized-format";
 import { useRoleLabel, useStatusLabel } from "@/i18n/use-labels";
 import type { StaffMember, StaffRole, StaffStatus } from "../types";
@@ -31,7 +32,8 @@ const STATUS_BADGES: Record<StaffStatus, "success" | "info" | "neutral"> = {
 };
 
 export function StaffScreen() {
-  const { staff, branches, organization } = useMockData();
+  const { staff } = useMockData();
+  const { branches, organization } = useWorkspace();
   const t = useTranslations("staff");
   const tCommon = useTranslations("common");
   const roleLabel = useRoleLabel();

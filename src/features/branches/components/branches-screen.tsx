@@ -14,6 +14,7 @@ import { Card } from "@/components/ui/card";
 import { SearchInput } from "@/components/ui/search-input";
 import { Select } from "@/components/ui/select";
 import { useMockData } from "@/features/shared/mock-data-provider";
+import { useWorkspace } from "@/providers/workspace-provider";
 import { useStatusLabel } from "@/i18n/use-labels";
 import type { Branch, BranchStatus } from "../types";
 import { filterBranches } from "../selectors";
@@ -27,7 +28,8 @@ const STATUS_BADGES: Record<BranchStatus, "success" | "warning" | "neutral"> = {
 };
 
 export function BranchesScreen() {
-  const { branches, staff } = useMockData();
+  const { branches } = useWorkspace();
+  const { staff } = useMockData();
   const t = useTranslations("branches");
   const tCommon = useTranslations("common");
   const statusLabel = useStatusLabel();

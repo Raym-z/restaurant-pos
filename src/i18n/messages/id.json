@@ -53,8 +53,7 @@
     "admin": "Administrator organisasi",
     "manager": "Manajer cabang",
     "cashier": "Kasir",
-    "kitchenStaff": "Staf dapur",
-    "host": "Host"
+    "kitchenStaff": "Staf dapur"
   },
   "status": {
     "active": "Aktif",
@@ -692,6 +691,10 @@
       "Hot": "Pedas",
       "Regular": "Reguler",
       "Large": "Besar"
+    },
+    "contentEditing": {
+      "notice": "Mengubah konten menu {language}.",
+      "mismatch": "Bahasa antarmuka berubah, tetapi formulir ini masih mengubah konten {language}. Kirim untuk menyimpan ke {language}, atau muat ulang halaman untuk mengubah bahasa lainnya."
     }
   },
   "placeholders": {

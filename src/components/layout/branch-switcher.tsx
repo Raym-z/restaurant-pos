@@ -24,16 +24,15 @@ export function BranchSwitcher() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button
-          variant="secondary"
-          size="sm"
-          className="h-9 max-w-[240px] gap-2 px-2.5"
-          aria-label={t("currentBranch", { branch: activeBranch.name })}
-        >
+        <Button variant="secondary" size="sm" className="h-9 max-w-[240px] gap-2 px-2.5">
           <MapPin className="text-brand" aria-hidden="true" />
+          <span className="sr-only">{t("switchBranch")}: </span>
+          <span className="sr-only sm:hidden">
+            {activeBranch.name}, {activeBranch.city}
+          </span>
           <span className="hidden min-w-0 flex-col items-start leading-tight sm:flex">
             <span className="max-w-[150px] truncate text-[13px] font-medium">
-              {activeBranch.shortName}
+              {activeBranch.name}
             </span>
             <span className="max-w-[150px] truncate text-[10px] font-normal text-ink-subtle">
               {activeBranch.city}
@@ -48,7 +47,7 @@ export function BranchSwitcher() {
           {branches.map((branch) => (
             <DropdownMenuRadioItem key={branch.id} value={branch.id} className="items-start py-2.5">
               <span className="flex flex-col">
-                <span className="text-sm font-medium text-ink">{branch.shortName}</span>
+                <span className="text-sm font-medium text-ink">{branch.name}</span>
                 <span className="text-xs text-ink-subtle">{branch.city}</span>
               </span>
             </DropdownMenuRadioItem>

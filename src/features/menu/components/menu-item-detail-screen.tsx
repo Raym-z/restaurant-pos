@@ -20,10 +20,16 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useMockData } from "@/features/shared/mock-data-provider";
+import { useWorkspace } from "@/providers/workspace-provider";
 import { useLocalizedFormat } from "@/i18n/use-localized-format";
 import { useStatusLabel, useTagLabel, useMenuContentLabel } from "@/i18n/use-labels";
 import type { MenuItemStatus } from "../types";
-import { effectivePriceMinor, localizeMenuCategory, localizeMenuItem } from "../selectors";
+import {
+  effectivePriceMinor,
+  isMenuItemAvailableAtBranch,
+  localizeMenuCategory,
+  localizeMenuItem,
+} from "../selectors";
 
 const STATUS_BADGES: Record<MenuItemStatus, "success" | "warning" | "neutral"> = {
   available: "success",
@@ -34,7 +40,8 @@ const STATUS_BADGES: Record<MenuItemStatus, "success" | "warning" | "neutral"> =
 export function MenuItemDetailScreen() {
   const params = useParams<{ id: string }>();
   const locale = useLocale();
-  const { menuItems, menuCategories, branches, organization } = useMockData();
+  const { menuItems, menuCategories } = useMockData();
+  const { branches, organization } = useWorkspace();
   const t = useTranslations("menu.item");
   const tCommon = useTranslations("common");
   const statusLabel = useStatusLabel();
@@ -121,7 +128,7 @@ export function MenuItemDetailScreen() {
                       const entry = item.branchAvailability.find(
                         (candidate) => candidate.branchId === branch.id,
                       );
-                      const available = entry?.isAvailable ?? false;
+                      const available = isMenuItemAvailableAtBranch(item, branch.id);
                       const hasOverride =
                         entry?.priceOverride !== null && entry?.priceOverride !== undefined;
                       return (

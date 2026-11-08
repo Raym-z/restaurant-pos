@@ -8,12 +8,12 @@ import { useParams } from "next/navigation";
 import { PageHeader, PageStack } from "@/components/layout/page";
 import { EmptyState } from "@/components/states/empty-state";
 import { Button } from "@/components/ui/button";
-import { useMockData } from "@/features/shared/mock-data-provider";
+import { useWorkspace } from "@/providers/workspace-provider";
 import { BranchForm } from "./branch-form";
 
 export function BranchEditScreen() {
   const params = useParams<{ id: string }>();
-  const { branches } = useMockData();
+  const { branches } = useWorkspace();
   const t = useTranslations("branches");
   const tForm = useTranslations("branches.form");
   const branch = branches.find((entry) => entry.id === params.id);

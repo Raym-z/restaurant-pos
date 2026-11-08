@@ -16,6 +16,7 @@ import {
   instantToDateInput,
   type ValidationErrors,
 } from "@/features/shared/validation";
+import { useWorkspace } from "@/providers/workspace-provider";
 import { useLocalizedFormat } from "@/i18n/use-localized-format";
 import { useStatusLabel } from "@/i18n/use-labels";
 import type { Branch, BranchInput, BusinessHours, Weekday } from "../types";
@@ -77,7 +78,8 @@ interface BranchFormProps {
 
 export function BranchForm({ branch }: BranchFormProps) {
   const router = useRouter();
-  const { organization, branches, staff, addBranch, updateBranch } = useMockData();
+  const { organization, branches, addBranch, updateBranch } = useWorkspace();
+  const { staff } = useMockData();
   const t = useTranslations("branches.form");
   const tValidation = useTranslations("validation");
   const tCommon = useTranslations("common");

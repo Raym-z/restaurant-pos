@@ -41,7 +41,7 @@ export function EmptyState({
         <Icon className={compact ? "size-5" : "size-6"} aria-hidden="true" />
       </span>
       <div className="space-y-1">
-        <h3 className="text-sm font-semibold text-ink">{title}</h3>
+        <h2 className="text-sm font-semibold text-ink">{title}</h2>
         {description ? (
           <p className="mx-auto max-w-md text-sm leading-6 text-ink-muted">{description}</p>
         ) : null}

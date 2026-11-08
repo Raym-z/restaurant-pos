@@ -15,7 +15,7 @@
   /* Text */
   --color-ink: #1b231f;
   --color-ink-muted: #5f6b64;
-  --color-ink-subtle: #8a948d;
+  --color-ink-subtle: #646f68;
 
   /* Borders */
   --color-line: #e5e2da;
@@ -144,11 +144,35 @@
 
 @layer components {
   .skip-link {
-    @apply sr-only rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white;
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    white-space: nowrap;
+    border: 0;
+    clip: rect(0, 0, 0, 0);
   }
 
   .skip-link:focus {
-    @apply not-sr-only fixed top-3 left-3 z-[100] shadow-popover;
+    position: fixed;
+    top: 0.75rem;
+    left: 0.75rem;
+    z-index: 100;
+    width: auto;
+    height: auto;
+    padding: 0.5rem 1rem;
+    margin: 0;
+    overflow: visible;
+    border-radius: var(--radius-lg);
+    background-color: var(--color-brand);
+    color: white;
+    font-size: var(--text-sm);
+    font-weight: 500;
+    white-space: normal;
+    box-shadow: var(--shadow-popover);
+    clip: auto;
   }
 }
 

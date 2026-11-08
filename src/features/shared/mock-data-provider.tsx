@@ -2,12 +2,8 @@
 
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
 
-import { mockOrganization } from "@/features/organization/data/organization";
-import type { Organization, OrganizationProfileInput } from "@/features/organization/types";
-import { mockBranches } from "@/features/branches/data/branches";
-import type { Branch, BranchInput } from "@/features/branches/types";
-import { mockStaff } from "@/features/staff/data/staff";
-import type { StaffInput, StaffMember, StaffStatus } from "@/features/staff/types";
+import { buildBranchAvailability } from "@/features/menu/availability";
+import { applyMenuCategoryContent, applyMenuItemContent } from "@/features/menu/content";
 import { mockMenuCategories, mockMenuItems } from "@/features/menu/data/menu";
 import type {
   MenuCategory,
@@ -17,16 +13,14 @@ import type {
   MenuText,
   MenuContentLocale,
 } from "@/features/menu/types";
+import { mockStaff } from "@/features/staff/data/staff";
+import type { StaffInput, StaffMember, StaffStatus } from "@/features/staff/types";
+import { useWorkspace } from "@/providers/workspace-provider";
 
 interface MockDataContextValue {
-  organization: Organization;
-  branches: Branch[];
   staff: StaffMember[];
   menuCategories: MenuCategory[];
   menuItems: MenuItem[];
-  updateOrganization: (input: OrganizationProfileInput) => void;
-  addBranch: (input: BranchInput) => Branch;
-  updateBranch: (branchId: string, input: BranchInput) => void;
   addStaff: (input: StaffInput) => StaffMember;
   updateStaff: (staffId: string, input: StaffInput) => void;
   setStaffStatus: (staffId: string, status: StaffStatus) => void;
@@ -43,54 +37,19 @@ function nowInstant(): string {
   return new Date().toISOString().replace(/\.\d{3}Z$/, "Z");
 }
 
-function toBranchAvailability(
-  input: MenuItemInput,
-  branchIds: string[],
-  existingOverrides?: Map<string, MenuItem["branchAvailability"][number]>,
-): MenuItem["branchAvailability"] {
-  return branchIds.map((branchId) => ({
-    branchId,
-    isAvailable: !input.unavailableBranchIds.includes(branchId),
-    priceOverride: existingOverrides?.get(branchId)?.priceOverride ?? null,
-  }));
-}
-
 /**
- * In-memory data store for the mock management experience.
+ * In-memory feature data store for the mock management experience.
  *
- * It mirrors the shape a future server-backed data layer will expose, but all
- * mutations are local to the browser session. Nothing here talks to Supabase.
+ * Organization and branch state are owned by `WorkspaceProvider` so branch CRUD
+ * immediately updates the shell switcher. This provider owns only feature data
+ * (staff and menu) and reads the shared workspace for organization/branch
+ * context. All mutations are local to the browser session.
  */
 export function MockDataProvider({ children }: { children: ReactNode }) {
-  const [organization, setOrganization] = useState<Organization>(mockOrganization);
-  const [branches, setBranches] = useState<Branch[]>(mockBranches);
+  const { organization, branches } = useWorkspace();
   const [staff, setStaff] = useState<StaffMember[]>(mockStaff);
   const [menuCategories, setMenuCategories] = useState<MenuCategory[]>(mockMenuCategories);
   const [menuItems, setMenuItems] = useState<MenuItem[]>(mockMenuItems);
-
-  const updateOrganization = useCallback((input: OrganizationProfileInput) => {
-    setOrganization((current) => ({ ...current, ...input }));
-  }, []);
-
-  const addBranch = useCallback(
-    (input: BranchInput) => {
-      const branch: Branch = {
-        ...input,
-        id: crypto.randomUUID(),
-        organizationId: organization.id,
-        createdAt: nowInstant(),
-      };
-      setBranches((current) => [...current, branch]);
-      return branch;
-    },
-    [organization.id],
-  );
-
-  const updateBranch = useCallback((branchId: string, input: BranchInput) => {
-    setBranches((current) =>
-      current.map((branch) => (branch.id === branchId ? { ...branch, ...input } : branch)),
-    );
-  }, []);
 
   const addStaff = useCallback(
     (input: StaffInput) => {
@@ -151,31 +110,11 @@ export function MockDataProvider({ children }: { children: ReactNode }) {
         if (category.id !== categoryId) {
           return category;
         }
-        const translations = { ...category.translations };
-        if (input.contentLocale === "en") {
-          translations.en = {
-            name: input.name,
-            description: input.description,
-          };
-          return {
-            ...category,
-            name: input.name,
-            description: input.description,
-            status: input.status,
-            translations,
-          };
-        }
-        translations[input.contentLocale] = {
-          name: input.name,
-          description: input.description,
+        return {
+          ...category,
+          ...applyMenuCategoryContent(category, input),
+          status: input.status,
         };
-        if (!translations.en) {
-          translations.en = {
-            name: category.name,
-            description: category.description,
-          };
-        }
-        return { ...category, status: input.status, translations };
       }),
     );
   }, []);
@@ -204,9 +143,9 @@ export function MockDataProvider({ children }: { children: ReactNode }) {
         tags: input.tags,
         variants: [],
         modifierGroups: [],
-        branchAvailability: toBranchAvailability(
-          input,
+        branchAvailability: buildBranchAvailability(
           branches.map((branch) => branch.id),
+          input.unavailableBranchIds,
         ),
         createdAt: timestamp,
         updatedAt: timestamp,
@@ -227,39 +166,19 @@ export function MockDataProvider({ children }: { children: ReactNode }) {
           const existingOverrides = new Map(
             item.branchAvailability.map((entry) => [entry.branchId, entry]),
           );
-          const translations = { ...item.translations };
-          if (input.contentLocale === "en") {
-            translations.en = {
-              name: input.name,
-              description: input.description,
-            };
-          } else {
-            translations[input.contentLocale] = {
-              name: input.name,
-              description: input.description,
-            };
-            if (!translations.en) {
-              translations.en = {
-                name: item.name,
-                description: item.description,
-              };
-            }
-          }
           return {
             ...item,
             categoryId: input.categoryId,
-            name: input.contentLocale === "en" ? input.name : item.name,
-            description: input.contentLocale === "en" ? input.description : item.description,
-            translations,
+            ...applyMenuItemContent(item, input),
             basePrice: {
               ...item.basePrice,
               amountMinor: input.basePriceMinor,
             },
             status: input.status,
             tags: input.tags,
-            branchAvailability: toBranchAvailability(
-              input,
+            branchAvailability: buildBranchAvailability(
               branches.map((branch) => branch.id),
+              input.unavailableBranchIds,
               existingOverrides,
             ),
             updatedAt: nowInstant(),
@@ -280,14 +199,9 @@ export function MockDataProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo<MockDataContextValue>(
     () => ({
-      organization,
-      branches,
       staff,
       menuCategories,
       menuItems,
-      updateOrganization,
-      addBranch,
-      updateBranch,
       addStaff,
       updateStaff,
       setStaffStatus,
@@ -298,14 +212,9 @@ export function MockDataProvider({ children }: { children: ReactNode }) {
       setMenuItemStatus,
     }),
     [
-      organization,
-      branches,
       staff,
       menuCategories,
       menuItems,
-      updateOrganization,
-      addBranch,
-      updateBranch,
       addStaff,
       updateStaff,
       setStaffStatus,

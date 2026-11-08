@@ -53,8 +53,7 @@
     "admin": "Organization administrator",
     "manager": "Branch manager",
     "cashier": "Cashier",
-    "kitchenStaff": "Kitchen staff",
-    "host": "Host"
+    "kitchenStaff": "Kitchen staff"
   },
   "status": {
     "active": "Active",
@@ -692,6 +691,10 @@
       "Hot": "Hot",
       "Regular": "Regular",
       "Large": "Large"
+    },
+    "contentEditing": {
+      "notice": "Editing {language} menu content.",
+      "mismatch": "The interface language changed, but this form is still editing {language} content. Submit to save to {language}, or reload the page to edit the other language."
     }
   },
   "placeholders": {

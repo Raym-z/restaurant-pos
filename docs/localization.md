@@ -21,6 +21,7 @@ independent of the selected interface language.
   numbers, percentages, weekdays, and business-hour times.
 - `src/i18n/use-labels.ts` — display labels for internal role/status/tag
   identifiers.
+- `src/i18n/role-keys.ts` — canonical role-identifier-to-label key mapping.
 - `src/components/layout/language-switcher.tsx` — compact shell selector.
 
 `src/app/layout.tsx` wraps the application in `NextIntlClientProvider`. The
@@ -48,14 +49,44 @@ presentation changes.
 currency formatters. Feature modules do not implement their own currency
 formatting.
 
+## Menu content editing
+
+Seeded menu items and categories keep canonical English base content plus an
+optional `translations.id` override. User-authored content can therefore be
+edited in either interface language.
+
+The edit forms capture the content-editing locale once at mount
+(`resolveContentLocale`) and always submit to that locale. Changing the
+interface language while a form is open cannot retarget the draft to another
+translation. A visible notice confirms the content language; if the interface
+language changes, a warning explains that the form is still editing the original
+language.
+
+`src/features/menu/content.ts` owns the pure content-merge logic, which preserves
+the other language's stored content. Regression tests cover switching language
+while editing, saving, and reopening.
+
+Menu search includes the canonical content, the matching localized name and
+description, raw tag identifiers, and localized tag labels. Searching `terong`
+in Indonesian therefore finds `Saus Terong Bakar`, while searching `eggplant`
+in English still finds the base content.
+
 ## Adding translations
 
 1. Add the key to both `id.json` and `en.json` (keep key parity).
 2. Use `useTranslations(namespace)` in client components or
    `getTranslations(namespace)` in server components.
-3. Keep internal identifiers and enum values language-neutral. Translate labels
-   through `useRoleLabel`, `useStatusLabel`, `useTagLabel`, or dictionary keys.
+3. Keep internal identifiers and enum values language-neutral. The only
+   supported role identifiers are `owner`, `admin`, `manager`, `cashier`, and
+   `kitchen_staff`; translate labels through `useRoleLabel`, `useStatusLabel`,
+   `useTagLabel`, or dictionary keys.
 4. Use ICU messages for plurals and interpolated values.
+
+## Tests
+
+Run `npm run test` from the repository root. The suite covers menu content locale
+safety, localized menu search, the five-role navigation contract, and shared
+workspace/branch state.
 
 ## Scope boundaries
 

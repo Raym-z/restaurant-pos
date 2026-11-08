@@ -45,6 +45,10 @@ export interface ModifierGroup {
 
 export interface BranchMenuAvailability {
   branchId: Uuid;
+  /**
+   * Explicit availability. A missing entry for a branch defaults to available,
+   * so new branches inherit existing menu items; only `false` hides an item.
+   */
   isAvailable: boolean;
   /** Branch-specific price override; null uses the menu item base price. */
   priceOverride: Money | null;

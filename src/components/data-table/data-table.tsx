@@ -60,7 +60,7 @@ export function DataTable<T>({
 
   return (
     <TableContainer className={className} aria-busy={isLoading || undefined}>
-      <Table>
+      <Table aria-label={caption ? undefined : ariaLabel}>
         {caption ? <TableCaption className="sr-only">{caption}</TableCaption> : null}
         <TableHeader>
           <TableRow>
@@ -126,7 +126,6 @@ export function DataTable<T>({
           </TableFooter>
         ) : null}
       </Table>
-      <span className="sr-only">{ariaLabel}</span>
     </TableContainer>
   );
 }

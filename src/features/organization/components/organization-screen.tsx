@@ -13,12 +13,14 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useLocalizedFormat } from "@/i18n/use-localized-format";
 import { useMockData } from "@/features/shared/mock-data-provider";
+import { useWorkspace } from "@/providers/workspace-provider";
 import type { ValidationErrors } from "@/features/shared/validation";
 import type { OrganizationProfileInput } from "../types";
 import { validateOrganizationProfile } from "../validation";
 
 export function OrganizationScreen() {
-  const { organization, branches, staff, menuItems, updateOrganization } = useMockData();
+  const { organization, branches, updateOrganization } = useWorkspace();
+  const { staff, menuItems } = useMockData();
   const t = useTranslations("organization");
   const tValidation = useTranslations("validation");
   const tCommon = useTranslations("common");

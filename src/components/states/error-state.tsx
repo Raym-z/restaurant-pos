@@ -46,7 +46,7 @@ export function ErrorState({
         <TriangleAlert className={compact ? "size-5" : "size-6"} aria-hidden="true" />
       </span>
       <div className="space-y-1">
-        <h3 className="text-sm font-semibold text-ink">{title ?? t("errorTitle")}</h3>
+        <h2 className="text-sm font-semibold text-ink">{title ?? t("errorTitle")}</h2>
         <p className="mx-auto max-w-md text-sm leading-6 text-ink-muted">
           {description ?? t("errorDescription")}
         </p>

@@ -30,6 +30,18 @@ A user must never gain access to another organization's data simply by changing 
 
 The following roles are the initial recommended role templates.
 
+The implementation uses exactly these five language-neutral identifiers. Do not
+introduce legacy aliases such as `org_admin`, `branch_manager`, `kitchen`, or
+`host`.
+
+| Display name              | Identifier      | Typical scope                     |
+| ------------------------- | --------------- | --------------------------------- |
+| Organization owner        | `owner`         | Organization                      |
+| Organization administrator | `admin`        | Organization or assigned branch   |
+| Branch manager            | `manager`       | Assigned branch                   |
+| Cashier                   | `cashier`       | Assigned branch                   |
+| Kitchen staff             | `kitchen_staff` | Assigned branch                   |
+
 ### 3.1 Organization Owner
 
 The organization owner has the highest level of access within their restaurant organization.
@@ -101,19 +113,8 @@ Responsibilities:
 
 Kitchen staff should not automatically have access to cashier operations, payment records, staff management, or administrative settings.
 
-### 3.6 Host / Queue Staff
-
-Host or queue staff manage customer arrivals and the restaurant waitlist.
-
-Responsibilities:
-
-- View active queue entries for assigned branches.
-- Register or check in customers where permitted.
-- Call customers.
-- Update queue status.
-- Mark customers as seated or remove entries according to permitted workflows.
-
-Queue staff should not automatically have access to financial reports or payment operations.
+Queue operations are available to the existing floor and management roles. The
+initial release does not include a separate host or queue-staff role.
 
 ## 4. Permission Categories
 
@@ -141,19 +142,19 @@ The exact permission identifiers and their implementation must be defined centra
 
 The following matrix describes the intended default access model.
 
-| Module                   | Owner | Org Admin | Branch Manager | Cashier | Kitchen | Host    |
-| ------------------------ | ----- | --------- | -------------- | ------- | ------- | ------- |
-| Organization settings    | Full  | Limited   | —              | —       | —       | —       |
-| Branch management        | Full  | Manage    | Assigned       | —       | —       | —       |
-| Staff management         | Full  | Manage    | Assigned       | —       | —       | —       |
-| Menu management          | Full  | Manage    | Assigned       | View    | View    | —       |
-| Table management         | Full  | Manage    | Assigned       | Operate | —       | —       |
-| POS and orders           | Full  | Manage    | Manage         | Operate | View    | —       |
-| Cash payments            | Full  | Manage    | Manage         | Record  | —       | —       |
-| KDS                      | Full  | Manage    | Manage         | View    | Operate | —       |
-| Queue management         | Full  | Manage    | Manage         | View    | —       | Operate |
-| Reports                  | Full  | View      | Branch         | —       | —       | —       |
-| Subscription and billing | Full  | —         | —              | —       | —       | —       |
+| Module                   | Owner | Admin   | Manager  | Cashier | Kitchen staff |
+| ------------------------ | ----- | ------- | -------- | ------- | ------------- |
+| Organization settings    | Full  | Limited | —        | —       | —             |
+| Branch management        | Full  | Manage  | Assigned | —       | —             |
+| Staff management         | Full  | Manage  | Assigned | —       | —             |
+| Menu management          | Full  | Manage  | Assigned | View    | View          |
+| Table management         | Full  | Manage  | Assigned | Operate | —             |
+| POS and orders           | Full  | Manage  | Manage   | Operate | View          |
+| Cash payments            | Full  | Manage  | Manage   | Record  | —             |
+| KDS                      | Full  | Manage  | Manage   | View    | Operate       |
+| Queue management         | Full  | Manage  | Manage   | View    | —             |
+| Reports                  | Full  | View    | Branch   | —       | —             |
+| Subscription and billing | Full  | —       | —        | —       | —             |
 
 **Legend:**
 

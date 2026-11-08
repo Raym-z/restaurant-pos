@@ -15,10 +15,16 @@ import { Card } from "@/components/ui/card";
 import { SearchInput } from "@/components/ui/search-input";
 import { Select } from "@/components/ui/select";
 import { useMockData } from "@/features/shared/mock-data-provider";
+import { useWorkspace } from "@/providers/workspace-provider";
 import { useLocalizedFormat } from "@/i18n/use-localized-format";
 import { useStatusLabel, useTagLabel } from "@/i18n/use-labels";
 import type { MenuItem, MenuItemStatus } from "../types";
-import { filterMenuItems, localizeMenuCategory, localizeMenuItem } from "../selectors";
+import {
+  availableBranchCount,
+  filterMenuItems,
+  localizeMenuCategory,
+  localizeMenuItem,
+} from "../selectors";
 
 const PAGE_SIZE = 10;
 
@@ -29,7 +35,8 @@ const STATUS_BADGES: Record<MenuItemStatus, "success" | "warning" | "neutral"> =
 };
 
 export function MenuScreen() {
-  const { menuItems, menuCategories, branches, organization } = useMockData();
+  const { menuItems, menuCategories } = useMockData();
+  const { branches, organization, activeBranch, setActiveBranch } = useWorkspace();
   const locale = useLocale();
   const t = useTranslations("menu");
   const tCommon = useTranslations("common");
@@ -39,8 +46,19 @@ export function MenuScreen() {
   const [query, setQuery] = useState("");
   const [categoryId, setCategoryId] = useState("all");
   const [status, setStatus] = useState<MenuItemStatus | "all">("all");
-  const [branchId, setBranchId] = useState("all");
+  // `null` follows the workspace's active branch. Selecting "All branches"
+  // stores an explicit override; a header branch change clears it again.
+  const [branchOverride, setBranchOverride] = useState<string | null>(null);
+  const [lastActiveBranchId, setLastActiveBranchId] = useState(activeBranch.id);
   const [page, setPage] = useState(1);
+
+  if (lastActiveBranchId !== activeBranch.id) {
+    setLastActiveBranchId(activeBranch.id);
+    setBranchOverride(null);
+    setPage(1);
+  }
+
+  const branchId = branchOverride ?? activeBranch.id;
 
   const categoryById = useMemo(
     () => new Map(menuCategories.map((category) => [category.id, category])),
@@ -52,6 +70,8 @@ export function MenuScreen() {
     categoryId,
     status,
     branchId,
+    locale,
+    tagLabel,
   });
   const totalPages = Math.max(1, Math.ceil(visibleItems.length / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
@@ -117,7 +137,10 @@ export function MenuScreen() {
       header: t("table.availability"),
       className: "whitespace-nowrap",
       cell: (item) => {
-        const availableCount = item.branchAvailability.filter((entry) => entry.isAvailable).length;
+        const availableCount = availableBranchCount(
+          item,
+          branches.map((branch) => branch.id),
+        );
         const hasOverride = item.branchAvailability.some((entry) => entry.priceOverride !== null);
         return (
           <div>
@@ -236,7 +259,13 @@ export function MenuScreen() {
             <Select
               value={branchId}
               onChange={(event) => {
-                setBranchId(event.target.value);
+                const nextBranchId = event.target.value;
+                if (nextBranchId === "all") {
+                  setBranchOverride("all");
+                } else {
+                  setBranchOverride(null);
+                  setActiveBranch(nextBranchId);
+                }
                 resetPage();
               }}
               className="h-10 w-44"
@@ -273,7 +302,7 @@ export function MenuScreen() {
                       setQuery("");
                       setCategoryId("all");
                       setStatus("all");
-                      setBranchId("all");
+                      setBranchOverride("all");
                       resetPage();
                     }}
                   >

@@ -32,7 +32,7 @@ export function UnauthorizedState({
         <ShieldAlert className="size-6" aria-hidden="true" />
       </span>
       <div className="mt-4 space-y-1.5">
-        <h3 className="text-base font-semibold text-ink">{title ?? t("unauthorizedTitle")}</h3>
+        <h2 className="text-base font-semibold text-ink">{title ?? t("unauthorizedTitle")}</h2>
         <p className="mx-auto max-w-md text-sm leading-6 text-ink-muted">
           {description ?? t("unauthorizedDescription")}
         </p>

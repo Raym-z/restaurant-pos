@@ -19,10 +19,6 @@ const geistMono = Geist_Mono({
 
 const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
-// Locale is resolved from a cookie in the root layout, so route output is
-// intentionally rendered per request rather than prerendered as a static shell.
-export const instant = false;
-
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("meta");
   return {

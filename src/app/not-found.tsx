@@ -15,7 +15,10 @@ export default async function NotFound() {
   const t = await getTranslations("states");
 
   return (
-    <main className="flex min-h-svh items-center justify-center bg-canvas px-6 py-16">
+    <main
+      id="main-content"
+      className="flex min-h-svh items-center justify-center bg-canvas px-6 py-16"
+    >
       <div className="w-full max-w-md text-center">
         <div className="flex justify-center">
           <Brand subtitle={t("notFoundBrandSubtitle")} />

@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useMockData } from "@/features/shared/mock-data-provider";
+import { useWorkspace } from "@/providers/workspace-provider";
 import { useLocalizedFormat } from "@/i18n/use-localized-format";
 import { useRoleLabel, useStatusLabel } from "@/i18n/use-labels";
 import type { Weekday } from "../types";
@@ -26,7 +27,8 @@ const STATUS_BADGES = {
 
 export function BranchDetailScreen() {
   const params = useParams<{ id: string }>();
-  const { branches, staff } = useMockData();
+  const { branches } = useWorkspace();
+  const { staff } = useMockData();
   const t = useTranslations("branches.detail");
   const tCommon = useTranslations("common");
   const tStatus = useTranslations("status");

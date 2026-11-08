@@ -11,6 +11,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { useMockData } from "@/features/shared/mock-data-provider";
+import { useWorkspace } from "@/providers/workspace-provider";
 import type { ValidationErrors } from "@/features/shared/validation";
 import { useRoleLabel } from "@/i18n/use-labels";
 import type { RoleScope, StaffInput, StaffMember, StaffRole } from "../types";
@@ -36,12 +37,13 @@ interface StaffFormProps {
 
 export function StaffForm({ member }: StaffFormProps) {
   const router = useRouter();
-  const { branches, staff, addStaff, updateStaff } = useMockData();
+  const { branches, activeBranch } = useWorkspace();
+  const { staff, addStaff, updateStaff } = useMockData();
   const t = useTranslations("staff.form");
   const tCommon = useTranslations("common");
   const tValidation = useTranslations("validation");
   const roleLabel = useRoleLabel();
-  const firstBranchId = branches[0]?.id ?? "";
+  const defaultBranchId = activeBranch.id;
   const initialAssignment = member?.assignments[0];
 
   const [fullName, setFullName] = useState(member?.fullName ?? "");
@@ -49,7 +51,7 @@ export function StaffForm({ member }: StaffFormProps) {
   const [phone, setPhone] = useState(member?.phone ?? "");
   const [role, setRole] = useState<StaffRole>(initialAssignment?.role ?? "cashier");
   const [scope, setScope] = useState<RoleScope>(initialAssignment?.scope ?? "branch");
-  const [branchId, setBranchId] = useState(initialAssignment?.branchId ?? firstBranchId);
+  const [branchId, setBranchId] = useState(initialAssignment?.branchId ?? defaultBranchId);
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [submitted, setSubmitted] = useState(false);
 

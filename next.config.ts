@@ -2,9 +2,8 @@ import createNextIntlPlugin from "next-intl/plugin";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
-  cacheComponents: true,
-  partialPrefetching: true,
+  // Keep agent instructions in AGENTS.md stable; do not rewrite them on dev start.
+  agentRules: false,
   turbopack: {
     rules: {
       "*.css": {

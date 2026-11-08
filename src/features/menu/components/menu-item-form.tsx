@@ -12,11 +12,14 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useMockData } from "@/features/shared/mock-data-provider";
+import { useWorkspace } from "@/providers/workspace-provider";
 import type { ValidationErrors } from "@/features/shared/validation";
 import { formatMoneyInput, parseMoneyInput } from "@/lib/currency";
 import { useStatusLabel } from "@/i18n/use-labels";
-import type { MenuItem, MenuItemInput, MenuItemStatus } from "../types";
-import { localizeMenuCategory, localizeMenuItem } from "../selectors";
+import { toggleUnavailableBranch, unavailableBranchIdsForItem } from "../availability";
+import { createMenuItemContentDraft, resolveContentLocale } from "../content";
+import type { MenuContentLocale, MenuItem, MenuItemInput, MenuItemStatus } from "../types";
+import { localizeMenuCategory } from "../selectors";
 import { validateMenuItem } from "../validation";
 
 interface MenuItemFormProps {
@@ -26,16 +29,24 @@ interface MenuItemFormProps {
 export function MenuItemForm({ item }: MenuItemFormProps) {
   const router = useRouter();
   const locale = useLocale();
-  const { menuCategories, menuItems, branches, organization, addMenuItem, updateMenuItem } =
-    useMockData();
+  const { menuCategories, menuItems, addMenuItem, updateMenuItem } = useMockData();
+  const { branches, organization } = useWorkspace();
   const t = useTranslations("menu.form");
   const tCommon = useTranslations("common");
+  const tContentEditing = useTranslations("menu.contentEditing");
+  const tLanguages = useTranslations("languages");
   const tValidation = useTranslations("validation");
   const statusLabel = useStatusLabel();
   const activeCategories = menuCategories.filter(
     (category) => category.status === "active" || category.id === item?.categoryId,
   );
-  const itemContent = item ? localizeMenuItem(item, locale) : null;
+
+  // Capture the content-editing locale once. Changing the interface language
+  // after mount must never retarget the draft to another translation.
+  const [editingLocale] = useState<MenuContentLocale>(() => resolveContentLocale(locale));
+  const itemContent = item ? createMenuItemContentDraft(item, editingLocale) : null;
+  const interfaceLocale = resolveContentLocale(locale);
+  const contentLocaleMismatch = interfaceLocale !== editingLocale;
 
   const [categoryId, setCategoryId] = useState(item?.categoryId ?? activeCategories[0]?.id ?? "");
   const [name, setName] = useState(itemContent?.name ?? "");
@@ -46,21 +57,13 @@ export function MenuItemForm({ item }: MenuItemFormProps) {
   const [status, setStatus] = useState<MenuItemStatus>(item?.status ?? "available");
   const [tags, setTags] = useState(item?.tags.join(", ") ?? "");
   const [unavailableBranchIds, setUnavailableBranchIds] = useState<string[]>(
-    item
-      ? item.branchAvailability.filter((entry) => !entry.isAvailable).map((entry) => entry.branchId)
-      : [],
+    item ? unavailableBranchIdsForItem(item) : [],
   );
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [submitted, setSubmitted] = useState(false);
 
   function toggleBranch(branchId: string, available: boolean) {
-    setUnavailableBranchIds((current) =>
-      available
-        ? current.filter((id) => id !== branchId)
-        : current.includes(branchId)
-          ? current
-          : [...current, branchId],
-    );
+    setUnavailableBranchIds((current) => toggleUnavailableBranch(current, branchId, available));
   }
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -79,7 +82,7 @@ export function MenuItemForm({ item }: MenuItemFormProps) {
         .map((tag) => tag.trim().toLowerCase())
         .filter(Boolean),
       unavailableBranchIds,
-      contentLocale: locale === "en" ? "en" : "id",
+      contentLocale: editingLocale,
     };
     const nextErrors = validateMenuItem(
       input,
@@ -105,6 +108,23 @@ export function MenuItemForm({ item }: MenuItemFormProps) {
 
   return (
     <form onSubmit={handleSubmit} noValidate className="space-y-6">
+      <p
+        role={contentLocaleMismatch ? "alert" : "status"}
+        className={
+          contentLocaleMismatch
+            ? "rounded-lg border border-warning/25 bg-warning-soft/60 px-4 py-3 text-sm text-ink"
+            : "rounded-lg border border-line bg-surface-subtle px-4 py-3 text-sm text-ink-muted"
+        }
+      >
+        {contentLocaleMismatch
+          ? tContentEditing("mismatch", {
+              language: tLanguages(editingLocale),
+            })
+          : tContentEditing("notice", {
+              language: tLanguages(editingLocale),
+            })}
+      </p>
+
       {submitted && Object.keys(errors).length > 0 ? (
         <div
           role="alert"

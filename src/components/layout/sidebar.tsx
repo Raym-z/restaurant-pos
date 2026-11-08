@@ -17,10 +17,10 @@ interface SidebarProps {
 }
 
 export function Sidebar({ collapsed, onToggle }: SidebarProps) {
-  const { organization, user, activeBranch } = useWorkspace();
+  const { organization, user, activeBranch, planLabel: planLabelText } = useWorkspace();
   const t = useTranslations("shell");
-  const planKey = organization.planLabel.replace(/\s*plan$/i, "").toLowerCase();
-  const planLabel = t.has(`plans.${planKey}`) ? t(`plans.${planKey}`) : organization.planLabel;
+  const planKey = planLabelText.replace(/\s*plan$/i, "").toLowerCase();
+  const planLabel = t.has(`plans.${planKey}`) ? t(`plans.${planKey}`) : planLabelText;
 
   return (
     <aside
@@ -95,7 +95,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
             </div>
             <div className="mt-1.5 flex items-center gap-2">
               <span className="size-1.5 shrink-0 rounded-full bg-success" aria-hidden="true" />
-              <p className="truncate text-[13px] font-medium text-ink">{activeBranch.shortName}</p>
+              <p className="truncate text-[13px] font-medium text-ink">{activeBranch.name}</p>
             </div>
             <div className="mt-1 flex items-start gap-1.5 text-[11px] leading-4 text-ink-subtle">
               <MapPin className="mt-0.5 size-3 shrink-0" aria-hidden="true" />

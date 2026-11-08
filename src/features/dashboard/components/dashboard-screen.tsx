@@ -4,6 +4,7 @@ import { useLocale, useTranslations } from "next-intl";
 
 import { PageHeader, PageStack } from "@/components/layout/page";
 import { useMockData } from "@/features/shared/mock-data-provider";
+import { useWorkspace } from "@/providers/workspace-provider";
 import { localizeMenuCategory, localizeMenuItem } from "@/features/menu/selectors";
 import { useLocalizedFormat } from "@/i18n/use-localized-format";
 import { mockDashboard } from "../data/dashboard";
@@ -16,7 +17,8 @@ import { SalesTrend } from "./sales-trend";
 import { TopSellingItems } from "./top-selling-items";
 
 export function DashboardScreen() {
-  const { organization, branches, menuItems, menuCategories } = useMockData();
+  const { organization, branches } = useWorkspace();
+  const { menuItems, menuCategories } = useMockData();
   const locale = useLocale();
   const t = useTranslations("dashboard");
   const format = useLocalizedFormat();

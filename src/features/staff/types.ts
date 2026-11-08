@@ -1,12 +1,14 @@
 import type { IsoInstant, Uuid } from "@/features/shared/domain";
+import {
+  BRANCH_SCOPED_ROLES,
+  ORGANIZATION_SCOPED_ROLES,
+  STAFF_ROLES,
+  STAFF_ROLE_LABELS,
+  type StaffRole,
+} from "@/types/roles";
 
-/**
- * The five initial staff roles defined by the shared role contract. Custom
- * roles are not part of the initial release (see docs/roles-and-permissions.md).
- */
-export const STAFF_ROLES = ["owner", "admin", "manager", "cashier", "kitchen_staff"] as const;
-
-export type StaffRole = (typeof STAFF_ROLES)[number];
+export { BRANCH_SCOPED_ROLES, ORGANIZATION_SCOPED_ROLES, STAFF_ROLES, STAFF_ROLE_LABELS };
+export type { StaffRole };
 
 export type RoleScope = "organization" | "branch";
 
@@ -38,23 +40,8 @@ export interface StaffInput {
   assignments: StaffRoleAssignment[];
 }
 
-export const STAFF_ROLE_LABELS: Record<StaffRole, string> = {
-  owner: "Organization owner",
-  admin: "Organization admin",
-  manager: "Branch manager",
-  cashier: "Cashier",
-  kitchen_staff: "Kitchen staff",
-};
-
 export const STAFF_STATUS_LABELS: Record<StaffStatus, string> = {
   active: "Active",
   invited: "Invited",
   inactive: "Inactive",
 };
-
-/**
- * Roles that are always organization-scoped, and roles that are branch-scoped,
- * following the shared role contract. Admin may use either scope.
- */
-export const ORGANIZATION_SCOPED_ROLES: readonly StaffRole[] = ["owner"];
-export const BRANCH_SCOPED_ROLES: readonly StaffRole[] = ["manager", "cashier", "kitchen_staff"];

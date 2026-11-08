@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, Globe } from "lucide-react";
+import { Globe } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { startTransition } from "react";
@@ -48,7 +48,7 @@ export function LanguageSwitcher() {
           variant="secondary"
           size="sm"
           className="h-9 gap-1.5 px-2.5"
-          aria-label={`${t("language")}: ${tLanguages(locale)}`}
+          aria-label={`${t("language")}: ${tLanguages(locale)} (${locale.toUpperCase()})`}
         >
           <Globe className="text-brand" aria-hidden="true" />
           <span className="text-[13px] font-medium">{locale.toUpperCase()}</span>
@@ -63,16 +63,11 @@ export function LanguageSwitcher() {
         >
           {APP_LOCALES.map((option) => (
             <DropdownMenuRadioItem key={option} value={option}>
-              <span className="flex w-full items-center justify-between gap-3">
-                <span>
-                  <span className="block text-sm font-medium text-ink">{tLanguages(option)}</span>
-                  <span className="block text-xs text-ink-subtle">
-                    {option === "id" ? "Indonesia" : "English"}
-                  </span>
+              <span className="flex flex-col">
+                <span className="text-sm font-medium text-ink">{tLanguages(option)}</span>
+                <span className="text-xs text-ink-subtle">
+                  {option === "id" ? "Indonesia" : "English"}
                 </span>
-                {option === locale ? (
-                  <Check className="size-4 text-brand" aria-hidden="true" />
-                ) : null}
               </span>
             </DropdownMenuRadioItem>
           ))}

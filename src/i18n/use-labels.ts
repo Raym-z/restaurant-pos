@@ -2,17 +2,7 @@
 
 import { useTranslations } from "next-intl";
 
-const ROLE_KEYS: Record<string, string> = {
-  owner: "owner",
-  admin: "admin",
-  org_admin: "admin",
-  manager: "manager",
-  branch_manager: "manager",
-  cashier: "cashier",
-  kitchen: "kitchenStaff",
-  kitchen_staff: "kitchenStaff",
-  host: "host",
-};
+import { roleTranslationKey } from "./role-keys";
 
 const STATUS_KEYS: Record<string, string> = {
   active: "active",
@@ -33,7 +23,7 @@ const STATUS_KEYS: Record<string, string> = {
 export function useRoleLabel() {
   const t = useTranslations("roles");
   return (role: string): string => {
-    const key = ROLE_KEYS[role];
+    const key = roleTranslationKey(role);
     return key && t.has(key) ? t(key) : role;
   };
 }

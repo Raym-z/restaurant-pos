@@ -1,126 +1,81 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useReducer } from "react";
+import { createContext, useCallback, useContext, useMemo, useState } from "react";
 
-import type { Branch, BranchInput } from "@/features/branches/types";
-import type { Organization, OrganizationProfileInput } from "@/features/organization/types";
-import type { StaffUser, WorkspaceSnapshot } from "@/types/workspace";
-
-import {
-  createWorkspaceState,
-  getActiveBranch,
-  persistActiveBranchId,
-  readStoredActiveBranchId,
-  workspaceReducer,
-} from "./workspace-state";
+import { setActiveBranchAction } from "@/features/workspace/actions";
+import { findActiveBranch } from "@/features/workspace/branch-selection";
+import type {
+  BranchSwitchResult,
+  WorkspaceBranch,
+  WorkspaceContext,
+  WorkspaceOrganization,
+  WorkspaceUser,
+} from "@/features/workspace/types";
 
 export interface WorkspaceContextValue {
-  organization: Organization;
-  user: StaffUser;
-  planLabel: string;
-  branches: Branch[];
-  activeBranch: Branch;
+  organization: WorkspaceOrganization;
+  user: WorkspaceUser;
+  planLabel: string | null;
+  branches: WorkspaceBranch[];
+  activeBranch: WorkspaceBranch;
   activeBranchId: string;
-  setActiveBranch: (branchId: string) => void;
-  updateOrganization: (input: OrganizationProfileInput) => void;
-  addBranch: (input: BranchInput) => Branch;
-  updateBranch: (branchId: string, input: BranchInput) => void;
+  assignedBranchIds: string[];
+  isOrganizationScoped: boolean;
+  isOrgAdmin: boolean;
+  setActiveBranch: (branchId: string) => Promise<BranchSwitchResult>;
 }
 
 const WorkspaceContext = createContext<WorkspaceContextValue | null>(null);
 
 interface WorkspaceProviderProps {
-  workspace: WorkspaceSnapshot;
+  workspace: WorkspaceContext;
   children: React.ReactNode;
 }
 
-function nowInstant(): string {
-  return new Date().toISOString().replace(/\.\d{3}Z$/, "Z");
-}
-
 /**
- * Client-side workspace context for the application shell.
+ * Client-side workspace context for the authenticated shell.
  *
- * This provider is the single source of truth for the mock organization,
- * current user, branch collection, and active branch. Feature data providers
- * consume this context instead of keeping a second branch collection.
- *
- * This is deliberately mock-backed in Phase 1. In Phase 2 it should be fed by
- * the authenticated staff session and server-validated organization/branch
- * access. Switching branches here is a UI preference only; every backend
- * operation must still be authorized server-side.
+ * The initial snapshot comes from server-side, RLS-protected reads. Branch
+ * switching is a UI preference validated by a Server Action against the
+ * accessible branch collection; it never grants authorization by itself.
  */
 export function WorkspaceProvider({ workspace, children }: WorkspaceProviderProps) {
-  const [state, dispatch] = useReducer(workspaceReducer, workspace, createWorkspaceState);
+  const [activeBranchId, setActiveBranchId] = useState(workspace.activeBranchId);
 
-  // Restore a previously selected branch after hydration. The server and first
-  // client render use the snapshot default so hydration output stays stable.
-  useEffect(() => {
-    const stored = readStoredActiveBranchId(window.localStorage);
-    if (stored) {
-      dispatch({ type: "setActiveBranch", branchId: stored });
+  const setActiveBranch = useCallback(async (branchId: string): Promise<BranchSwitchResult> => {
+    const result = await setActiveBranchAction(branchId);
+    if (result.ok) {
+      setActiveBranchId(branchId);
     }
+    return result;
   }, []);
 
-  const setActiveBranch = useCallback(
-    (branchId: string) => {
-      if (!state.branches.some((branch) => branch.id === branchId)) {
-        return;
-      }
-      dispatch({ type: "setActiveBranch", branchId });
-      persistActiveBranchId(window.localStorage, branchId);
-    },
-    [state.branches],
-  );
-
-  const updateOrganization = useCallback((input: OrganizationProfileInput) => {
-    dispatch({ type: "updateOrganization", input });
-  }, []);
-
-  const addBranch = useCallback(
-    (input: BranchInput) => {
-      const branch: Branch = {
-        ...input,
-        id: crypto.randomUUID(),
-        organizationId: state.organization.id,
-        createdAt: nowInstant(),
-      };
-      dispatch({ type: "addBranch", branch });
-      return branch;
-    },
-    [state.organization.id],
-  );
-
-  const updateBranch = useCallback((branchId: string, input: BranchInput) => {
-    dispatch({ type: "updateBranch", branchId, input });
-  }, []);
-
-  const activeBranch = getActiveBranch(state);
+  const activeBranch =
+    findActiveBranch(activeBranchId, workspace.branches) ?? workspace.activeBranch;
 
   const value = useMemo<WorkspaceContextValue>(
     () => ({
-      organization: state.organization,
-      user: state.user,
-      planLabel: state.planLabel,
-      branches: state.branches,
+      organization: workspace.organization,
+      user: workspace.user,
+      planLabel: workspace.planLabel,
+      branches: workspace.branches,
       activeBranch,
-      activeBranchId: state.activeBranchId,
+      activeBranchId: activeBranch.id,
+      assignedBranchIds: workspace.assignedBranchIds,
+      isOrganizationScoped: workspace.isOrganizationScoped,
+      isOrgAdmin: workspace.isOrgAdmin,
       setActiveBranch,
-      updateOrganization,
-      addBranch,
-      updateBranch,
     }),
     [
-      state.organization,
-      state.user,
-      state.planLabel,
-      state.branches,
-      state.activeBranchId,
+      workspace.organization,
+      workspace.user,
+      workspace.planLabel,
+      workspace.branches,
+      workspace.assignedBranchIds,
+      workspace.isOrganizationScoped,
+      workspace.isOrgAdmin,
       activeBranch,
       setActiveBranch,
-      updateOrganization,
-      addBranch,
-      updateBranch,
     ],
   );
 

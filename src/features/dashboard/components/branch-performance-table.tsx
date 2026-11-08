@@ -63,7 +63,7 @@ export function BranchPerformanceTable({ rows, branches }: BranchPerformanceTabl
                   <TableCell>
                     <div className="font-medium text-ink">{branch?.name ?? t("unknownBranch")}</div>
                     <div className="text-xs text-ink-subtle">
-                      {branch ? `${branch.code} · ${statusLabel(branch.status)}` : "—"}
+                      {branch ? `${branch.timezone} · ${statusLabel(branch.status)}` : "—"}
                     </div>
                   </TableCell>
                   <TableCell className="text-right font-medium">

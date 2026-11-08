@@ -1,8 +1,8 @@
+import { Store } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 
-import { PageHeader, PageStack } from "@/components/layout/page";
-import { BranchForm } from "@/features/branches/components/branch-form";
+import { ModulePlaceholder } from "@/components/layout/module-placeholder";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("meta");
@@ -10,18 +10,17 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function NewBranchPage() {
-  const t = await getTranslations("branches.form");
-  const tDetail = await getTranslations("branches.detail");
+  const t = await getTranslations("placeholders.unavailable.branchCreate");
 
   return (
-    <PageStack>
-      <PageHeader
-        eyebrow={tDetail("eyebrow")}
-        title={t("newTitle")}
-        description={t("newDescription")}
-        backLink={{ href: "/branches", label: tDetail("back") }}
-      />
-      <BranchForm />
-    </PageStack>
+    <ModulePlaceholder
+      title={t("title")}
+      description={t("description")}
+      icon={Store}
+      phase={t("phase")}
+      planned={t.raw("planned") as string[]}
+      backHref="/branches"
+      backLabel={t("back")}
+    />
   );
 }

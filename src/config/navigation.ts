@@ -15,19 +15,30 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
-import { MANAGER_ROLES, type StaffRole } from "../types/roles";
+import type { StaffRole } from "../types/roles";
+
+export type NavAvailability = "available" | "unavailable";
+
+export interface NavAccess {
+  /** Any one of these roles grants the item. Omit to allow every active role. */
+  roles?: readonly StaffRole[];
+  /** Requires an organization-scoped Owner or Admin role. */
+  orgAdmin?: boolean;
+  /** Requires any organization-scoped role. */
+  organizationScope?: boolean;
+}
 
 export interface NavItem {
   /** Translation key under the `navigation.items` namespace. */
   titleKey: string;
   href: string;
   icon: LucideIcon;
+  access?: NavAccess;
   /**
-   * Provisional role visibility based on docs/roles-and-permissions.md.
-   * This is a UX hint only. Backend permission identifiers are not finalized;
-   * replace this filtering with the backend authorization contract in Phase 2.
+   * `unavailable` marks a route that exists but is intentionally not connected
+   * in this milestone. It must not imply functional access.
    */
-  roles?: readonly StaffRole[];
+  availability?: NavAvailability;
 }
 
 export interface NavSection {
@@ -37,8 +48,9 @@ export interface NavSection {
   items: readonly NavItem[];
 }
 
-const FLOOR: readonly StaffRole[] = [...MANAGER_ROLES, "cashier"];
+const FLOOR: readonly StaffRole[] = ["owner", "admin", "manager", "cashier"];
 const FLOOR_AND_KITCHEN: readonly StaffRole[] = [...FLOOR, "kitchen_staff"];
+const MANAGEMENT: readonly StaffRole[] = ["owner", "admin", "manager"];
 
 export const NAVIGATION_SECTIONS: readonly NavSection[] = [
   {
@@ -53,32 +65,37 @@ export const NAVIGATION_SECTIONS: readonly NavSection[] = [
       {
         titleKey: "navigation.items.pos",
         href: "/pos",
+        availability: "unavailable",
         icon: ShoppingCart,
-        roles: FLOOR,
+        access: { roles: FLOOR },
       },
       {
         titleKey: "navigation.items.orders",
         href: "/orders",
+        availability: "unavailable",
         icon: Receipt,
-        roles: FLOOR_AND_KITCHEN,
+        access: { roles: FLOOR_AND_KITCHEN },
       },
       {
         titleKey: "navigation.items.tables",
         href: "/tables",
+        availability: "unavailable",
         icon: TableProperties,
-        roles: FLOOR,
+        access: { roles: FLOOR },
       },
       {
         titleKey: "navigation.items.kitchen",
         href: "/kitchen",
+        availability: "unavailable",
         icon: ChefHat,
-        roles: FLOOR_AND_KITCHEN,
+        access: { roles: FLOOR_AND_KITCHEN },
       },
       {
         titleKey: "navigation.items.queue",
         href: "/queue",
+        availability: "unavailable",
         icon: ListOrdered,
-        roles: FLOOR,
+        access: { roles: FLOOR },
       },
     ],
   },
@@ -90,25 +107,26 @@ export const NAVIGATION_SECTIONS: readonly NavSection[] = [
         titleKey: "navigation.items.organization",
         href: "/organization",
         icon: Building2,
-        roles: ["owner", "admin"],
+        access: { orgAdmin: true },
       },
       {
         titleKey: "navigation.items.menu",
         href: "/menu",
         icon: UtensilsCrossed,
-        roles: FLOOR_AND_KITCHEN,
+        availability: "unavailable",
       },
       {
         titleKey: "navigation.items.staff",
         href: "/staff",
         icon: Users,
-        roles: MANAGER_ROLES,
+        access: { orgAdmin: true },
+        availability: "unavailable",
       },
       {
         titleKey: "navigation.items.branches",
         href: "/branches",
         icon: Store,
-        roles: MANAGER_ROLES,
+        access: { roles: MANAGEMENT },
       },
     ],
   },
@@ -119,8 +137,9 @@ export const NAVIGATION_SECTIONS: readonly NavSection[] = [
       {
         titleKey: "navigation.items.reports",
         href: "/reports",
+        availability: "unavailable",
         icon: BarChart3,
-        roles: MANAGER_ROLES,
+        access: { roles: MANAGEMENT },
       },
     ],
   },
@@ -131,23 +150,49 @@ export const NAVIGATION_SECTIONS: readonly NavSection[] = [
       {
         titleKey: "navigation.items.billing",
         href: "/billing",
+        availability: "unavailable",
         icon: CreditCard,
-        roles: ["owner"],
+        access: { roles: ["owner"] },
       },
       {
         titleKey: "navigation.items.settings",
         href: "/settings",
+        availability: "unavailable",
         icon: Settings,
-        roles: MANAGER_ROLES,
+        access: { roles: MANAGEMENT },
       },
     ],
   },
 ];
 
-export function getNavigationForRole(role: StaffRole): NavSection[] {
+export interface NavigationContext {
+  roles: readonly StaffRole[];
+  isOrganizationScoped: boolean;
+  isOrgAdmin: boolean;
+}
+
+function canSeeItem(item: NavItem, context: NavigationContext): boolean {
+  const roleSet = new Set(context.roles);
+
+  if (item.access?.orgAdmin && !context.isOrgAdmin) {
+    return false;
+  }
+
+  if (item.access?.organizationScope && !context.isOrganizationScoped) {
+    return false;
+  }
+
+  if (item.access?.roles && !item.access.roles.some((role) => roleSet.has(role))) {
+    return false;
+  }
+
+  return true;
+}
+
+export function getNavigationForContext(context: NavigationContext): NavSection[] {
   return NAVIGATION_SECTIONS.map((section) => ({
     ...section,
-    items: section.items.filter((item) => !item.roles || item.roles.includes(role)),
+    items: section.items.filter((item) => canSeeItem(item, context)),
   })).filter((section) => section.items.length > 0);
 }
 

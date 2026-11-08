@@ -1,89 +1,100 @@
 "use client";
 
-import { useLocale, useTranslations } from "next-intl";
+import { BarChart3, Building2, MapPin, ShieldCheck } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { PageHeader, PageStack } from "@/components/layout/page";
-import { useMockData } from "@/features/shared/mock-data-provider";
-import { useWorkspace } from "@/providers/workspace-provider";
-import { localizeMenuCategory, localizeMenuItem } from "@/features/menu/selectors";
+import { EmptyState } from "@/components/states/empty-state";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useLocalizedFormat } from "@/i18n/use-localized-format";
-import { mockDashboard } from "../data/dashboard";
-import { AttentionList } from "./attention-list";
-import { BranchPerformanceTable } from "./branch-performance-table";
-import { MetricCard } from "./metric-card";
-import { OperationalSnapshot } from "./operational-snapshot";
-import { RecentOrdersTable } from "./recent-orders-table";
-import { SalesTrend } from "./sales-trend";
-import { TopSellingItems } from "./top-selling-items";
+import { useRoleLabel } from "@/i18n/use-labels";
+import { useWorkspace } from "@/providers/workspace-provider";
 
 export function DashboardScreen() {
-  const { organization, branches } = useWorkspace();
-  const { menuItems, menuCategories } = useMockData();
-  const locale = useLocale();
+  const { organization, user, branches, activeBranch } = useWorkspace();
   const t = useTranslations("dashboard");
+  const tReadOnly = useTranslations("dashboard.unavailable");
+  const roleLabel = useRoleLabel();
   const format = useLocalizedFormat();
-  const openBranchCount = branches.filter((branch) => branch.status === "active").length;
 
-  const topSellingItems = mockDashboard.topSellingItems.map((entry) => {
-    const menuItem = menuItems.find((item) => item.id === entry.menuItemId);
-    const category = menuItem
-      ? menuCategories.find((item) => item.id === menuItem.categoryId)
-      : undefined;
-    return {
-      ...entry,
-      name: menuItem ? localizeMenuItem(menuItem, locale).name : entry.name,
-      categoryName: category ? localizeMenuCategory(category, locale).name : entry.categoryName,
-    };
-  });
+  const summary = [
+    {
+      id: "organization",
+      label: tReadOnly("organization"),
+      value: organization.name,
+      icon: Building2,
+    },
+    {
+      id: "branches",
+      label: tReadOnly("accessibleBranches"),
+      value: format.number(branches.length),
+      icon: MapPin,
+    },
+    {
+      id: "branch",
+      label: tReadOnly("activeBranch"),
+      value: activeBranch.name,
+      icon: MapPin,
+    },
+    {
+      id: "role",
+      label: tReadOnly("primaryRole"),
+      value: roleLabel(user.primaryRole),
+      icon: ShieldCheck,
+    },
+  ];
 
   return (
     <PageStack>
       <PageHeader
         title={t("title")}
         description={`${organization.name} · ${t("openBranches", {
-          count: openBranchCount,
+          count: branches.filter((branch) => branch.status === "active").length,
         })}`}
-        actions={
-          <p className="rounded-full border border-line bg-surface px-3 py-1 text-xs font-medium text-ink-muted">
-            {t("asOf", {
-              date: format.dateTime(mockDashboard.asOf, organization.timezone),
-            })}
-          </p>
-        }
+        actions={<Badge variant="outline">{tReadOnly("badge")}</Badge>}
       />
 
-      <section aria-label={t("metricsLabel")}>
+      <section aria-label={tReadOnly("summaryLabel")}>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {mockDashboard.metrics.map((metric) => (
-            <MetricCard key={metric.id} metric={metric} />
-          ))}
+          {summary.map((item) => {
+            const Icon = item.icon;
+            return (
+              <Card key={item.id} className="p-5">
+                <div className="flex items-center gap-2 text-xs font-medium tracking-wide text-ink-subtle uppercase">
+                  <Icon className="size-4" aria-hidden="true" />
+                  {item.label}
+                </div>
+                <p className="mt-2 truncate text-lg font-semibold text-ink">{item.value}</p>
+              </Card>
+            );
+          })}
         </div>
       </section>
 
-      <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
-        <div className="xl:col-span-2">
-          <SalesTrend points={mockDashboard.salesTrend} currency={organization.currency} />
-        </div>
-        <OperationalSnapshot snapshot={mockDashboard.operationalSnapshot} />
-      </div>
-
-      <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
-        <div className="xl:col-span-2">
-          <BranchPerformanceTable rows={mockDashboard.branchPerformance} branches={branches} />
-        </div>
-        <TopSellingItems items={topSellingItems} />
-      </div>
-
-      <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
-        <div className="xl:col-span-2">
-          <RecentOrdersTable
-            orders={mockDashboard.recentOrders}
-            branches={branches}
-            timeZone={organization.timezone}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <BarChart3 className="size-4 text-ink-subtle" aria-hidden="true" />
+            {tReadOnly("title")}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <EmptyState
+            bordered={false}
+            icon={BarChart3}
+            title={tReadOnly("emptyTitle")}
+            description={tReadOnly("emptyDescription")}
           />
-        </div>
-        <AttentionList items={mockDashboard.attentionItems} branches={branches} />
-      </div>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {(tReadOnly.raw("planned") as string[]).map((capability) => (
+              <Badge key={capability} variant="neutral">
+                {capability}
+              </Badge>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     </PageStack>
   );
 }

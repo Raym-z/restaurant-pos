@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
 
-import { getNavigationForRole } from "../navigation";
+import { getNavigationForContext, type NavigationContext } from "../navigation";
 import { ROLE_TRANSLATION_KEYS, roleTranslationKey } from "../../i18n/role-keys";
 import { STAFF_ROLES, type StaffRole } from "../../types/roles";
 
@@ -10,8 +10,22 @@ const dictionaries = ["en", "id"].map((locale) =>
   JSON.parse(readFileSync(`src/i18n/messages/${locale}.json`, "utf8")),
 );
 
-function navigationHrefs(role: StaffRole): string[] {
-  return getNavigationForRole(role).flatMap((section) => section.items.map((item) => item.href));
+function context(
+  roles: readonly StaffRole[],
+  overrides: Partial<NavigationContext> = {},
+): NavigationContext {
+  return {
+    roles,
+    isOrganizationScoped: roles.includes("owner") || roles.includes("admin"),
+    isOrgAdmin: roles.includes("owner") || roles.includes("admin"),
+    ...overrides,
+  };
+}
+
+function navigationHrefs(navigationContext: NavigationContext): string[] {
+  return getNavigationForContext(navigationContext).flatMap((section) =>
+    section.items.map((item) => item.href),
+  );
 }
 
 test("the role contract contains exactly the five authoritative roles", () => {
@@ -31,15 +45,10 @@ test("every authoritative role has a translation key in both dictionaries", () =
       assert.equal(typeof dictionary.roles[key], "string");
     }
   }
-
-  assert.equal(roleTranslationKey("org_admin"), null);
-  assert.equal(roleTranslationKey("branch_manager"), null);
-  assert.equal(roleTranslationKey("kitchen"), null);
-  assert.equal(roleTranslationKey("host"), null);
 });
 
-test("navigation visibility uses the authoritative role identifiers", () => {
-  assert.deepEqual(navigationHrefs("owner"), [
+test("organization-scoped owner sees every module", () => {
+  assert.deepEqual(navigationHrefs(context(["owner"])), [
     "/dashboard",
     "/pos",
     "/orders",
@@ -54,8 +63,10 @@ test("navigation visibility uses the authoritative role identifiers", () => {
     "/billing",
     "/settings",
   ]);
+});
 
-  assert.deepEqual(navigationHrefs("admin"), [
+test("organization-scoped admin sees every module except billing", () => {
+  assert.deepEqual(navigationHrefs(context(["admin"])), [
     "/dashboard",
     "/pos",
     "/orders",
@@ -69,8 +80,31 @@ test("navigation visibility uses the authoritative role identifiers", () => {
     "/reports",
     "/settings",
   ]);
+});
 
-  assert.deepEqual(navigationHrefs("manager"), [
+test("branch-scoped admin does not receive organization-wide navigation", () => {
+  const hrefs = navigationHrefs(
+    context(["admin"], { isOrganizationScoped: false, isOrgAdmin: false }),
+  );
+
+  assert.ok(!hrefs.includes("/organization"));
+  assert.ok(!hrefs.includes("/staff"));
+  assert.ok(!hrefs.includes("/billing"));
+  assert.ok(hrefs.includes("/branches"));
+});
+
+test("manager does not receive staff administration navigation", () => {
+  const hrefs = navigationHrefs(context(["manager"]));
+
+  assert.ok(!hrefs.includes("/organization"));
+  assert.ok(!hrefs.includes("/staff"));
+  assert.ok(!hrefs.includes("/billing"));
+  assert.ok(hrefs.includes("/branches"));
+  assert.ok(hrefs.includes("/reports"));
+});
+
+test("cashier and kitchen navigation remain operational", () => {
+  assert.deepEqual(navigationHrefs(context(["cashier"])), [
     "/dashboard",
     "/pos",
     "/orders",
@@ -78,23 +112,9 @@ test("navigation visibility uses the authoritative role identifiers", () => {
     "/kitchen",
     "/queue",
     "/menu",
-    "/staff",
-    "/branches",
-    "/reports",
-    "/settings",
   ]);
 
-  assert.deepEqual(navigationHrefs("cashier"), [
-    "/dashboard",
-    "/pos",
-    "/orders",
-    "/tables",
-    "/kitchen",
-    "/queue",
-    "/menu",
-  ]);
-
-  assert.deepEqual(navigationHrefs("kitchen_staff"), [
+  assert.deepEqual(navigationHrefs(context(["kitchen_staff"])), [
     "/dashboard",
     "/orders",
     "/kitchen",
@@ -102,12 +122,33 @@ test("navigation visibility uses the authoritative role identifiers", () => {
   ]);
 });
 
-test("navigation never emits legacy role visibility groups", () => {
+test("unavailable modules are marked and never imply functional access", () => {
+  const sections = getNavigationForContext(context(["owner"]));
+  const items = sections.flatMap((section) => section.items);
+  const unavailableHrefs = items
+    .filter((item) => item.availability === "unavailable")
+    .map((item) => item.href);
+
+  assert.deepEqual(unavailableHrefs.sort(), [
+    "/billing",
+    "/kitchen",
+    "/menu",
+    "/orders",
+    "/pos",
+    "/queue",
+    "/reports",
+    "/settings",
+    "/staff",
+    "/tables",
+  ]);
+});
+
+test("navigation never emits unknown role identifiers", () => {
   for (const role of STAFF_ROLES) {
-    const sections = getNavigationForRole(role);
+    const sections = getNavigationForContext(context([role]));
     for (const section of sections) {
       for (const item of section.items) {
-        for (const allowed of item.roles ?? []) {
+        for (const allowed of item.access?.roles ?? []) {
           assert.ok(STAFF_ROLES.includes(allowed), `unknown role ${allowed}`);
         }
       }

@@ -16,6 +16,8 @@ interface ModulePlaceholderProps {
   phase: string;
   planned?: readonly string[];
   showBackLink?: boolean;
+  backHref?: string;
+  backLabel?: string;
 }
 
 /**
@@ -30,6 +32,8 @@ export async function ModulePlaceholder({
   phase,
   planned = [],
   showBackLink = true,
+  backHref = "/dashboard",
+  backLabel,
 }: ModulePlaceholderProps) {
   const t = await getTranslations("placeholders");
 
@@ -49,8 +53,8 @@ export async function ModulePlaceholder({
           action={
             showBackLink ? (
               <Button asChild variant="secondary" size="sm">
-                <Link href="/dashboard">
-                  {t("backToOverview")}
+                <Link href={backHref}>
+                  {backLabel ?? t("backToOverview")}
                   <ArrowRight />
                 </Link>
               </Button>

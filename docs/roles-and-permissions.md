@@ -202,7 +202,17 @@ The backend and database are the security boundaries. Frontend checks must never
 - Permission changes must take effect on subsequent authorized operations.
 - The backend must define how existing sessions respond to permission changes.
 
-## 9. Future Considerations
+## 9. Implemented Navigation Scope Note
+
+Navigation is evaluated with role **and** scope against the backend authorization helpers.
+
+- Organization and Staff navigation require an organization-scoped Owner/Admin.
+- A branch-scoped Admin does not receive organization-wide navigation.
+- Managers do not receive Staff navigation because the backend `can_view_staff` helper only permits self or organization admins.
+- Branch access uses the RLS-protected `branches` query. Organization-scoped Owners/Admins may see all active branches without individual `staff_branch_assignments`.
+- Navigation visibility is UX only. Backend RLS and RPC checks remain authoritative.
+
+## 10. Future Considerations
 
 The initial implementation should use the defined role templates.
 

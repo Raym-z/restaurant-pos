@@ -22,7 +22,7 @@ interface MobileSidebarProps {
 }
 
 export function MobileSidebar({ open, onOpenChange }: MobileSidebarProps) {
-  const { organization, user, activeBranch } = useWorkspace();
+  const { organization, activeBranch } = useWorkspace();
   const t = useTranslations("shell");
 
   return (
@@ -43,7 +43,7 @@ export function MobileSidebar({ open, onOpenChange }: MobileSidebarProps) {
           </SheetClose>
         </SheetHeader>
 
-        <SidebarNav role={user.role} onNavigate={() => onOpenChange(false)} />
+        <SidebarNav onNavigate={() => onOpenChange(false)} />
 
         <div className="shrink-0 border-t border-line p-4">
           <div className="rounded-lg border border-line bg-surface-subtle p-3">
@@ -56,7 +56,7 @@ export function MobileSidebar({ open, onOpenChange }: MobileSidebarProps) {
             </div>
             <div className="mt-1 flex items-start gap-1.5 text-[11px] leading-4 text-ink-subtle">
               <MapPin className="mt-0.5 size-3 shrink-0" aria-hidden="true" />
-              <span className="truncate">{activeBranch.city}</span>
+              <span className="truncate">{activeBranch.timezone}</span>
             </div>
           </div>
         </div>

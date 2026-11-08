@@ -108,7 +108,7 @@ export function AttentionList({ items, branches }: { items: AttentionItem[]; bra
                     </p>
                     {branch ? (
                       <p className="mt-1 text-xs font-medium text-ink-subtle">
-                        {branch.name} · {branch.code}
+                        {branch.name} · {branch.timezone}
                       </p>
                     ) : null}
                   </div>

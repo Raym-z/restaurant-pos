@@ -5,21 +5,25 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { getNavigationForRole, isNavItemActive } from "@/config/navigation";
+import { getNavigationForContext, isNavItemActive } from "@/config/navigation";
 import { cn } from "@/lib/utils";
-import type { StaffRole } from "@/types/workspace";
+import { useWorkspace } from "@/providers/workspace-provider";
 
 interface SidebarNavProps {
-  role: StaffRole;
   collapsed?: boolean;
   onNavigate?: () => void;
 }
 
-export function SidebarNav({ role, collapsed = false, onNavigate }: SidebarNavProps) {
+export function SidebarNav({ collapsed = false, onNavigate }: SidebarNavProps) {
   const pathname = usePathname();
   const t = useTranslations();
   const tShell = useTranslations("shell");
-  const sections = getNavigationForRole(role);
+  const { user, isOrganizationScoped, isOrgAdmin } = useWorkspace();
+  const sections = getNavigationForContext({
+    roles: user.roles.map((assignment) => assignment.role),
+    isOrganizationScoped,
+    isOrgAdmin,
+  });
 
   return (
     <nav
@@ -43,6 +47,7 @@ export function SidebarNav({ role, collapsed = false, onNavigate }: SidebarNavPr
               const active = isNavItemActive(pathname, item.href);
               const Icon = item.icon;
               const title = t(item.titleKey);
+              const unavailable = item.availability === "unavailable";
               const link = (
                 <Link
                   href={item.href}
@@ -70,6 +75,11 @@ export function SidebarNav({ role, collapsed = false, onNavigate }: SidebarNavPr
                     aria-hidden="true"
                   />
                   {collapsed ? null : <span className="truncate">{title}</span>}
+                  {!collapsed && unavailable ? (
+                    <span className="ml-auto rounded-full border border-line px-1.5 py-0.5 text-[10px] font-medium text-ink-subtle">
+                      {tShell("unavailable")}
+                    </span>
+                  ) : null}
                 </Link>
               );
 
@@ -78,7 +88,10 @@ export function SidebarNav({ role, collapsed = false, onNavigate }: SidebarNavPr
                   {collapsed ? (
                     <Tooltip>
                       <TooltipTrigger asChild>{link}</TooltipTrigger>
-                      <TooltipContent side="right">{title}</TooltipContent>
+                      <TooltipContent side="right">
+                        {title}
+                        {unavailable ? ` · ${tShell("unavailable")}` : ""}
+                      </TooltipContent>
                     </Tooltip>
                   ) : (
                     link

@@ -19,7 +19,10 @@
     "home": "Beranda {name}",
     "plans": {
       "growth": "Paket Growth"
-    }
+    },
+    "signOut": "Keluar",
+    "unavailable": "Belum tersedia",
+    "branchSwitchFailed": "Cabang tersebut tidak tersedia untuk akun Anda."
   },
   "languages": {
     "id": "Bahasa Indonesia",
@@ -68,7 +71,9 @@
     "ready": "Siap",
     "completed": "Selesai",
     "cancelled": "Dibatalkan",
-    "closed": "Tutup"
+    "closed": "Tutup",
+    "suspended": "Ditangguhkan",
+    "pendingDeletion": "Menunggu penghapusan"
   },
   "tags": {
     "vegetarian": "Vegetarian",
@@ -219,7 +224,8 @@
     "reports": "Laporan",
     "billing": "Tagihan",
     "settings": "Pengaturan",
-    "appDescription": "Ruang kerja manajemen restoran, kasir, dan operasional dapur untuk staf."
+    "appDescription": "Ruang kerja manajemen restoran, kasir, dan operasional dapur untuk staf.",
+    "login": "Masuk"
   },
   "dashboard": {
     "title": "Dasbor",
@@ -293,7 +299,24 @@
       "managerVacancyTitle": "{branch} belum memiliki manajer cabang",
       "managerVacancyDescription": "Undangan manajer cabang untuk {name} masih menunggu diterima."
     },
-    "metricsLabel": "Metrik utama"
+    "metricsLabel": "Metrik utama",
+    "unavailable": {
+      "badge": "Terbatas pada milestone ini",
+      "summaryLabel": "Ringkasan ruang kerja",
+      "organization": "Organisasi",
+      "accessibleBranches": "Cabang yang dapat diakses",
+      "activeBranch": "Cabang aktif",
+      "primaryRole": "Peran utama",
+      "title": "Dasbor operasional",
+      "emptyTitle": "Data operasional belum terhubung",
+      "emptyDescription": "Metrik dasbor, tren penjualan, pesanan, dan performa cabang akan muncul setelah integrasi pesanan, pembayaran, dan laporan diterapkan.",
+      "planned": [
+        "Metrik penjualan",
+        "Aktivitas pesanan",
+        "Performa cabang",
+        "Peringatan operasional"
+      ]
+    }
   },
   "organization": {
     "eyebrow": "Organisasi",
@@ -343,7 +366,23 @@
     "slug": "Slug ruang kerja",
     "organizationId": "ID organisasi",
     "created": "Dibuat",
-    "identifiersNote": "ID bersifat hanya-baca. Di produksi, ID diterbitkan dan divalidasi oleh backend."
+    "identifiersNote": "ID bersifat hanya-baca. Di produksi, ID diterbitkan dan divalidasi oleh backend.",
+    "readOnly": {
+      "eyebrow": "Organisasi",
+      "description": "Konteks organisasi hanya-baca yang dimuat dari Supabase.",
+      "title": "Profil organisasi",
+      "fields": {
+        "name": "Nama tampilan",
+        "currency": "Mata uang",
+        "status": "Status",
+        "createdAt": "Dibuat",
+        "updatedAt": "Terakhir diperbarui",
+        "organizationId": "ID organisasi"
+      },
+      "identifiers": "Identitas organisasi",
+      "noticeTitle": "Dukungan backend terbatas",
+      "notice": "Hanya nama organisasi, mata uang default, status, dan identitas yang tersedia dari backend. Pengeditan profil lengkap memerlukan perubahan skema dan RPC backend."
+    }
   },
   "branches": {
     "title": "Cabang",
@@ -358,13 +397,17 @@
       "manager": "Manajer",
       "contact": "Kontak",
       "status": "Status",
-      "actions": "Aksi"
+      "actions": "Aksi",
+      "address": "Alamat",
+      "phone": "Telepon",
+      "created": "Dibuat"
     },
     "empty": {
       "filteredTitle": "Tidak ada cabang yang cocok dengan filter ini",
       "filteredDescription": "Coba kata kunci lain atau hapus filter status.",
       "title": "Belum ada cabang",
-      "description": "Buat cabang pertama untuk mulai mengatur operasional."
+      "description": "Buat cabang pertama untuk mulai mengatur operasional.",
+      "readOnlyDescription": "Tidak ada cabang aktif yang tersedia untuk akun Anda."
     },
     "form": {
       "newTitle": "Cabang baru",
@@ -438,7 +481,22 @@
       "manager": "Manajer cabang",
       "managerMissing": "Belum ada manajer yang ditugaskan. Tugaskan manajer cabang dari formulir ubah cabang.",
       "assignedStaff": "Staf yang ditugaskan",
-      "noStaff": "Belum ada anggota staf yang ditugaskan ke cabang ini."
+      "noStaff": "Belum ada anggota staf yang ditugaskan ke cabang ini.",
+      "location": "Lokasi",
+      "coordinates": "Koordinat",
+      "waitlistGeolocation": "Geolokasi daftar tunggu",
+      "enabled": "Aktif",
+      "disabled": "Nonaktif",
+      "waitlistRadius": "Radius daftar tunggu",
+      "radiusMeters": "{count} m",
+      "updated": "Terakhir diperbarui",
+      "readOnlyTitle": "Profil cabang hanya-baca",
+      "readOnlyDescription": "Field profil cabang, manajer, jam operasional, dan aktivasi ulang memerlukan perubahan skema dan RPC backend sebelum dapat dikelola di sini."
+    },
+    "readOnly": "Hanya-baca",
+    "readOnlyDescription": "Konteks cabang dimuat dari Supabase. Pembuatan dan pengeditan cabang belum tersedia pada milestone ini.",
+    "readOnlyNotice": {
+      "label": "Hanya-baca"
     }
   },
   "staff": {
@@ -756,6 +814,94 @@
         "phase": "Fase 10",
         "planned": ["Profil organisasi", "Pengaturan cabang", "Notifikasi", "Preferensi"]
       }
+    },
+    "unavailable": {
+      "phase": "Belum terhubung",
+      "branchCreate": {
+        "title": "Pembuatan cabang",
+        "description": "Pembuatan cabang belum terhubung pada milestone ini. Diperlukan seed paket Free yang disetujui serta kontrak profil/RPC cabang yang lengkap.",
+        "phase": "Belum terhubung",
+        "planned": [
+          "Konfigurasi paket Free",
+          "Profil cabang lengkap",
+          "Kontrak RPC pembuatan cabang",
+          "Penanganan batas cabang"
+        ],
+        "back": "Kembali ke cabang"
+      },
+      "branchEdit": {
+        "title": "Pengeditan cabang",
+        "description": "Pengeditan cabang belum terhubung pada milestone ini. Field profil cabang lengkap dan kontrak pembaruan masih diperlukan.",
+        "phase": "Belum terhubung",
+        "planned": [
+          "Field kode dan kontak",
+          "Penetapan manajer",
+          "Tanggal buka dan jam operasional",
+          "Aktivasi ulang cabang"
+        ],
+        "back": "Kembali ke cabang"
+      },
+      "staff": {
+        "title": "Manajemen staf",
+        "description": "Manajemen staf belum terhubung pada milestone ini. Penyediaan staf, field direktori, dan penetapan peran per cabang belum tersedia.",
+        "phase": "Belum terhubung",
+        "planned": [
+          "Undangan staf tepercaya",
+          "Field direktori staf",
+          "Model peran per cabang",
+          "RPC penetapan peran dan cabang"
+        ]
+      },
+      "menu": {
+        "title": "Manajemen menu",
+        "description": "Manajemen menu belum terhubung pada milestone ini. Semantik ketersediaan, konten terlokalisasi, tag, dan varian belum tersedia.",
+        "phase": "Belum terhubung",
+        "planned": [
+          "Semantik ketersediaan yang disetujui",
+          "Konten Indonesia dan Inggris",
+          "Tag dan varian",
+          "Kontrak RPC menu lengkap"
+        ]
+      }
+    }
+  },
+  "auth": {
+    "login": {
+      "eyebrow": "Akses staf",
+      "title": "Masuk ke Restaurant POS",
+      "description": "Gunakan email dan kata sandi staf untuk membuka ruang kerja restoran Anda.",
+      "fields": {
+        "email": "Email",
+        "password": "Kata sandi"
+      },
+      "submit": "Masuk",
+      "pending": "Sedang masuk?",
+      "sessionExpired": "Sesi Anda telah berakhir. Silakan masuk lagi untuk melanjutkan.",
+      "staffOnly": "Akses POS hanya untuk staf restoran yang berwenang. Tautan pelanggan dan tamu tidak dapat digunakan di sini."
+    },
+    "errors": {
+      "invalid_input": "Masukkan alamat email dan kata sandi yang valid.",
+      "invalid_credentials": "Email atau kata sandi salah.",
+      "unavailable": "Autentikasi sementara tidak tersedia. Silakan coba lagi.",
+      "generic": "Proses masuk tidak dapat diselesaikan. Silakan coba lagi.",
+      "email_not_confirmed": "Alamat email akun ini belum dikonfirmasi. Hubungi administrator organisasi."
+    },
+    "states": {
+      "title": "Akses ruang kerja",
+      "description": "Akun Anda terautentikasi, tetapi ruang kerja tidak dapat dibuka.",
+      "signedInAs": "Masuk sebagai {name}.",
+      "noActiveStaffTitle": "Tidak ada akses staf aktif",
+      "noActiveStaffDescription": "Akun ini tidak memiliki keanggotaan staf aktif di organisasi restoran. Hubungi administrator organisasi jika menurut Anda ini keliru.",
+      "noRolesTitle": "Belum ada peran staf",
+      "noRolesDescription": "Profil staf Anda tidak memiliki penetapan peran aktif. Hubungi administrator organisasi untuk memulihkan akses.",
+      "noBranchesTitle": "Tidak ada cabang yang dapat diakses",
+      "noBranchesDescription": "{organization} tidak memiliki cabang aktif yang tersedia untuk akun Anda. Hubungi administrator organisasi.",
+      "noBranchesDescriptionGeneric": "Tidak ada cabang aktif yang tersedia untuk akun Anda. Hubungi administrator organisasi.",
+      "authUnavailableTitle": "Verifikasi sesi tidak tersedia",
+      "authUnavailableDescription": "Kami tidak dapat memverifikasi sesi Anda karena layanan autentikasi sementara tidak tersedia. Sesi Anda tidak dihapus. Coba lagi sebentar lagi.",
+      "workspaceErrorTitle": "Ruang kerja tidak dapat dimuat",
+      "workspaceErrorDescription": "Data ruang kerja tidak dapat dimuat. Silakan coba lagi.",
+      "retry": "Coba lagi"
     }
   }
 }

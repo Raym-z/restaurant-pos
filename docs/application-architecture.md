@@ -125,11 +125,16 @@ The frontend must not be treated as the security boundary.
 
 The POS application is intended exclusively for authenticated restaurant staff.
 
-- Staff must authenticate before accessing protected application routes.
+- Staff authenticate with Supabase Auth email/password.
+- Sessions are persisted in SSR cookies and refreshed by `src/proxy.ts`.
+- Protected routes require an active `staff_profiles` membership.
 - Public customer QR ordering must not grant access to the POS application.
-- User permissions determine which modules and actions are available.
-- Branch assignments determine which branch data a user can access.
+- User roles **and scopes** determine which modules and actions are available.
+- Accessible branches come from the RLS-protected `branches` query, not from client-supplied IDs.
+- Explicit `staff_branch_assignments` are kept distinct from RLS-accessible branches.
 - Authorization must be enforced by the backend, not solely by frontend route guards or UI visibility.
+
+The detailed M1 flow is documented in `docs/supabase-integration.md`.
 
 ## 6. Backend Communication
 

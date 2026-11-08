@@ -19,7 +19,10 @@
     "home": "{name} home",
     "plans": {
       "growth": "Growth plan"
-    }
+    },
+    "signOut": "Sign out",
+    "unavailable": "Unavailable",
+    "branchSwitchFailed": "That branch is not available to your account."
   },
   "languages": {
     "id": "Bahasa Indonesia",
@@ -68,7 +71,9 @@
     "ready": "Ready",
     "completed": "Completed",
     "cancelled": "Cancelled",
-    "closed": "Closed"
+    "closed": "Closed",
+    "suspended": "Suspended",
+    "pendingDeletion": "Pending deletion"
   },
   "tags": {
     "vegetarian": "Vegetarian",
@@ -219,7 +224,8 @@
     "reports": "Reports",
     "billing": "Billing",
     "settings": "Settings",
-    "appDescription": "Staff-facing restaurant management, point of sale, and kitchen operations workspace."
+    "appDescription": "Staff-facing restaurant management, point of sale, and kitchen operations workspace.",
+    "login": "Sign in"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -293,7 +299,19 @@
       "managerVacancyTitle": "{branch} has no branch manager",
       "managerVacancyDescription": "The branch manager invitation for {name} is still pending acceptance."
     },
-    "metricsLabel": "Key metrics"
+    "metricsLabel": "Key metrics",
+    "unavailable": {
+      "badge": "Limited in this milestone",
+      "summaryLabel": "Workspace summary",
+      "organization": "Organization",
+      "accessibleBranches": "Accessible branches",
+      "activeBranch": "Active branch",
+      "primaryRole": "Primary role",
+      "title": "Operational dashboard",
+      "emptyTitle": "Operational data is not connected",
+      "emptyDescription": "Dashboard metrics, sales trends, orders, and branch performance will appear after order, payment, and reporting integrations are implemented.",
+      "planned": ["Sales metrics", "Order activity", "Branch performance", "Operational alerts"]
+    }
   },
   "organization": {
     "eyebrow": "Organization",
@@ -343,7 +361,23 @@
     "slug": "Workspace slug",
     "organizationId": "Organization ID",
     "created": "Created",
-    "identifiersNote": "Identifiers are read-only. In production they are issued and validated by the backend."
+    "identifiersNote": "Identifiers are read-only. In production they are issued and validated by the backend.",
+    "readOnly": {
+      "eyebrow": "Organization",
+      "description": "Read-only organization context loaded from Supabase.",
+      "title": "Organization profile",
+      "fields": {
+        "name": "Display name",
+        "currency": "Currency",
+        "status": "Status",
+        "createdAt": "Created",
+        "updatedAt": "Last updated",
+        "organizationId": "Organization ID"
+      },
+      "identifiers": "Organization identifiers",
+      "noticeTitle": "Limited backend support",
+      "notice": "Only the organization name, default currency, status, and identifiers are available from the backend. Full profile editing requires backend schema and RPC changes."
+    }
   },
   "branches": {
     "title": "Branches",
@@ -358,13 +392,17 @@
       "manager": "Manager",
       "contact": "Contact",
       "status": "Status",
-      "actions": "Actions"
+      "actions": "Actions",
+      "address": "Address",
+      "phone": "Phone",
+      "created": "Created"
     },
     "empty": {
       "filteredTitle": "No branches match these filters",
       "filteredDescription": "Try a different search term or clear the status filter.",
       "title": "No branches yet",
-      "description": "Create the first branch to start configuring operations."
+      "description": "Create the first branch to start configuring operations.",
+      "readOnlyDescription": "No active branch is available to your account."
     },
     "form": {
       "newTitle": "New branch",
@@ -438,7 +476,22 @@
       "manager": "Branch manager",
       "managerMissing": "No manager is assigned. Assign a branch manager from the branch edit form.",
       "assignedStaff": "Assigned staff",
-      "noStaff": "No staff members are assigned to this branch yet."
+      "noStaff": "No staff members are assigned to this branch yet.",
+      "location": "Location",
+      "coordinates": "Coordinates",
+      "waitlistGeolocation": "Waitlist geolocation",
+      "enabled": "Enabled",
+      "disabled": "Disabled",
+      "waitlistRadius": "Waitlist radius",
+      "radiusMeters": "{count} m",
+      "updated": "Last updated",
+      "readOnlyTitle": "Read-only branch profile",
+      "readOnlyDescription": "Branch profile fields, managers, operating hours, and reactivation require backend schema and RPC changes before they can be managed here."
+    },
+    "readOnly": "Read-only",
+    "readOnlyDescription": "Branch context loaded from Supabase. Branch creation and editing are not available in this milestone.",
+    "readOnlyNotice": {
+      "label": "Read-only"
     }
   },
   "staff": {
@@ -756,6 +809,94 @@
         "phase": "Phase 10",
         "planned": ["Organization profile", "Branch settings", "Notifications", "Preferences"]
       }
+    },
+    "unavailable": {
+      "phase": "Not connected",
+      "branchCreate": {
+        "title": "Branch creation",
+        "description": "Branch creation is not connected in this milestone. It requires the approved Free plan seed and complete branch profile/RPC contracts.",
+        "phase": "Not connected",
+        "planned": [
+          "Free plan configuration",
+          "Complete branch profile",
+          "Branch creation RPC contract",
+          "Branch limit handling"
+        ],
+        "back": "Back to branches"
+      },
+      "branchEdit": {
+        "title": "Branch editing",
+        "description": "Branch editing is not connected in this milestone. Full branch profile fields and update contracts are still required.",
+        "phase": "Not connected",
+        "planned": [
+          "Code and contact fields",
+          "Manager assignment",
+          "Opening date and business hours",
+          "Branch reactivation"
+        ],
+        "back": "Back to branches"
+      },
+      "staff": {
+        "title": "Staff management",
+        "description": "Staff management is not connected in this milestone. Staff provisioning, directory fields, and per-branch role assignments are not available yet.",
+        "phase": "Not connected",
+        "planned": [
+          "Trusted staff invitation",
+          "Staff directory fields",
+          "Per-branch role model",
+          "Role and branch assignment RPCs"
+        ]
+      },
+      "menu": {
+        "title": "Menu management",
+        "description": "Menu management is not connected in this milestone. Availability semantics, localized content, tags, and variants are not available yet.",
+        "phase": "Not connected",
+        "planned": [
+          "Approved availability semantics",
+          "Indonesian and English content",
+          "Tags and variants",
+          "Complete menu RPC contracts"
+        ]
+      }
+    }
+  },
+  "auth": {
+    "login": {
+      "eyebrow": "Staff access",
+      "title": "Sign in to Restaurant POS",
+      "description": "Use your staff email and password to open your restaurant workspace.",
+      "fields": {
+        "email": "Email",
+        "password": "Password"
+      },
+      "submit": "Sign in",
+      "pending": "Signing in?",
+      "sessionExpired": "Your session expired. Sign in again to continue.",
+      "staffOnly": "POS access is limited to authorized restaurant staff. Customer and guest links cannot be used here."
+    },
+    "errors": {
+      "invalid_input": "Enter a valid email address and password.",
+      "invalid_credentials": "The email or password is incorrect.",
+      "unavailable": "Authentication is temporarily unavailable. Please try again.",
+      "generic": "Sign-in could not be completed. Please try again.",
+      "email_not_confirmed": "This account's email address has not been confirmed. Contact an organization administrator."
+    },
+    "states": {
+      "title": "Workspace access",
+      "description": "Your account is authenticated, but the workspace could not be opened.",
+      "signedInAs": "Signed in as {name}.",
+      "noActiveStaffTitle": "No active staff access",
+      "noActiveStaffDescription": "This account does not have an active staff membership in a restaurant organization. Contact an organization administrator if you believe this is a mistake.",
+      "noRolesTitle": "No staff role assigned",
+      "noRolesDescription": "Your staff profile has no active role assignment. Contact an organization administrator to restore access.",
+      "noBranchesTitle": "No accessible branch",
+      "noBranchesDescription": "{organization} has no active branch available to your account. Contact an organization administrator.",
+      "noBranchesDescriptionGeneric": "No active branch is available to your account. Contact an organization administrator.",
+      "authUnavailableTitle": "Session verification unavailable",
+      "authUnavailableDescription": "We could not verify your session because the authentication service is temporarily unavailable. Your session was not cleared. Try again shortly.",
+      "workspaceErrorTitle": "Workspace could not be loaded",
+      "workspaceErrorDescription": "The workspace data could not be loaded. Please try again.",
+      "retry": "Try again"
     }
   }
 }

@@ -17,10 +17,14 @@ interface SidebarProps {
 }
 
 export function Sidebar({ collapsed, onToggle }: SidebarProps) {
-  const { organization, user, activeBranch, planLabel: planLabelText } = useWorkspace();
+  const { organization, activeBranch, planLabel: planLabelText } = useWorkspace();
   const t = useTranslations("shell");
-  const planKey = planLabelText.replace(/\s*plan$/i, "").toLowerCase();
-  const planLabel = t.has(`plans.${planKey}`) ? t(`plans.${planKey}`) : planLabelText;
+  const planKey = planLabelText?.replace(/\s*plan$/i, "").toLowerCase() ?? "";
+  const planLabel = planLabelText
+    ? t.has(`plans.${planKey}`)
+      ? t(`plans.${planKey}`)
+      : planLabelText
+    : null;
 
   return (
     <aside
@@ -68,7 +72,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
         </div>
       ) : null}
 
-      <SidebarNav role={user.role} collapsed={collapsed} />
+      <SidebarNav collapsed={collapsed} />
 
       <div className={cn("shrink-0 border-t border-line", collapsed ? "p-2" : "p-3")}>
         {collapsed ? (
@@ -80,7 +84,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
             </TooltipTrigger>
             <TooltipContent side="right">
               {activeBranch.name}
-              <span className="block font-normal text-white/70">{activeBranch.city}</span>
+              <span className="block font-normal text-white/70">{activeBranch.timezone}</span>
             </TooltipContent>
           </Tooltip>
         ) : (
@@ -89,9 +93,11 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
               <p className="text-[11px] font-medium tracking-wider text-ink-subtle uppercase">
                 {t("activeBranch")}
               </p>
-              <Badge variant="brand" className="text-[10px]">
-                {planLabel}
-              </Badge>
+              {planLabel ? (
+                <Badge variant="brand" className="text-[10px]">
+                  {planLabel}
+                </Badge>
+              ) : null}
             </div>
             <div className="mt-1.5 flex items-center gap-2">
               <span className="size-1.5 shrink-0 rounded-full bg-success" aria-hidden="true" />
@@ -99,7 +105,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
             </div>
             <div className="mt-1 flex items-start gap-1.5 text-[11px] leading-4 text-ink-subtle">
               <MapPin className="mt-0.5 size-3 shrink-0" aria-hidden="true" />
-              <span className="truncate">{activeBranch.city}</span>
+              <span className="truncate">{activeBranch.timezone}</span>
             </div>
           </div>
         )}

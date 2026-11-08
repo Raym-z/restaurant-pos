@@ -251,7 +251,7 @@ export function MenuItemForm({ item }: MenuItemFormProps) {
                 >
                   <span>
                     <span className="font-medium text-ink">{branch.name}</span>
-                    <span className="ml-1 text-xs text-ink-subtle">{branch.code}</span>
+                    <span className="ml-1 text-xs text-ink-subtle">{branch.timezone}</span>
                   </span>
                   <span className="flex items-center gap-2 text-xs text-ink-muted">
                     {t("branchAvailable")}

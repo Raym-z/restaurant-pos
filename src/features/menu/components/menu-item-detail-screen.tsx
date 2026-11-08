@@ -135,7 +135,7 @@ export function MenuItemDetailScreen() {
                         <TableRow key={branch.id}>
                           <TableCell>
                             <div className="font-medium text-ink">{branch.name}</div>
-                            <div className="text-xs text-ink-subtle">{branch.code}</div>
+                            <div className="text-xs text-ink-subtle">{branch.timezone}</div>
                           </TableCell>
                           <TableCell>
                             <Badge variant={available ? "success" : "neutral"}>

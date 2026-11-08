@@ -10,13 +10,16 @@ Read this before building dashboard or management screens. The application shell
 
 ## 2. Non-Negotiable Boundaries
 
-- Do not connect Supabase or add privileged credentials in this repository.
-- Do not implement real authentication or authorization yet. The current workspace is mock-backed.
-- Do not create or modify database schemas, migrations, RLS policies, RPCs, or Edge Functions.
-- Do not treat frontend role filtering as security. Backend authorization is the security boundary.
+- Supabase integration must use only public frontend credentials. Never add a service-role key, database password, or personal access token.
+- Authentication and workspace reads use the server-side Supabase client. Do not scatter Supabase queries through presentation components.
+- Do not create or modify database schemas, migrations, RLS policies, RPCs, or Edge Functions from this repository.
+- Do not treat frontend role/scope filtering as security. Backend RLS and RPC authorization are the security boundary.
 - Do not duplicate customer-facing ordering or waitlist features inside the POS.
 - Do not modify shared shell, design tokens, or primitives without coordinating with the foundation owner.
 - Do not commit directly to `main`.
+- Do not present mock data as live backend data. Unconnected modules must render an explicit unavailable state.
+
+See `docs/supabase-integration.md` for the M1 architecture.
 
 ## 3. Folder Structure
 

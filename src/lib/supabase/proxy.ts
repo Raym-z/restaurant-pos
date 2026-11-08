@@ -4,9 +4,10 @@ import { NextResponse, type NextRequest } from "next/server";
 import { safeNextPath } from "@/features/auth/redirect";
 import { ACTIVE_BRANCH_COOKIE } from "@/features/workspace/constants";
 
+import { classifyAuthUserResult } from "./auth-state";
+import { applyServerAuthCookiePolicy, POS_SERVER_AUTH_COOKIE_OPTIONS } from "./cookie-policy";
 import type { Database } from "./database.types";
 import { getPublicEnvironment } from "./env";
-import { isConfirmedAuthFailure, normalizeAuthError } from "./errors";
 
 function isAuthCookieName(name: string): boolean {
   return name.startsWith("sb-") && name.includes("-auth-token");
@@ -51,6 +52,7 @@ export async function updateSession(request: NextRequest): Promise<NextResponse>
     environment.supabaseUrl,
     environment.supabasePublishableKey,
     {
+      cookieOptions: POS_SERVER_AUTH_COOKIE_OPTIONS,
       cookies: {
         getAll() {
           return request.cookies.getAll();
@@ -63,7 +65,7 @@ export async function updateSession(request: NextRequest): Promise<NextResponse>
           response = NextResponse.next({ request });
 
           for (const { name, value, options } of cookiesToSet) {
-            response.cookies.set(name, value, options);
+            response.cookies.set(name, value, applyServerAuthCookiePolicy(options));
           }
 
           for (const [key, value] of Object.entries(headers)) {
@@ -78,26 +80,29 @@ export async function updateSession(request: NextRequest): Promise<NextResponse>
     data: { user },
     error,
   } = await supabase.auth.getUser();
+  const outcome = classifyAuthUserResult({ user, error });
 
-  if (error) {
-    const normalized = normalizeAuthError(error);
-    if (isConfirmedAuthFailure(error) || normalized.confirmedAuthFailure) {
-      const redirectResponse = loginRedirect(request, "session_expired");
-      clearSessionCookies(redirectResponse, request);
-      return redirectResponse;
-    }
-
-    // Transient failure: preserve cookies and let the protected layout show a
-    // retryable verification state instead of signing the user out.
-    return response;
-  }
-
-  if (!user) {
+  if (outcome.status === "unauthenticated") {
     if (request.nextUrl.pathname === "/login") {
+      clearSessionCookies(response, request);
       return response;
     }
 
-    return loginRedirect(request);
+    const redirectResponse = loginRedirect(request);
+    clearSessionCookies(redirectResponse, request);
+    return redirectResponse;
+  }
+
+  if (outcome.status === "expired") {
+    const redirectResponse = loginRedirect(request, "session_expired");
+    clearSessionCookies(redirectResponse, request);
+    return redirectResponse;
+  }
+
+  if (outcome.status === "unavailable") {
+    // Transient failure: preserve cookies and let the protected layout show a
+    // retryable verification state instead of signing the user out.
+    return response;
   }
 
   if (request.nextUrl.pathname === "/login") {

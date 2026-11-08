@@ -39,6 +39,11 @@ async function clearLocalAuthCookies(): Promise<void> {
   }
 }
 
+async function clearActiveBranchCookie(): Promise<void> {
+  const cookieStore = await cookies();
+  cookieStore.delete(ACTIVE_BRANCH_COOKIE);
+}
+
 export async function signInAction(
   _previousState: LoginActionState,
   formData: FormData,
@@ -61,6 +66,10 @@ export async function signInAction(
   if (error) {
     return { error: normalizeSignInError(error) };
   }
+
+  // Do not let a newly signed-in staff member inherit the previous user's
+  // branch selection from a shared POS device.
+  await clearActiveBranchCookie();
 
   const next = safeNextPath(formData.get("next"));
   redirect(next);

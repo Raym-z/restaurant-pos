@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 
 import { LoginForm } from "@/features/auth/components/login-form";
 import { safeNextPath } from "@/features/auth/redirect";
+import { classifyAuthUserResult } from "@/lib/supabase/auth-state";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -25,9 +26,11 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
+    error,
   } = await supabase.auth.getUser();
+  const outcome = classifyAuthUserResult({ user, error });
 
-  if (user) {
+  if (outcome.status === "authenticated") {
     redirect(next);
   }
 

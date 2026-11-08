@@ -5,9 +5,10 @@ import { cookies } from "next/headers";
 import { cache } from "react";
 
 import { APP_TIMEZONE } from "@/i18n/config";
+import { classifyAuthUserResult } from "@/lib/supabase/auth-state";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { Database } from "@/lib/supabase/database.types";
-import { normalizeAuthError, normalizeDatabaseError } from "@/lib/supabase/errors";
+import { normalizeDatabaseError } from "@/lib/supabase/errors";
 
 import { isOrganizationAdmin } from "./access";
 import { ACTIVE_BRANCH_COOKIE } from "./constants";
@@ -166,17 +167,18 @@ export const getWorkspace = cache(async (): Promise<WorkspaceLoadResult> => {
     data: { user },
     error: authError,
   } = await supabase.auth.getUser();
+  const outcome = classifyAuthUserResult({ user, error: authError });
 
-  if (authError) {
-    return { status: "auth_error", error: normalizeAuthError(authError) };
+  if (outcome.status === "unauthenticated") {
+    return { status: "unauthenticated" };
   }
 
-  if (!user) {
-    return { status: "unauthenticated" };
+  if (outcome.status === "expired" || outcome.status === "unavailable") {
+    return { status: "auth_error", error: outcome.error };
   }
 
   const cookieStore = await cookies();
   const activeBranchCandidate = cookieStore.get(ACTIVE_BRANCH_COOKIE)?.value ?? null;
 
-  return loadWorkspaceForUser(supabase, user, activeBranchCandidate);
+  return loadWorkspaceForUser(supabase, outcome.user, activeBranchCandidate);
 });

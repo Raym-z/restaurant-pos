@@ -896,7 +896,8 @@
       "authUnavailableDescription": "We could not verify your session because the authentication service is temporarily unavailable. Your session was not cleared. Try again shortly.",
       "workspaceErrorTitle": "Workspace could not be loaded",
       "workspaceErrorDescription": "The workspace data could not be loaded. Please try again.",
-      "retry": "Try again"
+      "retry": "Try again",
+      "signInAgain": "Sign in again"
     }
   }
 }

@@ -901,7 +901,8 @@
       "authUnavailableDescription": "Kami tidak dapat memverifikasi sesi Anda karena layanan autentikasi sementara tidak tersedia. Sesi Anda tidak dihapus. Coba lagi sebentar lagi.",
       "workspaceErrorTitle": "Ruang kerja tidak dapat dimuat",
       "workspaceErrorDescription": "Data ruang kerja tidak dapat dimuat. Silakan coba lagi.",
-      "retry": "Coba lagi"
+      "retry": "Coba lagi",
+      "signInAgain": "Masuk lagi"
     }
   }
 }

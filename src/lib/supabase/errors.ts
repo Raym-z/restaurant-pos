@@ -1,5 +1,6 @@
 export type AppErrorCode =
   | "AUTH_INVALID_CREDENTIALS"
+  | "AUTH_SESSION_MISSING"
   | "AUTH_SESSION_EXPIRED"
   | "AUTH_UNAVAILABLE"
   | "PERMISSION_DENIED"
@@ -66,6 +67,24 @@ function isNetworkFailure(error: ErrorLike): boolean {
   );
 }
 
+/**
+ * Supabase Auth signals an absent cookie-backed session with
+ * `AuthSessionMissingError` / `session_missing`. That is an unauthenticated
+ * state, not a temporary service outage.
+ */
+export function isMissingSessionError(error: unknown): boolean {
+  const candidate = asErrorLike(error);
+  const name = candidate.name?.toLowerCase() ?? "";
+  const code = candidate.code?.toLowerCase() ?? "";
+  const message = candidate.message?.toLowerCase() ?? "";
+
+  return (
+    name === "authsessionmissingerror" ||
+    code === "session_missing" ||
+    message.includes("auth session missing")
+  );
+}
+
 export function isConfirmedAuthFailure(error: unknown): boolean {
   const candidate = asErrorLike(error);
   const code = candidate.code?.toLowerCase() ?? "";
@@ -85,6 +104,15 @@ export function isConfirmedAuthFailure(error: unknown): boolean {
 
 export function normalizeAuthError(error: unknown): NormalizedError {
   const candidate = asErrorLike(error);
+
+  if (isMissingSessionError(error)) {
+    return {
+      code: "AUTH_SESSION_MISSING",
+      message: "No active session was found. Please sign in.",
+      confirmedAuthFailure: false,
+      transient: false,
+    };
+  }
 
   if (isConfirmedAuthFailure(error)) {
     return {

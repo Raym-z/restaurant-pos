@@ -37,12 +37,13 @@ Rules:
 | --- | --- |
 | `src/lib/supabase/env.ts` | Validates public environment and rejects production/local-invalid targets. |
 | `src/lib/supabase/server.ts` | Request-scoped `@supabase/ssr` server client backed by Next.js cookies. |
-| `src/lib/supabase/client.ts` | Optional browser client for auth events; not used for business reads. |
 | `src/lib/supabase/proxy.ts` | Session refresh and optimistic route redirects. |
 | `src/proxy.ts` | Next.js 16 request proxy entry point. |
-| `src/lib/supabase/errors.ts` | Normalizes auth and PostgREST failures; distinguishes terminal vs transient auth errors. |
+| `src/lib/supabase/errors.ts` | Normalizes auth and PostgREST failures; distinguishes missing, expired, and transient auth states. |
+| `src/lib/supabase/auth-state.ts` | Classifies `getUser()` results into authenticated, unauthenticated, expired, or unavailable. |
+| `src/lib/supabase/cookie-policy.ts` | Deliberate POS session-cookie lifetime and attributes. |
 
-Business data is read on the server. Presentation components do not call Supabase directly.
+Business data is read on the server. Presentation components do not call Supabase directly. There is no browser Supabase client in M1 because the server session cookie is HttpOnly.
 
 ## 4. Authentication flow
 
@@ -55,9 +56,19 @@ Business data is read on the server. Presentation components do not call Supabas
 
 ### Session refresh failures
 
+- `AuthSessionMissingError` / `session_missing` is treated as **unauthenticated**, not as a service outage.
+- `getUser()` returning `{ user: null, error: null }` is treated as **unauthenticated**.
+- Missing sessions on protected routes redirect to `/login`.
 - Confirmed invalid/expired refresh tokens clear auth cookies and redirect to `/login?reason=session_expired`.
-- Network failures, timeouts, and Supabase 5xx responses preserve cookies and render a retryable “session verification unavailable” state.
+- Network failures, timeouts, and Supabase 5xx responses preserve cookies and render a retryable “session verification unavailable” state with a “Sign in again” recovery action.
 - The application never clears a session solely because the Auth service is temporarily unreachable.
+
+### Session cookie policy
+
+- Server- and proxy-issued auth cookies are `HttpOnly`, `SameSite=Lax`, `Path=/`, and `Secure` in production.
+- The persistence lifetime is **12 hours** (`43,200` seconds), replacing the Supabase SSR default of 400 days. This covers a long restaurant shift while forcing re-authentication at least daily on shared POS devices.
+- The unused browser Supabase client was removed because it cannot read an HttpOnly server session and had no call sites. Any future browser-side auth feature must be designed explicitly around this policy rather than silently weakening it.
+- Successful sign-in clears `pos_active_branch_id` so a new staff member cannot inherit the previous user's branch selection.
 
 ## 5. Workspace mapping
 
@@ -132,3 +143,11 @@ Navigation is evaluated with role **and** scope:
 - Menu availability semantics, translations, tags, and variants.
 
 See the M1 plan for the full dependency matrix.
+
+## 10. M-01 Route-Level Authorization Deferral
+
+Route-level **server-side** authorization for organization- and role-restricted screens is explicitly deferred for M1 only, because there are currently no privileged mutation paths in this milestone.
+
+This deferral is limited to read-only context screens. It is **not** a claim that client-side navigation filtering provides security. Client-side navigation filtering is UX only, and backend RLS remains the data authorization boundary.
+
+Server-side route guards are mandatory before the first mutation milestone. They must verify the authenticated staff profile and the required role/scope before any privileged mutation is rendered or executed. The first organization, branch, staff, or menu mutation milestone must not ship without them.

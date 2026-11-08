@@ -61,6 +61,14 @@ export async function SessionStateScreen({
     </form>
   );
 
+  const signInAgainButton = (
+    <form action={signOutAction}>
+      <Button type="submit" variant="secondary">
+        {t("signInAgain")}
+      </Button>
+    </form>
+  );
+
   const retryButton = (
     <Button asChild variant="secondary">
       <Link href="/dashboard">
@@ -69,6 +77,16 @@ export async function SessionStateScreen({
       </Link>
     </Button>
   );
+
+  const recoveryActions =
+    variant === "auth-unavailable" || variant === "workspace-error" ? (
+      <div className="flex flex-wrap items-center justify-center gap-2">
+        {retryButton}
+        {signInAgainButton}
+      </div>
+    ) : (
+      signOutButton
+    );
 
   return (
     <PageStack>
@@ -81,11 +99,7 @@ export async function SessionStateScreen({
           icon={content.icon}
           title={content.title}
           description={content.description}
-          action={
-            variant === "auth-unavailable" || variant === "workspace-error"
-              ? retryButton
-              : signOutButton
-          }
+          action={recoveryActions}
         />
       </Card>
     </PageStack>

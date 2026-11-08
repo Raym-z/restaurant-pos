@@ -15,9 +15,13 @@ const STATUS_KEYS: Record<string, string> = {
   available: "available",
   unavailable: "unavailable",
   archived: "archived",
+  occupied: "occupied",
   new: "new",
+  pending: "pending",
+  accepted: "accepted",
   preparing: "preparing",
   ready: "ready",
+  served: "served",
   completed: "completed",
   cancelled: "cancelled",
 };

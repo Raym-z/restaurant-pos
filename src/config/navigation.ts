@@ -72,14 +72,12 @@ export const NAVIGATION_SECTIONS: readonly NavSection[] = [
       {
         titleKey: "navigation.items.orders",
         href: "/orders",
-        availability: "unavailable",
         icon: Receipt,
         access: { roles: FLOOR_AND_KITCHEN },
       },
       {
         titleKey: "navigation.items.tables",
         href: "/tables",
-        availability: "unavailable",
         icon: TableProperties,
         access: { roles: FLOOR },
       },

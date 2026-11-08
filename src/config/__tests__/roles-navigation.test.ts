@@ -133,14 +133,15 @@ test("unavailable modules are marked and never imply functional access", () => {
     "/billing",
     "/kitchen",
     "/menu",
-    "/orders",
     "/pos",
     "/queue",
     "/reports",
     "/settings",
     "/staff",
-    "/tables",
   ]);
+
+  assert.ok(!unavailableHrefs.includes("/tables"));
+  assert.ok(!unavailableHrefs.includes("/orders"));
 });
 
 test("navigation never emits unknown role identifiers", () => {

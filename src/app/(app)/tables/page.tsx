@@ -1,8 +1,10 @@
-import { TableProperties } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 
-import { ModulePlaceholder } from "@/components/layout/module-placeholder";
+import { PosLoadError } from "@/features/pos/components/pos-load-error";
+import { TablesScreen } from "@/features/pos/components/tables-screen";
+import { getPosViewer, loadTableOverview } from "@/features/pos/services";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("meta");
@@ -10,15 +12,18 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function TablesPage() {
-  const t = await getTranslations("placeholders.modules.tables");
+  const viewer = await getPosViewer();
+  if (!viewer) {
+    redirect("/login");
+  }
 
-  return (
-    <ModulePlaceholder
-      title={t("title")}
-      description={t("description")}
-      icon={TableProperties}
-      phase={t("phase")}
-      planned={t.raw("planned") as string[]}
-    />
-  );
+  const result = await loadTableOverview(viewer.branchId);
+  if (!result.ok) {
+    const t = await getTranslations("tables");
+    return (
+      <PosLoadError error={result.error} backHref="/dashboard" backLabel={t("backToDashboard")} />
+    );
+  }
+
+  return <TablesScreen data={result.data} viewer={viewer} />;
 }

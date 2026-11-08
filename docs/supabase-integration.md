@@ -94,7 +94,7 @@ Reads:
 | --- | --- | --- |
 | Active staff profile | `staff_profiles` | Self or organization admin; helper resolves active staff only |
 | Organization | `organizations` | Current organization only |
-| Roles | `staff_role_assignments` | Self or organization admin |
+| Roles | `staff_role_assignments` | Self or organization admin; includes M2.1 `branch_id` |
 | Explicit branch assignments | `staff_branch_assignments` | Self or organization admin |
 | Accessible branches | `branches` | Active branches accessible through roles/assignments |
 | Plan label | `subscriptions`, `plans` | Organization Owner/Admin only (optional UI) |
@@ -102,6 +102,12 @@ Reads:
 ### Assigned vs accessible branches
 
 `staff_branch_assignments` is retained as explicit assignment data. It is **not** the branch-switching source. Branch switching and branch access use the `branches` query result, which already applies RLS. Organization-scoped Owners/Admins may access all active branches without individual branch assignments.
+
+M2.1 branch-scoped role assignments are consumed through
+`staff_role_assignments.branch_id`. Effective roles for the active branch are
+organization-scoped assignments plus branch-scoped assignments whose branch ID
+matches the active branch. Branch roles from other branches never contribute to
+navigation, the user summary, or POS capability hints.
 
 ### Non-active staff
 

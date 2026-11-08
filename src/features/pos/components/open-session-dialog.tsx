@@ -32,6 +32,7 @@ export function OpenSessionDialog({
   const errorMessage = usePosErrorMessage();
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [uncertain, setUncertain] = useState(false);
   const [isPending, startTransition] = useTransition();
   const idempotencyKey = useRef<string | null>(null);
 
@@ -42,6 +43,7 @@ export function OpenSessionDialog({
     setOpen(next);
     if (!next) {
       setError(null);
+      setUncertain(false);
       idempotencyKey.current = null;
     }
   }
@@ -54,6 +56,10 @@ export function OpenSessionDialog({
       const result = await openDiningSessionAction(tableId, idempotencyKey.current ?? undefined);
       if (!result.ok) {
         setError(errorMessage(result.error));
+        if (result.committed) {
+          setUncertain(true);
+          router.refresh();
+        }
         return;
       }
 
@@ -87,7 +93,7 @@ export function OpenSessionDialog({
           <Button variant="secondary" onClick={() => handleOpenChange(false)} disabled={isPending}>
             {t("cancel")}
           </Button>
-          <Button onClick={handleSubmit} isLoading={isPending}>
+          <Button onClick={handleSubmit} isLoading={isPending} disabled={uncertain}>
             <DoorOpen />
             {t("openConfirm")}
           </Button>

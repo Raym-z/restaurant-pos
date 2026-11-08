@@ -36,6 +36,7 @@ export function AddOrderItemDialog({
   const errorMessage = usePosErrorMessage();
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [uncertain, setUncertain] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   function handleOpenChange(next: boolean) {
@@ -45,6 +46,7 @@ export function AddOrderItemDialog({
     setOpen(next);
     if (!next) {
       setError(null);
+      setUncertain(false);
     }
   }
 
@@ -61,6 +63,10 @@ export function AddOrderItemDialog({
 
       if (!result.ok) {
         setError(errorMessage(result.error));
+        if (result.committed) {
+          setUncertain(true);
+          router.refresh();
+        }
         return;
       }
 
@@ -89,7 +95,7 @@ export function AddOrderItemDialog({
           menu={menu}
           submitLabel={t("addSubmit")}
           onAdd={handleAdd}
-          isSubmitting={isPending}
+          isSubmitting={isPending || uncertain}
         />
 
         <DialogFooter>

@@ -18,9 +18,9 @@ export function SidebarNav({ collapsed = false, onNavigate }: SidebarNavProps) {
   const pathname = usePathname();
   const t = useTranslations();
   const tShell = useTranslations("shell");
-  const { user, isOrganizationScoped, isOrgAdmin } = useWorkspace();
+  const { activeBranchRoles, isOrganizationScoped, isOrgAdmin } = useWorkspace();
   const sections = getNavigationForContext({
-    roles: user.roles.map((assignment) => assignment.role),
+    roles: activeBranchRoles.map((assignment) => assignment.role),
     isOrganizationScoped,
     isOrgAdmin,
   });

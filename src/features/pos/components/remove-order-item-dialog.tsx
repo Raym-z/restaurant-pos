@@ -35,6 +35,7 @@ export function RemoveOrderItemDialog({
   const [open, setOpen] = useState(false);
   const [reason, setReason] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [uncertain, setUncertain] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   function handleOpenChange(next: boolean) {
@@ -45,6 +46,7 @@ export function RemoveOrderItemDialog({
     if (!next) {
       setReason("");
       setError(null);
+      setUncertain(false);
     }
   }
 
@@ -54,6 +56,10 @@ export function RemoveOrderItemDialog({
       const result = await removeOrderItemAction(orderItemId, reason.trim() || undefined);
       if (!result.ok) {
         setError(errorMessage(result.error));
+        if (result.committed) {
+          setUncertain(true);
+          router.refresh();
+        }
         return;
       }
 
@@ -96,7 +102,12 @@ export function RemoveOrderItemDialog({
           <Button variant="secondary" onClick={() => handleOpenChange(false)} disabled={isPending}>
             {t("cancel")}
           </Button>
-          <Button variant="danger" onClick={handleSubmit} isLoading={isPending}>
+          <Button
+            variant="danger"
+            onClick={handleSubmit}
+            isLoading={isPending}
+            disabled={uncertain}
+          >
             <Trash2 />
             {t("removeConfirm")}
           </Button>

@@ -16,6 +16,7 @@ import { useLocalizedFormat } from "@/i18n/use-localized-format";
 import { useWorkspace } from "@/providers/workspace-provider";
 
 import { canOperateFloor } from "../access";
+import { resolveBranchContext } from "../branch-context";
 import type { OrderSummary } from "../contracts";
 import type { PosViewer, TableDetailData } from "../types";
 import { CloseSessionDialog } from "./close-session-dialog";
@@ -29,10 +30,18 @@ export function TableDetailScreen({ data, viewer }: { data: TableDetailData; vie
   const tOrder = useTranslations("tables.order");
   const format = useLocalizedFormat();
   const router = useRouter();
-  const { activeBranch, organization } = useWorkspace();
+  const { branches, organization } = useWorkspace();
   const [isRefreshing, startRefresh] = useTransition();
   const { table, activeSession, menu } = data;
   const canOperate = canOperateFloor(viewer.roles);
+  const branchContext = resolveBranchContext({
+    branches,
+    branchId: table.branchId,
+    fallbackName: activeSession?.branchName ?? t("unknownBranch"),
+    fallbackTimezone: organization.timezone,
+  });
+  const branchName = branchContext.name || t("unknownBranch");
+  const branchTimezone = branchContext.timezone;
   const currency = organization.currency;
 
   const headerActions = (
@@ -54,7 +63,7 @@ export function TableDetailScreen({ data, viewer }: { data: TableDetailData; vie
     <PageStack>
       <PageHeader
         title={table.label}
-        description={t("description", { branch: activeBranch.name })}
+        description={t("description", { branch: branchName })}
         eyebrow={t("eyebrow")}
         backLink={{ href: "/tables", label: t("back") }}
         actions={headerActions}
@@ -88,7 +97,7 @@ export function TableDetailScreen({ data, viewer }: { data: TableDetailData; vie
                 <Clock className="size-4" aria-hidden="true" />
                 {t("branch")}
               </span>
-              <span className="text-right font-medium text-ink">{activeBranch.name}</span>
+              <span className="text-right font-medium text-ink">{branchName}</span>
             </div>
             {table.qrPublicId ? (
               <div className="flex items-center justify-between gap-3">
@@ -111,7 +120,7 @@ export function TableDetailScreen({ data, viewer }: { data: TableDetailData; vie
                   <div>
                     <dt className="text-ink-muted">{tSession("openedAt")}</dt>
                     <dd className="mt-0.5 font-medium text-ink">
-                      {format.dateTime(activeSession.openedAt, organization.timezone)}
+                      {format.dateTime(activeSession.openedAt, branchTimezone)}
                     </dd>
                   </div>
                   <div>
@@ -194,7 +203,7 @@ export function TableDetailScreen({ data, viewer }: { data: TableDetailData; vie
                   key={order.orderId}
                   order={order}
                   currency={currency}
-                  timezone={organization.timezone}
+                  timezone={branchTimezone}
                 />
               ))}
             </ul>
@@ -246,9 +255,16 @@ function SessionOrderRow({
       <div className="flex items-center gap-3 sm:text-right">
         <div>
           <p className="text-sm font-semibold text-ink">
-            {format.currencyAmount(order.subtotalMinor, order.currency || currency)}
+            {format.currencyAmount(order.payableSubtotalMinor, order.currency || currency)}
           </p>
-          <p className="text-xs text-ink-subtle">{t("subtotal")}</p>
+          <p className="text-xs text-ink-subtle">{t("payableSubtotal")}</p>
+          {order.status === "cancelled" ? (
+            <p className="text-xs text-ink-subtle">
+              {t("historicalSubtotal", {
+                amount: format.currencyAmount(order.subtotalMinor, order.currency || currency),
+              })}
+            </p>
+          ) : null}
         </div>
         <Button asChild variant="ghost" size="sm">
           <Link href={`/orders/${order.orderId}`}>{t("viewOrder")}</Link>

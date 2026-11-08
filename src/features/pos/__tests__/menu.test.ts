@@ -97,7 +97,7 @@ const source = (): BranchMenuSource => ({
 });
 
 test("builds a branch menu with available items and modifier groups", () => {
-  const menu = buildPosMenu("branch-1", source());
+  const menu = buildPosMenu("branch-1", "IDR", source());
 
   assert.equal(menu.itemCount, 3);
   assert.deepEqual(
@@ -123,7 +123,7 @@ test("explicit branch availability blocks categories and items", () => {
   blockedItem.branchItems = [
     { menu_item_id: "item-2", is_available: false, price_override_minor: null },
   ];
-  const menu = buildPosMenu("branch-1", blockedItem);
+  const menu = buildPosMenu("branch-1", "IDR", blockedItem);
   assert.deepEqual(
     menu.categories[0]?.items.map((item) => item.name),
     ["Nasi Goreng"],
@@ -133,7 +133,7 @@ test("explicit branch availability blocks categories and items", () => {
 test("explicit branch category availability blocks every item in the category", () => {
   const blockedCategory = source();
   blockedCategory.branchCategories = [{ menu_category_id: "cat-1", is_available: false }];
-  const menu = buildPosMenu("branch-1", blockedCategory);
+  const menu = buildPosMenu("branch-1", "IDR", blockedCategory);
 
   assert.deepEqual(
     menu.categories.map((category) => category.name),
@@ -146,12 +146,12 @@ test("branch price overrides replace the organization base price", () => {
   overridden.branchItems = [
     { menu_item_id: "item-1", is_available: true, price_override_minor: 65000 },
   ];
-  const menu = buildPosMenu("branch-1", overridden);
+  const menu = buildPosMenu("branch-1", "IDR", overridden);
   assert.equal(menu.categories[0]?.items[0]?.basePriceMinor, 65000);
 });
 
 test("modifier helpers calculate deltas and validate required groups", () => {
-  const menu = buildPosMenu("branch-1", source());
+  const menu = buildPosMenu("branch-1", "IDR", source());
   const item = menu.categories[0]?.items[0];
   assert.ok(item);
 
@@ -169,13 +169,40 @@ test("modifier helpers calculate deltas and validate required groups", () => {
   assert.equal(unknown?.issue, "unknown");
 });
 
+test("items whose currency differs from the organization default are hidden", () => {
+  const mixedCurrency = source();
+  mixedCurrency.items = mixedCurrency.items.map((item) =>
+    item.id === "item-1" ? { ...item, currency_code: "USD" } : item,
+  );
+
+  const menu = buildPosMenu("branch-1", "IDR", mixedCurrency);
+  assert.deepEqual(
+    menu.categories[0]?.items.map((item) => item.name),
+    ["Mie Goreng"],
+  );
+});
+
+test("required modifier groups with no active options remain visible and fail validation", () => {
+  const emptyOptions = source();
+  emptyOptions.modifierOptions = [];
+
+  const menu = buildPosMenu("branch-1", "IDR", emptyOptions);
+  const item = menu.categories[0]?.items[0];
+  assert.ok(item);
+  assert.equal(item.modifierGroups.length, 1);
+  assert.equal(item.modifierGroups[0]?.options.length, 0);
+
+  const issue = validateModifierSelection(item, []);
+  assert.equal(issue?.issue, "min");
+});
+
 test("empty categories are omitted after availability resolution", () => {
   const empty = source();
   empty.branchCategories = [
     { menu_category_id: "cat-1", is_available: false },
     { menu_category_id: "cat-2", is_available: false },
   ];
-  const menu = buildPosMenu("branch-1", empty);
+  const menu = buildPosMenu("branch-1", "IDR", empty);
   assert.equal(menu.itemCount, 0);
   assert.equal(menu.categories.length, 0);
 });

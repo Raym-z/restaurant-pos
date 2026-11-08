@@ -18,7 +18,7 @@ export default async function TableDetailPage({ params }: { params: Promise<{ id
     redirect("/login");
   }
 
-  const result = await loadTableDetail(id);
+  const result = await loadTableDetail(id, viewer.currency);
   if (!result.ok) {
     if (result.error.code === "TABLE_NOT_FOUND") {
       notFound();

@@ -79,7 +79,9 @@ export async function loadWorkspaceForUser(
       .maybeSingle(),
     supabase
       .from("staff_role_assignments")
-      .select("id, staff_id, organization_id, role_code, scope_type, assigned_at, revoked_at")
+      .select(
+        "id, staff_id, organization_id, role_code, scope_type, branch_id, assigned_at, revoked_at",
+      )
       .eq("staff_id", profile.id)
       .eq("organization_id", profile.organization_id)
       .is("revoked_at", null),

@@ -14,6 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
   TableBody,
+  TableCaption,
   TableCell,
   TableContainer,
   TableFooter,
@@ -31,9 +32,10 @@ import {
   canOperateFloor,
   canTransitionOrder,
 } from "../access";
+import { resolveBranchContext } from "../branch-context";
 import {
   TRANSITION_TARGET_STATUSES,
-  nextOrderStatuses,
+  nextOrderStatusesForItems,
   type OrderItem,
   type OrderStatus,
   type TransitionTargetStatus,
@@ -63,10 +65,19 @@ export function OrderDetailScreen({ data, viewer }: { data: OrderDetailData; vie
   const t = useTranslations("orders.detail");
   const tTransitions = useTranslations("orders.transitions");
   const router = useRouter();
-  const { organization } = useWorkspace();
+  const { branches, organization } = useWorkspace();
   const format = useLocalizedFormat();
   const errorMessage = usePosErrorMessage();
-  const { order, session, menu } = data;
+  const { order, session, menu, menuError } = data;
+  const branchContext = resolveBranchContext({
+    branches,
+    branchId: order.branchId,
+    fallbackName: session?.branchName ?? organization.name,
+    fallbackTimezone: organization.timezone,
+  });
+  const orderTimezone = branchContext.timezone;
+  const branchName = branchContext.name || organization.name;
+  const menuErrorMessage = menuError ? errorMessage(menuError) : null;
   const [isRefreshing, startRefresh] = useTransition();
   const [isTransitioning, startTransition] = useTransition();
   const [actionError, setActionError] = useState<string | null>(null);
@@ -77,7 +88,9 @@ export function OrderDetailScreen({ data, viewer }: { data: OrderDetailData; vie
   const itemsEditable = canOperate && sessionActive && canModifyOrderItems(order.status);
   const showCancel =
     canOperate && sessionActive && canCancelStatus(order.status) && canCancelOrder(viewer.roles);
-  const transitionTargets = nextOrderStatuses(order.status).filter(isTransitionTarget);
+  const transitionTargets = nextOrderStatusesForItems(order.status, order.activeItemCount).filter(
+    isTransitionTarget,
+  );
   const isTerminal = order.status === "completed" || order.status === "cancelled";
   const allowedTransitions = sessionActive
     ? transitionTargets.filter((target) => canTransitionOrder(viewer.roles, target))
@@ -90,6 +103,9 @@ export function OrderDetailScreen({ data, viewer }: { data: OrderDetailData; vie
       const result = await transitionOrderStatusAction(order.orderId, target);
       if (!result.ok) {
         setActionError(errorMessage(result.error));
+        if (result.committed) {
+          router.refresh();
+        }
         return;
       }
 
@@ -104,7 +120,7 @@ export function OrderDetailScreen({ data, viewer }: { data: OrderDetailData; vie
         title={order.orderReference}
         description={t("description", {
           table: session?.tableLabel ?? t("unknownTable"),
-          branch: session?.branchName ?? organization.name,
+          branch: branchName,
         })}
         eyebrow={t("eyebrow")}
         backLink={{ href: "/orders", label: t("back") }}
@@ -171,7 +187,7 @@ export function OrderDetailScreen({ data, viewer }: { data: OrderDetailData; vie
               <div>
                 <dt className="text-ink-muted">{t("created")}</dt>
                 <dd className="mt-0.5 font-medium text-ink">
-                  {format.dateTime(order.createdAt, organization.timezone)}
+                  {format.dateTime(order.createdAt, orderTimezone)}
                 </dd>
               </div>
               <div>
@@ -193,12 +209,25 @@ export function OrderDetailScreen({ data, viewer }: { data: OrderDetailData; vie
                 </dd>
               </div>
               <div>
-                <dt className="text-ink-muted">{t("subtotal")}</dt>
+                <dt className="text-ink-muted">{t("payableSubtotal")}</dt>
                 <dd className="mt-0.5 text-base font-semibold text-ink">
-                  {format.currencyAmount(order.subtotalMinor, order.currency)}
+                  {format.currencyAmount(order.payableSubtotalMinor, order.currency)}
                 </dd>
+                {order.status === "cancelled" ? (
+                  <dd className="mt-1 text-xs text-ink-subtle">
+                    {t("historicalSubtotal", {
+                      amount: format.currencyAmount(order.subtotalMinor, order.currency),
+                    })}
+                  </dd>
+                ) : null}
               </div>
             </dl>
+
+            {order.status === "completed" ? (
+              <p className="rounded-lg border border-info/20 bg-info-soft/40 px-3 py-2 text-sm text-info">
+                {t("completedNotSettled")}
+              </p>
+            ) : null}
 
             {order.notes ? (
               <div className="rounded-lg border border-line bg-surface-subtle px-3 py-2">
@@ -217,7 +246,7 @@ export function OrderDetailScreen({ data, viewer }: { data: OrderDetailData; vie
                 </p>
                 {order.cancelledAt ? (
                   <p className="mt-1 text-xs text-ink-subtle">
-                    {format.dateTime(order.cancelledAt, organization.timezone)}
+                    {format.dateTime(order.cancelledAt, orderTimezone)}
                   </p>
                 ) : null}
               </div>
@@ -245,7 +274,7 @@ export function OrderDetailScreen({ data, viewer }: { data: OrderDetailData; vie
           <CardContent>
             <OrderTimeline
               order={order}
-              timezone={organization.timezone}
+              timezone={orderTimezone}
               formatDateTime={format.dateTime}
             />
           </CardContent>
@@ -256,7 +285,7 @@ export function OrderDetailScreen({ data, viewer }: { data: OrderDetailData; vie
         title={t("itemsTitle")}
         description={t("itemsDescription")}
         actions={
-          itemsEditable && menu ? (
+          itemsEditable && menu && !menuError ? (
             <AddOrderItemDialog
               orderId={order.orderId}
               orderReference={order.orderReference}
@@ -265,6 +294,7 @@ export function OrderDetailScreen({ data, viewer }: { data: OrderDetailData; vie
           ) : null
         }
       >
+        <ActionError message={menuErrorMessage} />
         <Card className="overflow-hidden">
           {order.items.length === 0 ? (
             <EmptyState
@@ -276,7 +306,8 @@ export function OrderDetailScreen({ data, viewer }: { data: OrderDetailData; vie
             />
           ) : (
             <TableContainer>
-              <Table>
+              <Table aria-label={t("itemsTitle")}>
+                <TableCaption className="sr-only">{t("itemsTitle")}</TableCaption>
                 <TableHeader>
                   <TableRow>
                     <TableHead>{t("item")}</TableHead>
@@ -295,15 +326,15 @@ export function OrderDetailScreen({ data, viewer }: { data: OrderDetailData; vie
                       key={item.orderItemId}
                       item={item}
                       canEdit={itemsEditable}
-                      timezone={organization.timezone}
+                      timezone={orderTimezone}
                     />
                   ))}
                 </TableBody>
                 <TableFooter>
                   <TableRow>
-                    <TableCell colSpan={3}>{t("subtotal")}</TableCell>
+                    <TableCell colSpan={3}>{t("payableSubtotal")}</TableCell>
                     <TableCell className="text-right text-base font-semibold text-ink">
-                      {format.currencyAmount(order.subtotalMinor, order.currency)}
+                      {format.currencyAmount(order.payableSubtotalMinor, order.currency)}
                     </TableCell>
                     <TableCell colSpan={2} />
                   </TableRow>

@@ -17,10 +17,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { canManageBranches } from "@/features/workspace/access";
 import { useWorkspace } from "@/providers/workspace-provider";
 
 export function BranchSwitcher() {
-  const { branches, activeBranch, setActiveBranch } = useWorkspace();
+  const { branches, activeBranch, activeBranchRoles, setActiveBranch } = useWorkspace();
+  const canManage = canManageBranches(activeBranchRoles.map((assignment) => assignment.role));
   const router = useRouter();
   const t = useTranslations("shell");
   const [pending, startTransition] = useTransition();
@@ -84,13 +86,17 @@ export function BranchSwitcher() {
             {error}
           </p>
         ) : null}
-        <DropdownMenuSeparator />
-        <DropdownMenuItem asChild>
-          <Link href="/branches">
-            <Store />
-            {t("manageBranches")}
-          </Link>
-        </DropdownMenuItem>
+        {canManage ? (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link href="/branches">
+                <Store />
+                {t("manageBranches")}
+              </Link>
+            </DropdownMenuItem>
+          </>
+        ) : null}
       </DropdownMenuContent>
     </DropdownMenu>
   );

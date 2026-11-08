@@ -18,7 +18,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
     redirect("/login");
   }
 
-  const result = await loadOrderDetail(id);
+  const result = await loadOrderDetail(id, viewer.currency);
   if (!result.ok) {
     if (result.error.code === "ORDER_NOT_FOUND") {
       notFound();

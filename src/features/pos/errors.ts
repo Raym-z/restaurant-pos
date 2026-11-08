@@ -88,7 +88,7 @@ export function normalizePosError(error: unknown): PosActionError {
     return {
       code: message,
       message: candidate.details?.trim() || message,
-      retryable: message === "RATE_LIMIT_EXCEEDED",
+      retryable: message === "RATE_LIMIT_EXCEEDED" || message === "IDEMPOTENCY_IN_PROGRESS",
     };
   }
 

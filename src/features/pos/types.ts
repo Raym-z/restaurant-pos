@@ -64,7 +64,8 @@ export interface PosActionError {
   retryable: boolean;
 }
 
-export type PosActionResult<T> = { ok: true; data: T } | { ok: false; error: PosActionError };
+export type PosActionResult<T> =
+  { ok: true; data: T; committed: true } | { ok: false; error: PosActionError; committed: boolean };
 
 export type PosLoadResult<T> = { ok: true; data: T } | { ok: false; error: PosActionError };
 
@@ -90,6 +91,8 @@ export interface OrderDetailData {
   order: OrderDetail;
   session: DiningSessionDetail | null;
   menu: PosMenu | null;
+  /** Present when the menu read failed; order viewing still succeeds. */
+  menuError: PosActionError | null;
 }
 
 export interface PosViewer {

@@ -162,6 +162,7 @@ export interface Database {
           organization_id: string;
           role_code: string;
           scope_type: RoleScope;
+          branch_id: string | null;
           assigned_by_staff_id: string | null;
           assigned_at: string;
           revoked_at: string | null;
@@ -176,6 +177,7 @@ export interface Database {
           organization_id: string;
           role_code: string;
           scope_type: RoleScope;
+          branch_id?: string | null;
           assigned_by_staff_id?: string | null;
           assigned_at?: string;
           revoked_at?: string | null;
@@ -190,6 +192,7 @@ export interface Database {
           organization_id?: string;
           role_code?: string;
           scope_type?: RoleScope;
+          branch_id?: string | null;
           assigned_by_staff_id?: string | null;
           assigned_at?: string;
           revoked_at?: string | null;

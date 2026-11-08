@@ -113,6 +113,7 @@
     "pageOf": "Page {page} of {totalPages}",
     "previous": "Previous",
     "next": "Next",
+    "closeDialog": "Close dialog",
     "items": "items",
     "staffMembers": "staff members",
     "branches": "branches",
@@ -900,7 +901,7 @@
       "NOT_FOUND": "The requested record could not be found.",
       "SERVICE_UNAVAILABLE": "The backend is temporarily unavailable. Try again.",
       "INTERNAL_ERROR": "The operation could not be completed. Try again.",
-      "INVALID_RESPONSE": "The backend returned an unexpected response. Refresh and try again."
+      "INVALID_RESPONSE": "The backend completed the request, but its response could not be read. The page was refreshed; verify the result before retrying."
     }
   },
   "tables": {
@@ -957,6 +958,7 @@
         "active": "Active",
         "inactive": "Inactive"
       },
+      "unknownBranch": "Unknown branch",
       "restrictedNotice": "Your role can view this table but cannot open or close sessions or manage orders."
     },
     "session": {
@@ -1027,6 +1029,9 @@
       "noSessionDescription": "Open a dining session before creating orders for this table.",
       "itemCount": "{count, plural, one {# item} other {# items}}",
       "subtotal": "Subtotal",
+      "payableSubtotal": "Payable subtotal",
+      "historicalSubtotal": "Historical subtotal {amount} (not payable)",
+      "noOptionsAvailable": "{group} has no available options right now.",
       "viewOrder": "View order"
     }
   },
@@ -1042,16 +1047,23 @@
       "total": "Total orders",
       "active": "Active",
       "completed": "Completed",
-      "cancelled": "Cancelled"
+      "cancelled": "Cancelled",
+      "pageTotal": "Orders on this page",
+      "pageActive": "Active on this page",
+      "pageCompleted": "Completed on this page",
+      "pageCancelled": "Cancelled on this page"
     },
     "table": {
       "reference": "Order",
       "status": "Status",
       "items": "Items",
       "subtotal": "Subtotal",
+      "payableSubtotal": "Payable",
       "created": "Created",
       "actions": "Actions"
     },
+    "historicalSubtotal": "Historical {amount}",
+    "page": "Page {page}",
     "source": {
       "guest": "Guest",
       "staff": "Staff"
@@ -1082,6 +1094,9 @@
       "sessionClosed": "Closed",
       "sessionUnavailable": "Unavailable",
       "subtotal": "Subtotal",
+      "payableSubtotal": "Payable subtotal",
+      "historicalSubtotal": "Historical subtotal {amount} (not payable)",
+      "completedNotSettled": "Operational completion only. Payment settlement is handled separately.",
       "notes": "Notes",
       "cancelledTitle": "Order cancelled",
       "cancelledNoReason": "No cancellation reason was recorded.",

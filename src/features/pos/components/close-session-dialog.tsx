@@ -37,6 +37,7 @@ export function CloseSessionDialog({
   const [open, setOpen] = useState(false);
   const [reason, setReason] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [uncertain, setUncertain] = useState(false);
   const [isPending, startTransition] = useTransition();
   const blocked = activeOrderCount > 0;
 
@@ -47,6 +48,7 @@ export function CloseSessionDialog({
     setOpen(next);
     if (!next) {
       setError(null);
+      setUncertain(false);
       setReason("");
     }
   }
@@ -57,6 +59,10 @@ export function CloseSessionDialog({
       const result = await closeDiningSessionAction(sessionId, reason.trim() || undefined);
       if (!result.ok) {
         setError(errorMessage(result.error));
+        if (result.committed) {
+          setUncertain(true);
+          router.refresh();
+        }
         return;
       }
 
@@ -109,7 +115,7 @@ export function CloseSessionDialog({
           <Button variant="secondary" onClick={() => handleOpenChange(false)} disabled={isPending}>
             {t("cancel")}
           </Button>
-          <Button onClick={handleSubmit} isLoading={isPending} disabled={blocked}>
+          <Button onClick={handleSubmit} isLoading={isPending} disabled={blocked || uncertain}>
             <DoorClosed />
             {t("closeConfirm")}
           </Button>

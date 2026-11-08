@@ -113,6 +113,7 @@
     "pageOf": "Halaman {page} dari {totalPages}",
     "previous": "Sebelumnya",
     "next": "Berikutnya",
+    "closeDialog": "Tutup dialog",
     "items": "item",
     "staffMembers": "anggota staf",
     "branches": "cabang",
@@ -905,7 +906,7 @@
       "NOT_FOUND": "Data yang diminta tidak ditemukan.",
       "SERVICE_UNAVAILABLE": "Backend sementara tidak tersedia. Coba lagi.",
       "INTERNAL_ERROR": "Operasi tidak dapat diselesaikan. Coba lagi.",
-      "INVALID_RESPONSE": "Backend mengembalikan respons yang tidak terduga. Muat ulang lalu coba lagi."
+      "INVALID_RESPONSE": "Backend menyelesaikan permintaan, tetapi responsnya tidak dapat dibaca. Halaman telah dimuat ulang; verifikasi hasilnya sebelum mencoba lagi."
     }
   },
   "tables": {
@@ -962,6 +963,7 @@
         "active": "Aktif",
         "inactive": "Nonaktif"
       },
+      "unknownBranch": "Cabang tidak diketahui",
       "restrictedNotice": "Peran Anda dapat melihat meja ini tetapi tidak dapat membuka atau menutup sesi maupun mengelola pesanan."
     },
     "session": {
@@ -1032,6 +1034,9 @@
       "noSessionDescription": "Buka sesi makan sebelum membuat pesanan untuk meja ini.",
       "itemCount": "{count, plural, other {# item}}",
       "subtotal": "Subtotal",
+      "payableSubtotal": "Subtotal terutang",
+      "historicalSubtotal": "Subtotal historis {amount} (tidak terutang)",
+      "noOptionsAvailable": "{group} tidak memiliki opsi tersedia saat ini.",
       "viewOrder": "Lihat pesanan"
     }
   },
@@ -1047,16 +1052,23 @@
       "total": "Total pesanan",
       "active": "Aktif",
       "completed": "Selesai",
-      "cancelled": "Dibatalkan"
+      "cancelled": "Dibatalkan",
+      "pageTotal": "Pesanan di halaman ini",
+      "pageActive": "Aktif di halaman ini",
+      "pageCompleted": "Selesai di halaman ini",
+      "pageCancelled": "Dibatalkan di halaman ini"
     },
     "table": {
       "reference": "Pesanan",
       "status": "Status",
       "items": "Item",
       "subtotal": "Subtotal",
+      "payableSubtotal": "Terutang",
       "created": "Dibuat",
       "actions": "Tindakan"
     },
+    "historicalSubtotal": "Historis {amount}",
+    "page": "Halaman {page}",
     "source": {
       "guest": "Tamu",
       "staff": "Staf"
@@ -1087,6 +1099,9 @@
       "sessionClosed": "Ditutup",
       "sessionUnavailable": "Tidak tersedia",
       "subtotal": "Subtotal",
+      "payableSubtotal": "Subtotal terutang",
+      "historicalSubtotal": "Subtotal historis {amount} (tidak terutang)",
+      "completedNotSettled": "Penyelesaian operasional saja. Penyelesaian pembayaran ditangani terpisah.",
       "notes": "Catatan",
       "cancelledTitle": "Pesanan dibatalkan",
       "cancelledNoReason": "Tidak ada alasan pembatalan yang dicatat.",

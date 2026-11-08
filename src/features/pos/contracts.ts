@@ -86,68 +86,71 @@ export type DiningSessionStatus = z.infer<typeof DiningSessionStatusSchema>;
 
 const OrderSourceSchema = z.enum(["guest", "staff"]);
 
-export const OrderItemModifierSchema = z
-  .object({
-    modifierGroupId: UuidSchema,
-    modifierOptionId: UuidSchema,
-    groupName: z.string().min(1).max(200),
-    optionName: z.string().min(1).max(200),
-    priceDeltaMinor: z.number().int(),
-  })
-  .strict();
+// Response objects intentionally strip unknown fields instead of rejecting them.
+// Additive backend fields must not break the POS response boundary, while every
+// request schema below remains strict.
+export const OrderItemModifierSchema = z.object({
+  modifierGroupId: UuidSchema,
+  modifierOptionId: UuidSchema,
+  groupName: z.string().min(1).max(200),
+  optionName: z.string().min(1).max(200),
+  priceDeltaMinor: z.number().int(),
+});
 
 export type OrderItemModifier = z.infer<typeof OrderItemModifierSchema>;
 
-export const OrderItemSchema = z
-  .object({
-    orderItemId: UuidSchema,
-    orderId: UuidSchema,
-    menuItemId: UuidSchema,
-    name: z.string().min(1).max(200),
-    baseUnitPriceMinor: NonNegativeMinorUnitsSchema,
-    modifierUnitDeltaMinor: z.number().int(),
-    effectiveUnitPriceMinor: NonNegativeMinorUnitsSchema,
-    quantity: z.number().int().min(1).max(99),
-    lineTotalMinor: NonNegativeMinorUnitsSchema,
-    currency: CurrencyCodeSchema,
-    status: OrderItemStatusSchema,
-    notes: z.string().max(500).nullable(),
-    preparingAt: NullableInstantSchema,
-    readyAt: NullableInstantSchema,
-    servedAt: NullableInstantSchema,
-    cancelledAt: NullableInstantSchema,
-    cancellationReason: z.string().max(500).nullable(),
-    modifiers: z.array(OrderItemModifierSchema),
-  })
-  .strict();
+export const OrderItemSchema = z.object({
+  orderItemId: UuidSchema,
+  orderId: UuidSchema,
+  menuItemId: UuidSchema,
+  name: z.string().min(1).max(200),
+  baseUnitPriceMinor: NonNegativeMinorUnitsSchema,
+  modifierUnitDeltaMinor: z.number().int(),
+  effectiveUnitPriceMinor: NonNegativeMinorUnitsSchema,
+  quantity: z.number().int().min(1).max(99),
+  lineTotalMinor: NonNegativeMinorUnitsSchema,
+  currency: CurrencyCodeSchema,
+  status: OrderItemStatusSchema,
+  notes: z.string().max(500).nullable(),
+  preparingAt: NullableInstantSchema,
+  readyAt: NullableInstantSchema,
+  servedAt: NullableInstantSchema,
+  cancelledAt: NullableInstantSchema,
+  cancellationReason: z.string().max(500).nullable(),
+  modifiers: z.array(OrderItemModifierSchema),
+});
 
 export type OrderItem = z.infer<typeof OrderItemSchema>;
 
-export const OrderSummarySchema = z
-  .object({
-    orderId: UuidSchema,
-    orderReference: z.string().min(1).max(64),
-    organizationId: UuidSchema,
-    branchId: UuidSchema,
-    diningSessionId: UuidSchema,
-    source: OrderSourceSchema,
-    status: OrderStatusSchema,
-    currency: CurrencyCodeSchema,
-    subtotalMinor: NonNegativeMinorUnitsSchema,
-    notes: z.string().max(1000).nullable(),
-    itemCount: z.number().int().min(0),
-    activeItemCount: z.number().int().min(0),
-    createdAt: InstantSchema,
-    updatedAt: InstantSchema,
-    acceptedAt: NullableInstantSchema,
-    preparingAt: NullableInstantSchema,
-    readyAt: NullableInstantSchema,
-    servedAt: NullableInstantSchema,
-    completedAt: NullableInstantSchema,
-    cancelledAt: NullableInstantSchema,
-    cancellationReason: z.string().max(500).nullable(),
-  })
-  .strict();
+export const OrderSummarySchema = z.object({
+  orderId: UuidSchema,
+  orderReference: z.string().min(1).max(64),
+  organizationId: UuidSchema,
+  branchId: UuidSchema,
+  diningSessionId: UuidSchema,
+  source: OrderSourceSchema,
+  status: OrderStatusSchema,
+  currency: CurrencyCodeSchema,
+  /**
+   * Immutable historical item snapshot. For cancelled orders this remains for
+   * audit but is not payable. Use payableSubtotalMinor for settlement amounts.
+   */
+  subtotalMinor: NonNegativeMinorUnitsSchema,
+  /** Zero for cancelled orders; otherwise equal to subtotalMinor. */
+  payableSubtotalMinor: NonNegativeMinorUnitsSchema,
+  notes: z.string().max(1000).nullable(),
+  itemCount: z.number().int().min(0),
+  activeItemCount: z.number().int().min(0),
+  createdAt: InstantSchema,
+  updatedAt: InstantSchema,
+  acceptedAt: NullableInstantSchema,
+  preparingAt: NullableInstantSchema,
+  readyAt: NullableInstantSchema,
+  servedAt: NullableInstantSchema,
+  completedAt: NullableInstantSchema,
+  cancelledAt: NullableInstantSchema,
+  cancellationReason: z.string().max(500).nullable(),
+});
 
 export type OrderSummary = z.infer<typeof OrderSummarySchema>;
 
@@ -155,107 +158,93 @@ export const OrderDetailSchema = OrderSummarySchema.extend({
   submittedByStaffId: UuidSchema.nullable(),
   cancelledByStaffId: UuidSchema.nullable(),
   items: z.array(OrderItemSchema),
-}).strict();
+});
 
 export type OrderDetail = z.infer<typeof OrderDetailSchema>;
 
-export const DiningSessionSummarySchema = z
-  .object({
-    sessionId: UuidSchema,
-    organizationId: UuidSchema,
-    branchId: UuidSchema,
-    branchName: z.string().min(1).max(200),
-    tableId: UuidSchema,
-    tableLabel: z.string().min(1).max(80),
-    status: DiningSessionStatusSchema,
-    openedAt: InstantSchema,
-    closedAt: NullableInstantSchema,
-    openedByStaffId: UuidSchema.nullable(),
-    closedByStaffId: UuidSchema.nullable(),
-    currency: CurrencyCodeSchema,
-    orderCount: z.number().int().min(0),
-    activeOrderCount: z.number().int().min(0),
-    subtotalMinor: NonNegativeMinorUnitsSchema,
-  })
-  .strict();
+export const DiningSessionSummarySchema = z.object({
+  sessionId: UuidSchema,
+  organizationId: UuidSchema,
+  branchId: UuidSchema,
+  branchName: z.string().min(1).max(200),
+  tableId: UuidSchema,
+  tableLabel: z.string().min(1).max(80),
+  status: DiningSessionStatusSchema,
+  openedAt: InstantSchema,
+  closedAt: NullableInstantSchema,
+  openedByStaffId: UuidSchema.nullable(),
+  closedByStaffId: UuidSchema.nullable(),
+  currency: CurrencyCodeSchema,
+  orderCount: z.number().int().min(0),
+  activeOrderCount: z.number().int().min(0),
+  subtotalMinor: NonNegativeMinorUnitsSchema,
+});
 
 export type DiningSessionSummary = z.infer<typeof DiningSessionSummarySchema>;
 
 export const DiningSessionDetailSchema = DiningSessionSummarySchema.extend({
   orders: z.array(OrderSummarySchema),
-}).strict();
+});
 
 export type DiningSessionDetail = z.infer<typeof DiningSessionDetailSchema>;
 
-export const TableSummarySchema = z
-  .object({
-    tableId: UuidSchema,
-    organizationId: UuidSchema,
-    branchId: UuidSchema,
-    label: z.string().min(1).max(80),
-    capacity: z.number().int().min(1).max(32767),
-    status: z.enum(["active", "inactive"]),
-    deactivatedAt: NullableInstantSchema,
-    qrPublicId: UuidSchema.nullable(),
-    availability: TableAvailabilitySchema,
-    activeSessionId: UuidSchema.nullable(),
-    activeSessionOpenedAt: NullableInstantSchema,
-  })
-  .strict();
+export const TableSummarySchema = z.object({
+  tableId: UuidSchema,
+  organizationId: UuidSchema,
+  branchId: UuidSchema,
+  label: z.string().min(1).max(80),
+  capacity: z.number().int().min(1).max(32767),
+  status: z.enum(["active", "inactive"]),
+  deactivatedAt: NullableInstantSchema,
+  qrPublicId: UuidSchema.nullable(),
+  availability: TableAvailabilitySchema,
+  activeSessionId: UuidSchema.nullable(),
+  activeSessionOpenedAt: NullableInstantSchema,
+});
 
 export type TableSummary = z.infer<typeof TableSummarySchema>;
 
-export const ListBranchTablesResponseSchema = z
-  .object({
-    branchId: UuidSchema,
-    tables: z.array(TableSummarySchema),
-  })
-  .strict();
+export const ListBranchTablesResponseSchema = z.object({
+  branchId: UuidSchema,
+  tables: z.array(TableSummarySchema),
+});
 
 export type ListBranchTablesResponse = z.infer<typeof ListBranchTablesResponseSchema>;
 
-export const GetActiveDiningSessionResponseSchema = z
-  .object({
-    tableId: UuidSchema,
-    activeSession: DiningSessionDetailSchema.nullable(),
-  })
-  .strict();
+export const GetActiveDiningSessionResponseSchema = z.object({
+  tableId: UuidSchema,
+  activeSession: DiningSessionDetailSchema.nullable(),
+});
 
 export type GetActiveDiningSessionResponse = z.infer<typeof GetActiveDiningSessionResponseSchema>;
 
-export const BranchOrderListResponseSchema = z
-  .object({
-    branchId: UuidSchema,
-    orders: z.array(OrderSummarySchema),
-    pageSize: z.number().int().min(1).max(100),
-    hasMore: z.boolean(),
-    nextOffset: z.number().int().min(0).nullable(),
-  })
-  .strict();
+export const BranchOrderListResponseSchema = z.object({
+  branchId: UuidSchema,
+  orders: z.array(OrderSummarySchema),
+  pageSize: z.number().int().min(1).max(100),
+  hasMore: z.boolean(),
+  nextOffset: z.number().int().min(0).nullable(),
+});
 
 export type BranchOrderListResponse = z.infer<typeof BranchOrderListResponseSchema>;
 
-export const SessionOrderListResponseSchema = z
-  .object({
-    diningSessionId: UuidSchema,
-    orders: z.array(OrderSummarySchema),
-    pageSize: z.number().int().min(1).max(100),
-    hasMore: z.boolean(),
-    nextOffset: z.number().int().min(0).nullable(),
-  })
-  .strict();
+export const SessionOrderListResponseSchema = z.object({
+  diningSessionId: UuidSchema,
+  orders: z.array(OrderSummarySchema),
+  pageSize: z.number().int().min(1).max(100),
+  hasMore: z.boolean(),
+  nextOffset: z.number().int().min(0).nullable(),
+});
 
 export type SessionOrderListResponse = z.infer<typeof SessionOrderListResponseSchema>;
 
-export const BranchDiningSessionListResponseSchema = z
-  .object({
-    branchId: UuidSchema,
-    sessions: z.array(DiningSessionSummarySchema),
-    pageSize: z.number().int().min(1).max(100),
-    hasMore: z.boolean(),
-    nextOffset: z.number().int().min(0).nullable(),
-  })
-  .strict();
+export const BranchDiningSessionListResponseSchema = z.object({
+  branchId: UuidSchema,
+  sessions: z.array(DiningSessionSummarySchema),
+  pageSize: z.number().int().min(1).max(100),
+  hasMore: z.boolean(),
+  nextOffset: z.number().int().min(0).nullable(),
+});
 
 export type BranchDiningSessionListResponse = z.infer<typeof BranchDiningSessionListResponseSchema>;
 
@@ -315,6 +304,19 @@ export function isOrderStatus(value: unknown): value is OrderStatus {
 
 export function nextOrderStatuses(status: OrderStatus): readonly OrderStatus[] {
   return ORDER_STATUS_TRANSITIONS[status];
+}
+
+/**
+ * Backend rule: served/completed require at least one non-cancelled item.
+ * Such orders must be cancelled instead of being marked fulfilled.
+ */
+export function nextOrderStatusesForItems(
+  status: OrderStatus,
+  activeItemCount: number,
+): readonly OrderStatus[] {
+  return nextOrderStatuses(status).filter(
+    (target) => (target !== "served" && target !== "completed") || activeItemCount > 0,
+  );
 }
 
 export function isCancellableOrderStatus(status: OrderStatus): boolean {

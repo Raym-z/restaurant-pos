@@ -2,7 +2,9 @@ import { APP_TIMEZONE } from "@/i18n/config";
 import type { Database } from "@/lib/supabase/database.types";
 
 import {
+  deriveEffectivePrimaryRole,
   derivePrimaryRole,
+  effectiveRoleAssignments,
   hasOrganizationScope,
   isOrganizationAdmin,
   isStaffRole,
@@ -25,6 +27,7 @@ export interface RoleAssignmentSource {
   id: string;
   role_code: string;
   scope_type: "organization" | "branch";
+  branch_id: string | null;
   assigned_at: string;
 }
 
@@ -72,6 +75,7 @@ export function mapRoleAssignments(
         id: row.id,
         role: row.role_code,
         scope: row.scope_type,
+        branchId: row.scope_type === "branch" ? row.branch_id : null,
         assignedAt: row.assigned_at,
       },
     ];
@@ -141,7 +145,11 @@ export function buildWorkspace({
 
   const displayTimezone = activeBranch.timezone || APP_TIMEZONE;
   const organizationView = mapOrganization(organization, displayTimezone);
-  const userView = mapUser(profile, email, roles);
+  const activeBranchRoles = effectiveRoleAssignments(roles, activeBranchId);
+  const userView = {
+    ...mapUser(profile, email, roles),
+    primaryRole: deriveEffectivePrimaryRole(roles, activeBranchId),
+  };
 
   return {
     organization: organizationView,
@@ -150,6 +158,7 @@ export function buildWorkspace({
     assignedBranchIds: [...new Set(assignedBranchIds)],
     activeBranchId,
     activeBranch,
+    activeBranchRoles,
     planLabel,
     isOrganizationScoped: hasOrganizationScope(roles),
     isOrgAdmin: isOrganizationAdmin(roles),

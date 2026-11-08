@@ -21,6 +21,16 @@ test("permission and conflict database codes are normalized", () => {
   assert.equal(normalizePosError({ code: "PGRST116" }).code, "NOT_FOUND");
 });
 
+test("idempotency-in-progress is retryable", () => {
+  const error = normalizePosError({
+    code: "P0001",
+    message: "IDEMPOTENCY_IN_PROGRESS",
+  });
+
+  assert.equal(error.code, "IDEMPOTENCY_IN_PROGRESS");
+  assert.equal(error.retryable, true);
+});
+
 test("network and server failures are retryable", () => {
   const network = normalizePosError({ name: "TypeError", message: "fetch failed" });
   assert.equal(network.code, "SERVICE_UNAVAILABLE");

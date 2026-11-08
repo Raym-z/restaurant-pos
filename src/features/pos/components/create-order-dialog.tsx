@@ -41,6 +41,7 @@ export function CreateOrderDialog({
   const [lines, setLines] = useState<DraftOrderLine[]>([]);
   const [notes, setNotes] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [uncertain, setUncertain] = useState(false);
   const [isPending, startTransition] = useTransition();
   const idempotencyKey = useRef<string | null>(null);
   const keySignature = useRef<string | null>(null);
@@ -68,6 +69,7 @@ export function CreateOrderDialog({
     setLines([]);
     setNotes("");
     setError(null);
+    setUncertain(false);
     idempotencyKey.current = null;
     keySignature.current = null;
   }
@@ -142,6 +144,10 @@ export function CreateOrderDialog({
 
       if (!result.ok) {
         setError(errorMessage(result.error));
+        if (result.committed) {
+          setUncertain(true);
+          router.refresh();
+        }
         return;
       }
 
@@ -173,7 +179,7 @@ export function CreateOrderDialog({
               menu={menu}
               submitLabel={t("addToOrder")}
               onAdd={addLine}
-              isSubmitting={isPending}
+              isSubmitting={isPending || uncertain}
             />
           </section>
 
@@ -209,7 +215,7 @@ export function CreateOrderDialog({
                         variant="ghost"
                         size="icon-sm"
                         onClick={() => removeLine(line.key)}
-                        disabled={isPending}
+                        disabled={isPending || uncertain}
                         aria-label={t("removeLine")}
                       >
                         <Trash2 />
@@ -221,7 +227,7 @@ export function CreateOrderDialog({
                           variant="secondary"
                           size="icon-sm"
                           onClick={() => setQuantity(line.key, line.quantity - 1)}
-                          disabled={line.quantity <= 1 || isPending}
+                          disabled={line.quantity <= 1 || isPending || uncertain}
                           aria-label={t("decreaseQuantity")}
                         >
                           <Minus />
@@ -233,7 +239,7 @@ export function CreateOrderDialog({
                           variant="secondary"
                           size="icon-sm"
                           onClick={() => setQuantity(line.key, line.quantity + 1)}
-                          disabled={line.quantity >= 99 || isPending}
+                          disabled={line.quantity >= 99 || isPending || uncertain}
                           aria-label={t("increaseQuantity")}
                         >
                           <Plus />
@@ -257,7 +263,7 @@ export function CreateOrderDialog({
                 maxLength={1000}
                 rows={2}
                 placeholder={t("orderNotesPlaceholder")}
-                disabled={isPending}
+                disabled={isPending || uncertain}
               />
             </div>
 
@@ -274,7 +280,11 @@ export function CreateOrderDialog({
           <Button variant="secondary" onClick={() => handleOpenChange(false)} disabled={isPending}>
             {t("cancel")}
           </Button>
-          <Button onClick={handleSubmit} isLoading={isPending} disabled={lines.length === 0}>
+          <Button
+            onClick={handleSubmit}
+            isLoading={isPending}
+            disabled={lines.length === 0 || uncertain}
+          >
             <Receipt />
             {t("submitOrder")}
           </Button>

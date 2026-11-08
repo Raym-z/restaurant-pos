@@ -88,7 +88,11 @@ function bySortOrderThenName(
   return left.name.localeCompare(right.name);
 }
 
-export function buildPosMenu(branchId: string, source: BranchMenuSource): PosMenu {
+export function buildPosMenu(
+  branchId: string,
+  defaultCurrency: string,
+  source: BranchMenuSource,
+): PosMenu {
   const categoryById = new Map(
     source.categories
       .filter((category) => category.archived_at === null)
@@ -138,6 +142,13 @@ export function buildPosMenu(branchId: string, source: BranchMenuSource): PosMen
       continue;
     }
 
+    // The backend rejects items whose currency differs from the organization
+    // default. Hide them from the builder rather than offering an order that
+    // is guaranteed to fail server-side.
+    if (item.currency_code !== defaultCurrency) {
+      continue;
+    }
+
     if (blockedCategoryIds.has(category.id)) {
       continue;
     }
@@ -162,10 +173,9 @@ export function buildPosMenu(branchId: string, source: BranchMenuSource): PosMen
             priceDeltaMinor: option.price_delta_minor,
           }));
 
-        if (options.length === 0) {
-          return null;
-        }
-
+        // Keep groups with zero active options. The backend validates the same
+        // active group set, so a required group with no options must remain
+        // visible and fail selection validation instead of silently vanishing.
         return {
           id: group.id,
           name: group.name,

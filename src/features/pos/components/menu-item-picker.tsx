@@ -13,6 +13,7 @@ import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { formatCurrencyAmount } from "@/lib/currency";
 
+import { formatCurrencyDelta } from "../format";
 import { modifierDeltaMinor, selectedModifierLabels, validateModifierSelection } from "../menu";
 import type { DraftOrderLine, PosMenu, PosMenuItem } from "../types";
 
@@ -226,6 +227,11 @@ export function MenuItemPicker({
                     : t("optionalGroup")}
                 </span>
               </legend>
+              {group.options.length === 0 ? (
+                <p className="rounded-lg border border-warning/20 bg-warning-soft/40 px-3 py-2 text-xs text-warning">
+                  {t("noOptionsAvailable", { group: group.name })}
+                </p>
+              ) : null}
               <div className="grid gap-1.5">
                 {group.options.map((option) => {
                   const checked = selectedOptionIds.includes(option.id);
@@ -255,7 +261,7 @@ export function MenuItemPicker({
                         <span className="text-xs text-ink-subtle">
                           {option.priceDeltaMinor === 0
                             ? t("included")
-                            : `+ ${formatCurrencyAmount(option.priceDeltaMinor, selectedItem.currency)}`}
+                            : formatCurrencyDelta(option.priceDeltaMinor, selectedItem.currency)}
                         </span>
                       </label>
                     );
@@ -277,7 +283,7 @@ export function MenuItemPicker({
                       <span className="text-xs text-ink-subtle">
                         {option.priceDeltaMinor === 0
                           ? t("included")
-                          : `+ ${formatCurrencyAmount(option.priceDeltaMinor, selectedItem.currency)}`}
+                          : formatCurrencyDelta(option.priceDeltaMinor, selectedItem.currency)}
                       </span>
                     </label>
                   );

@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useMemo, useState } from "react";
 
+import { deriveEffectivePrimaryRole, effectiveRoleAssignments } from "@/features/workspace/access";
 import { setActiveBranchAction } from "@/features/workspace/actions";
 import { findActiveBranch } from "@/features/workspace/branch-selection";
 import type {
@@ -9,8 +10,10 @@ import type {
   WorkspaceBranch,
   WorkspaceContext,
   WorkspaceOrganization,
+  WorkspaceRoleAssignment,
   WorkspaceUser,
 } from "@/features/workspace/types";
+import type { StaffRole } from "@/types/roles";
 
 export interface WorkspaceContextValue {
   organization: WorkspaceOrganization;
@@ -19,6 +22,8 @@ export interface WorkspaceContextValue {
   branches: WorkspaceBranch[];
   activeBranch: WorkspaceBranch;
   activeBranchId: string;
+  activeBranchRoles: WorkspaceRoleAssignment[];
+  primaryRole: StaffRole;
   assignedBranchIds: string[];
   isOrganizationScoped: boolean;
   isOrgAdmin: boolean;
@@ -53,6 +58,15 @@ export function WorkspaceProvider({ workspace, children }: WorkspaceProviderProp
   const activeBranch =
     findActiveBranch(activeBranchId, workspace.branches) ?? workspace.activeBranch;
 
+  const activeBranchRoles = useMemo(
+    () => effectiveRoleAssignments(workspace.user.roles, activeBranch.id),
+    [activeBranch.id, workspace.user.roles],
+  );
+  const primaryRole = useMemo(
+    () => deriveEffectivePrimaryRole(workspace.user.roles, activeBranch.id),
+    [activeBranch.id, workspace.user.roles],
+  );
+
   const value = useMemo<WorkspaceContextValue>(
     () => ({
       organization: workspace.organization,
@@ -61,6 +75,8 @@ export function WorkspaceProvider({ workspace, children }: WorkspaceProviderProp
       branches: workspace.branches,
       activeBranch,
       activeBranchId: activeBranch.id,
+      activeBranchRoles,
+      primaryRole,
       assignedBranchIds: workspace.assignedBranchIds,
       isOrganizationScoped: workspace.isOrganizationScoped,
       isOrgAdmin: workspace.isOrgAdmin,
@@ -75,6 +91,8 @@ export function WorkspaceProvider({ workspace, children }: WorkspaceProviderProp
       workspace.isOrganizationScoped,
       workspace.isOrgAdmin,
       activeBranch,
+      activeBranchRoles,
+      primaryRole,
       setActiveBranch,
     ],
   );

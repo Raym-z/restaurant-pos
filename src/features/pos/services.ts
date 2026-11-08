@@ -4,6 +4,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { Database } from "@/lib/supabase/database.types";
+import { effectiveRoles } from "@/features/workspace/access";
 import { getWorkspace } from "@/features/workspace/services";
 
 import {
@@ -13,9 +14,8 @@ import {
   ListBranchTablesResponseSchema,
   OrderDetailSchema,
   TableSummarySchema,
-  type DiningSessionDetail,
+  type BranchOrderListResponse,
   type OrderStatus,
-  type OrderSummary,
 } from "./contracts";
 import { normalizePosError } from "./errors";
 import { buildPosMenu, type BranchMenuSource, type MenuItemModifierGroupSource } from "./menu";
@@ -45,7 +45,7 @@ export async function getPosViewer(): Promise<PosViewer | null> {
   }
 
   return {
-    roles: result.workspace.user.roles.map((assignment) => assignment.role),
+    roles: effectiveRoles(result.workspace.user.roles, result.workspace.activeBranch.id),
     branchId: result.workspace.activeBranch.id,
     timezone: result.workspace.activeBranch.timezone,
     currency: result.workspace.organization.defaultCurrencyCode,
@@ -90,7 +90,10 @@ export async function loadTableOverview(
   };
 }
 
-export async function loadBranchMenu(branchId: string): Promise<PosLoadResult<PosMenu>> {
+export async function loadBranchMenu(
+  branchId: string,
+  defaultCurrency: string,
+): Promise<PosLoadResult<PosMenu>> {
   const supabase = await loadPosClient();
 
   const [categories, items, branchCategories, branchItems, groups, options, links] =
@@ -157,10 +160,13 @@ export async function loadBranchMenu(branchId: string): Promise<PosLoadResult<Po
     itemModifierGroups: (links.data ?? []) as MenuItemModifierGroupSource[],
   };
 
-  return { ok: true, data: buildPosMenu(branchId, source) };
+  return { ok: true, data: buildPosMenu(branchId, defaultCurrency, source) };
 }
 
-export async function loadTableDetail(tableId: string): Promise<PosLoadResult<TableDetailData>> {
+export async function loadTableDetail(
+  tableId: string,
+  defaultCurrency: string,
+): Promise<PosLoadResult<TableDetailData>> {
   const supabase = await loadPosClient();
 
   const [tableResult, sessionResult] = await Promise.all([
@@ -187,7 +193,7 @@ export async function loadTableDetail(tableId: string): Promise<PosLoadResult<Ta
 
   let menu: PosMenu | null = null;
   if (session.data.activeSession) {
-    const menuResult = await loadBranchMenu(table.data.branchId);
+    const menuResult = await loadBranchMenu(table.data.branchId, defaultCurrency);
     if (!menuResult.ok) {
       return menuResult;
     }
@@ -206,14 +212,14 @@ export async function loadTableDetail(tableId: string): Promise<PosLoadResult<Ta
 
 export async function loadBranchOrders(
   branchId: string,
-  status?: OrderStatus,
-): Promise<PosLoadResult<{ branchId: string; orders: OrderSummary[] }>> {
+  options: { status?: OrderStatus; limit: number; offset: number },
+): Promise<PosLoadResult<BranchOrderListResponse>> {
   const supabase = await loadPosClient();
   const { data, error } = await supabase.rpc("list_branch_orders", {
     p_branch_id: branchId,
-    p_status: status ?? null,
-    p_limit: 100,
-    p_offset: 0,
+    p_status: options.status ?? null,
+    p_limit: options.limit,
+    p_offset: options.offset,
   });
 
   if (error) {
@@ -225,16 +231,13 @@ export async function loadBranchOrders(
     return failure(parsed.error);
   }
 
-  return {
-    ok: true,
-    data: {
-      branchId: parsed.data.branchId,
-      orders: parsed.data.orders,
-    },
-  };
+  return { ok: true, data: parsed.data };
 }
 
-export async function loadOrderDetail(orderId: string): Promise<PosLoadResult<OrderDetailData>> {
+export async function loadOrderDetail(
+  orderId: string,
+  defaultCurrency: string,
+): Promise<PosLoadResult<OrderDetailData>> {
   const supabase = await loadPosClient();
   const orderResult = await supabase.rpc("get_order", { p_order_id: orderId });
 
@@ -251,21 +254,28 @@ export async function loadOrderDetail(orderId: string): Promise<PosLoadResult<Or
     p_session_id: order.data.diningSessionId,
   });
 
-  let session: DiningSessionDetail | null = null;
-  if (!sessionResult.error && sessionResult.data) {
-    const parsedSession = DiningSessionDetailSchema.safeParse(sessionResult.data);
-    if (parsedSession.success) {
-      session = parsedSession.data;
-    }
+  // The order always references a session. A read failure is a real error, not
+  // evidence that the session is missing.
+  if (sessionResult.error) {
+    return failure(sessionResult.error);
   }
 
+  const parsedSession = DiningSessionDetailSchema.safeParse(sessionResult.data);
+  if (!parsedSession.success) {
+    return failure(parsedSession.error);
+  }
+
+  const session = parsedSession.data;
   let menu: PosMenu | null = null;
-  if (session?.status === "active") {
-    const menuResult = await loadBranchMenu(order.data.branchId);
+  let menuError = null;
+  if (session.status === "active") {
+    const menuResult = await loadBranchMenu(order.data.branchId, defaultCurrency);
     if (menuResult.ok) {
       menu = menuResult.data;
+    } else {
+      menuError = menuResult.error;
     }
   }
 
-  return { ok: true, data: { order: order.data, session, menu } };
+  return { ok: true, data: { order: order.data, session, menu, menuError } };
 }

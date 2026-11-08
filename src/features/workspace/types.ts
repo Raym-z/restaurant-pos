@@ -8,6 +8,8 @@ export interface WorkspaceRoleAssignment {
   id: string;
   role: StaffRole;
   scope: WorkspaceRoleScope;
+  /** Present only for branch-scoped assignments. Null for organization scope. */
+  branchId: string | null;
   assignedAt: string;
 }
 
@@ -62,6 +64,8 @@ export interface WorkspaceContext {
   assignedBranchIds: string[];
   activeBranchId: string;
   activeBranch: WorkspaceBranch;
+  /** Effective assignments for the active branch, including organization scope. */
+  activeBranchRoles: WorkspaceRoleAssignment[];
   planLabel: string | null;
   isOrganizationScoped: boolean;
   isOrgAdmin: boolean;

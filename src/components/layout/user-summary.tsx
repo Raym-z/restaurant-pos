@@ -10,7 +10,7 @@ import { useRoleLabel } from "@/i18n/use-labels";
 import { useWorkspace } from "@/providers/workspace-provider";
 
 export function UserSummary() {
-  const { user } = useWorkspace();
+  const { user, primaryRole } = useWorkspace();
   const roleLabel = useRoleLabel();
   const t = useTranslations("shell");
 
@@ -22,7 +22,7 @@ export function UserSummary() {
           {user.displayName}
         </p>
         <p className="mt-0.5 truncate text-[11px] leading-tight text-ink-subtle">
-          {roleLabel(user.primaryRole)}
+          {roleLabel(primaryRole)}
         </p>
       </div>
       <form action={signOutAction}>

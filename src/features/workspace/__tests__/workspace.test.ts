@@ -1,9 +1,18 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
+import { getNavigationForContext } from "../../../config/navigation";
 import type { Database } from "@/lib/supabase/database.types";
 
-import { derivePrimaryRole, hasOrganizationScope, isOrganizationAdmin } from "../access";
+import {
+  canManageBranches,
+  deriveEffectivePrimaryRole,
+  derivePrimaryRole,
+  effectiveRoleAssignments,
+  effectiveRoles,
+  hasOrganizationScope,
+  isOrganizationAdmin,
+} from "../access";
 import { findActiveBranch, resolveActiveBranchId } from "../branch-selection";
 import { buildWorkspace, mapBranch, mapOrganization, mapRoleAssignments } from "../mappers";
 import type { WorkspaceBranch, WorkspaceRoleAssignment } from "../types";
@@ -40,6 +49,7 @@ function roleRow(overrides: Partial<RoleAssignmentRow> = {}): RoleAssignmentRow 
     organization_id: "org-1",
     role_code: "owner",
     scope_type: "organization",
+    branch_id: null,
     assigned_by_staff_id: null,
     assigned_at: "2026-01-01T00:00:00Z",
     revoked_at: null,
@@ -86,11 +96,13 @@ function workspaceBranch(overrides: Partial<WorkspaceBranch> = {}): WorkspaceBra
 function role(
   roleCode: "owner" | "admin" | "manager" | "cashier" | "kitchen_staff",
   scope: "organization" | "branch",
+  branchId: string | null = scope === "branch" ? "branch-1" : null,
 ): WorkspaceRoleAssignment {
   return {
-    id: `role-${roleCode}`,
+    id: `role-${roleCode}-${branchId ?? "org"}`,
     role: roleCode,
     scope,
+    branchId,
     assignedAt: "2026-01-01T00:00:00Z",
   };
 }
@@ -117,6 +129,76 @@ test("primary role and scope are derived from all active assignments", () => {
   assert.equal(isOrganizationAdmin(orgRoles), true);
 });
 
+test("effective roles include organization scope and only the active branch", () => {
+  const assignments = [
+    role("manager", "branch", "branch-a"),
+    role("cashier", "branch", "branch-b"),
+    role("admin", "organization"),
+  ];
+
+  assert.deepEqual(effectiveRoles(assignments, "branch-a").sort(), ["admin", "manager"]);
+  assert.deepEqual(effectiveRoles(assignments, "branch-b").sort(), ["admin", "cashier"]);
+  assert.deepEqual(effectiveRoles(assignments, "branch-c"), ["admin"]);
+  assert.equal(deriveEffectivePrimaryRole(assignments, "branch-a"), "admin");
+  assert.equal(
+    deriveEffectivePrimaryRole(
+      [role("manager", "branch", "branch-a"), role("cashier", "branch", "branch-b")],
+      "branch-a",
+    ),
+    "manager",
+  );
+  assert.equal(
+    deriveEffectivePrimaryRole(
+      [role("manager", "branch", "branch-a"), role("cashier", "branch", "branch-b")],
+      "branch-b",
+    ),
+    "cashier",
+  );
+});
+
+test("branch-scoped admin never receives organization-admin capabilities", () => {
+  const assignments = [role("admin", "branch", "branch-a")];
+
+  assert.equal(isOrganizationAdmin(assignments), false);
+  assert.equal(hasOrganizationScope(assignments), false);
+  assert.equal(canManageBranches(effectiveRoles(assignments, "branch-a")), true);
+  assert.equal(canManageBranches(effectiveRoles(assignments, "branch-b")), false);
+});
+
+test("a user with no role at the active branch has no effective roles", () => {
+  const assignments = [role("manager", "branch", "branch-a")];
+
+  assert.deepEqual(effectiveRoles(assignments, "branch-b"), []);
+  assert.deepEqual(effectiveRoleAssignments(assignments, "branch-b"), []);
+  assert.equal(deriveEffectivePrimaryRole(assignments, "branch-b"), "kitchen_staff");
+  assert.equal(canManageBranches(effectiveRoles(assignments, "branch-b")), false);
+});
+
+test("branch switching updates the effective primary role", () => {
+  const assignments = [
+    role("manager", "branch", "branch-a"),
+    role("kitchen_staff", "branch", "branch-b"),
+  ];
+
+  assert.equal(deriveEffectivePrimaryRole(assignments, "branch-a"), "manager");
+  assert.equal(deriveEffectivePrimaryRole(assignments, "branch-b"), "kitchen_staff");
+  assert.deepEqual(effectiveRoles(assignments, "branch-a"), ["manager"]);
+  assert.deepEqual(effectiveRoles(assignments, "branch-b"), ["kitchen_staff"]);
+});
+
+test("navigation uses effective roles and hides branch operations with no active role", () => {
+  const assignments = [role("manager", "branch", "branch-a")];
+  const hrefs = getNavigationForContext({
+    roles: effectiveRoles(assignments, "branch-b"),
+    isOrganizationScoped: false,
+    isOrgAdmin: false,
+  }).flatMap((section) => section.items.map((item) => item.href));
+
+  assert.ok(!hrefs.includes("/tables"));
+  assert.ok(!hrefs.includes("/orders"));
+  assert.ok(!hrefs.includes("/branches"));
+});
+
 test("role mapping ignores unknown role codes", () => {
   const roles = mapRoleAssignments([
     roleRow(),
@@ -127,6 +209,21 @@ test("role mapping ignores unknown role codes", () => {
     roles.map((assignment) => assignment.role),
     ["owner"],
   );
+});
+
+test("role mapping preserves the branch identifier from M2.1", () => {
+  const roles = mapRoleAssignments([
+    roleRow({ id: "role-org", scope_type: "organization", branch_id: null }),
+    roleRow({
+      id: "role-branch",
+      role_code: "cashier",
+      scope_type: "branch",
+      branch_id: "branch-2",
+    }),
+  ]);
+
+  assert.equal(roles[0]?.branchId, null);
+  assert.equal(roles[1]?.branchId, "branch-2");
 });
 
 test("organization and branch mapping use only backend fields", () => {
@@ -156,6 +253,10 @@ test("organization-scoped owner gets accessible branches without explicit assign
   assert.ok(workspace);
   assert.equal(workspace.branches.length, 2);
   assert.deepEqual(workspace.assignedBranchIds, []);
+  assert.deepEqual(
+    workspace.activeBranchRoles.map((assignment) => assignment.role),
+    ["owner"],
+  );
   assert.equal(workspace.isOrganizationScoped, true);
   assert.equal(workspace.isOrgAdmin, true);
   assert.equal(workspace.activeBranch.id, "branch-1");
@@ -167,7 +268,7 @@ test("branch-scoped manager only receives RLS-returned accessible branches", () 
     organization: organizationRow,
     profile: profileRow,
     email: "manager@example.com",
-    roleRows: [roleRow({ role_code: "manager", scope_type: "branch" })],
+    roleRows: [roleRow({ role_code: "manager", scope_type: "branch", branch_id: "branch-1" })],
     branchRows: [branchRow()],
     assignedBranchIds: ["branch-1"],
     activeBranchCandidate: "branch-1",

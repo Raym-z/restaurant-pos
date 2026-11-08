@@ -35,6 +35,7 @@ export function CancelOrderDialog({
   const [open, setOpen] = useState(false);
   const [reason, setReason] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [uncertain, setUncertain] = useState(false);
   const [isPending, startTransition] = useTransition();
   const trimmedReason = reason.trim();
   const tooLong = trimmedReason.length > 500;
@@ -47,6 +48,7 @@ export function CancelOrderDialog({
     if (!next) {
       setReason("");
       setError(null);
+      setUncertain(false);
     }
   }
 
@@ -60,6 +62,10 @@ export function CancelOrderDialog({
       const result = await cancelOrderAction(orderId, trimmedReason);
       if (!result.ok) {
         setError(errorMessage(result.error));
+        if (result.committed) {
+          setUncertain(true);
+          router.refresh();
+        }
         return;
       }
 
@@ -114,7 +120,7 @@ export function CancelOrderDialog({
             variant="danger"
             onClick={handleSubmit}
             isLoading={isPending}
-            disabled={!trimmedReason || tooLong}
+            disabled={!trimmedReason || tooLong || uncertain}
           >
             <Ban />
             {t("confirm")}

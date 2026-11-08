@@ -2,11 +2,14 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 
 import {
+  BranchOrderListResponseSchema,
+  CreateOrderInputSchema,
   DiningSessionDetailSchema,
   OrderDetailSchema,
   OrderStatusSchema,
   TableSummarySchema,
   nextOrderStatuses,
+  nextOrderStatusesForItems,
   isCancellableOrderStatus,
 } from "../contracts";
 
@@ -23,6 +26,7 @@ const orderSummary = {
   status: "pending" as const,
   currency: "IDR",
   subtotalMinor: 50000,
+  payableSubtotalMinor: 50000,
   notes: null,
   itemCount: 1,
   activeItemCount: 1,
@@ -101,12 +105,48 @@ test("order details parse the backend snapshot shape", () => {
   assert.equal(parsed.updatedAt, "2026-11-08T10:00:00.123456+07:00");
 });
 
-test("order details reject client-invented price fields", () => {
-  const parsed = OrderDetailSchema.safeParse({
+test("order responses accept additive backend fields but requests stay strict", () => {
+  const parsed = OrderDetailSchema.parse({
     ...orderDetail,
-    items: [{ ...orderDetail.items[0], priceMinor: 1 }],
+    futureBackendField: "ignored",
+    items: [{ ...orderDetail.items[0], futureItemField: true }],
   });
-  assert.equal(parsed.success, false);
+
+  assert.equal(parsed.orderId, id(1));
+  assert.equal(
+    CreateOrderInputSchema.safeParse({
+      diningSessionId: id(4),
+      items: [{ menuItemId: id(7), quantity: 1, clientPriceMinor: 1 }],
+    }).success,
+    false,
+  );
+});
+
+test("cancelled orders retain historical subtotal and expose zero payable", () => {
+  const parsed = OrderDetailSchema.parse({
+    ...orderDetail,
+    status: "cancelled",
+    subtotalMinor: 110000,
+    payableSubtotalMinor: 0,
+    cancelledAt: "2026-11-08T10:30:00Z",
+    cancellationReason: "Guest left",
+  });
+
+  assert.equal(parsed.subtotalMinor, 110000);
+  assert.equal(parsed.payableSubtotalMinor, 0);
+});
+
+test("branch order lists parse payable summaries and pagination metadata", () => {
+  const parsed = BranchOrderListResponseSchema.parse({
+    branchId: id(3),
+    orders: [orderSummary],
+    pageSize: 50,
+    hasMore: true,
+    nextOffset: 50,
+  });
+
+  assert.equal(parsed.orders[0]?.payableSubtotalMinor, 50000);
+  assert.equal(parsed.nextOffset, 50);
 });
 
 test("dining session details parse active sessions with order summaries", () => {
@@ -142,6 +182,13 @@ test("the published transition map matches the M3 state machine", () => {
   assert.deepEqual(nextOrderStatuses("served"), ["completed"]);
   assert.deepEqual(nextOrderStatuses("completed"), []);
   assert.deepEqual(nextOrderStatuses("cancelled"), []);
+});
+
+test("served and completed are hidden when no non-cancelled items remain", () => {
+  assert.deepEqual(nextOrderStatusesForItems("ready", 1), ["served", "cancelled"]);
+  assert.deepEqual(nextOrderStatusesForItems("ready", 0), ["cancelled"]);
+  assert.deepEqual(nextOrderStatusesForItems("served", 1), ["completed"]);
+  assert.deepEqual(nextOrderStatusesForItems("served", 0), []);
 });
 
 test("cancellation is limited to pre-service statuses", () => {

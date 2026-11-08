@@ -15,15 +15,20 @@ import {
   type DiningSessionDetail,
   type OrderDetail,
 } from "./contracts";
-import { normalizePosError } from "./errors";
+import { resolveMutationResponse, type RpcResponse } from "./mutation";
 import type { PosActionError, PosActionResult } from "./types";
 
 const ReasonSchema = z.string().trim().max(500).optional();
 const CancellationReasonSchema = z.string().trim().min(1).max(500);
 
-function validationFailure(message: string): { ok: false; error: PosActionError } {
+function validationFailure(message: string): {
+  ok: false;
+  error: PosActionError;
+  committed: false;
+} {
   return {
     ok: false,
+    committed: false,
     error: {
       code: "VALIDATION_ERROR",
       message,
@@ -39,11 +44,6 @@ function revalidatePos() {
   revalidatePath("/", "layout");
 }
 
-interface RpcResponse {
-  data: unknown;
-  error: unknown;
-}
-
 async function mutate<T>(
   call: () => Promise<RpcResponse>,
   parse: (value: unknown) => T | null,
@@ -52,28 +52,28 @@ async function mutate<T>(
 
   try {
     response = await call();
-  } catch (error) {
-    return { ok: false, error: normalizePosError(error) };
-  }
-
-  if (response.error) {
-    return { ok: false, error: normalizePosError(response.error) };
-  }
-
-  const data = parse(response.data);
-  if (data === null) {
+  } catch {
     return {
       ok: false,
+      committed: false,
       error: {
-        code: "INVALID_RESPONSE",
-        message: "The backend returned an unexpected response.",
+        code: "SERVICE_UNAVAILABLE",
+        message: "The request could not be sent.",
         retryable: true,
       },
     };
   }
 
-  revalidatePos();
-  return { ok: true, data };
+  const resolution = resolveMutationResponse(response, parse);
+  if (resolution.shouldRevalidate) {
+    revalidatePos();
+  }
+
+  if (resolution.status === "success") {
+    return { ok: true, data: resolution.data, committed: true };
+  }
+
+  return { ok: false, error: resolution.error, committed: resolution.committed };
 }
 
 function parseSession(value: unknown): DiningSessionDetail | null {

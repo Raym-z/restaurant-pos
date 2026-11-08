@@ -12,7 +12,7 @@ import { useRoleLabel } from "@/i18n/use-labels";
 import { useWorkspace } from "@/providers/workspace-provider";
 
 export function DashboardScreen() {
-  const { organization, user, branches, activeBranch } = useWorkspace();
+  const { organization, primaryRole, branches, activeBranch } = useWorkspace();
   const t = useTranslations("dashboard");
   const tReadOnly = useTranslations("dashboard.unavailable");
   const roleLabel = useRoleLabel();
@@ -40,7 +40,7 @@ export function DashboardScreen() {
     {
       id: "role",
       label: tReadOnly("primaryRole"),
-      value: roleLabel(user.primaryRole),
+      value: roleLabel(primaryRole),
       icon: ShieldCheck,
     },
   ];

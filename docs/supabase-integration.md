@@ -41,7 +41,8 @@ Rules:
 | `src/proxy.ts` | Next.js 16 request proxy entry point. |
 | `src/lib/supabase/errors.ts` | Normalizes auth and PostgREST failures; distinguishes missing, expired, and transient auth states. |
 | `src/lib/supabase/auth-state.ts` | Classifies `getUser()` results into authenticated, unauthenticated, expired, or unavailable. |
-| `src/lib/supabase/cookie-policy.ts` | Deliberate POS session-cookie lifetime and attributes. |
+| `src/lib/supabase/cookie-policy.ts` | Deliberate POS session-cookie idle timeout and attributes. |
+| `src/lib/supabase/session-route.ts` | Pure missing/expired/transient route decision used by the proxy. |
 
 Business data is read on the server. Presentation components do not call Supabase directly. There is no browser Supabase client in M1 because the server session cookie is HttpOnly.
 
@@ -65,10 +66,16 @@ Business data is read on the server. Presentation components do not call Supabas
 
 ### Session cookie policy
 
-- Server- and proxy-issued auth cookies are `HttpOnly`, `SameSite=Lax`, `Path=/`, and `Secure` in production.
-- The persistence lifetime is **12 hours** (`43,200` seconds), replacing the Supabase SSR default of 400 days. This covers a long restaurant shift while forcing re-authentication at least daily on shared POS devices.
+- Server- and proxy-issued auth cookies are `HttpOnly`, `SameSite=Lax`, and `Path=/`.
+- `Secure` is enabled when `NODE_ENV === "production"`. Production mode assumes HTTPS; running a production build over plain HTTP may prevent the browser from accepting the auth cookies, which makes login appear to fail. Use `next dev`, or terminate TLS in front of the app.
+- The browser persistence window is **12 hours** (`43,200` seconds), replacing the Supabase SSR default of 400 days. This is a **sliding idle timeout**, not an absolute session lifetime:
+  - Cookie expiration is renewed whenever Supabase refreshes the session.
+  - An idle terminal eventually loses its local session.
+  - A continuously active terminal is **not** guaranteed to re-authenticate after 12 hours.
+  - Server-side refresh-token validity remains governed by Supabase Auth project settings.
 - The unused browser Supabase client was removed because it cannot read an HttpOnly server session and had no call sites. Any future browser-side auth feature must be designed explicitly around this policy rather than silently weakening it.
 - Successful sign-in clears `pos_active_branch_id` so a new staff member cannot inherit the previous user's branch selection.
+- Sign-out clears local auth cookies and redirects to `/login` even when the Supabase sign-out call fails with a retryable network error.
 
 ## 5. Workspace mapping
 

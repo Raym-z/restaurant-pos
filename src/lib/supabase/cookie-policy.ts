@@ -3,9 +3,15 @@ import type { CookieOptions } from "@supabase/ssr";
 /**
  * Deliberate POS session cookie policy.
  *
- * A 12-hour browser persistence window covers a long restaurant shift while
- * forcing re-authentication at least daily. This replaces the Supabase SSR
- * default of 400 days, which is inappropriate for shared POS devices.
+ * The 12-hour window is a **sliding idle timeout**, not an absolute session
+ * lifetime. The cookie `maxAge` is renewed whenever Supabase refreshes the
+ * session, so an idle terminal eventually loses its local session while a
+ * continuously active terminal is not guaranteed to re-authenticate after 12
+ * hours. Server-side refresh-token validity remains governed by Supabase Auth
+ * project settings.
+ *
+ * This replaces the Supabase SSR default of 400 days, which is inappropriate
+ * for shared POS devices.
  *
  * The server sets auth cookies as HttpOnly because M1 is server-first and has
  * no browser-side session reader. Any future browser-side auth feature must be
@@ -21,6 +27,13 @@ export interface AuthCookieOptions {
   httpOnly?: boolean;
 }
 
+/**
+ * `secure` is enabled only when `NODE_ENV === "production"`.
+ *
+ * Production mode assumes HTTPS. Running a production build over plain HTTP
+ * may prevent the browser from accepting the auth cookies, which makes login
+ * appear to fail. Use `next dev` or terminate TLS in front of the app.
+ */
 export function getAuthCookieOptions(
   environment: string | undefined = process.env.NODE_ENV,
 ): AuthCookieOptions {
@@ -37,13 +50,6 @@ export const POS_SERVER_AUTH_COOKIE_OPTIONS: AuthCookieOptions = {
   ...getAuthCookieOptions(),
   httpOnly: true,
 };
-
-/**
- * Browser cookie options intentionally omit `httpOnly`; browsers cannot set
- * that attribute from JavaScript. The browser Supabase client is not mounted
- * in M1 because the server session is HttpOnly.
- */
-export const POS_BROWSER_AUTH_COOKIE_OPTIONS = getAuthCookieOptions();
 
 /**
  * Applies the POS policy to a cookie written by Supabase SSR. The library

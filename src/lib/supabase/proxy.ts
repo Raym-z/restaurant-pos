@@ -8,6 +8,7 @@ import { classifyAuthUserResult } from "./auth-state";
 import { applyServerAuthCookiePolicy, POS_SERVER_AUTH_COOKIE_OPTIONS } from "./cookie-policy";
 import type { Database } from "./database.types";
 import { getPublicEnvironment } from "./env";
+import { decideSessionRoute } from "./session-route";
 
 function isAuthCookieName(name: string): boolean {
   return name.startsWith("sb-") && name.includes("-auth-token");
@@ -81,35 +82,28 @@ export async function updateSession(request: NextRequest): Promise<NextResponse>
     error,
   } = await supabase.auth.getUser();
   const outcome = classifyAuthUserResult({ user, error });
+  const decision = decideSessionRoute(outcome, request.nextUrl.pathname);
 
-  if (outcome.status === "unauthenticated") {
-    if (request.nextUrl.pathname === "/login") {
-      clearSessionCookies(response, request);
-      return response;
-    }
-
-    const redirectResponse = loginRedirect(request);
-    clearSessionCookies(redirectResponse, request);
-    return redirectResponse;
-  }
-
-  if (outcome.status === "expired") {
-    const redirectResponse = loginRedirect(request, "session_expired");
-    clearSessionCookies(redirectResponse, request);
-    return redirectResponse;
-  }
-
-  if (outcome.status === "unavailable") {
+  if (decision.action === "preserve") {
     // Transient failure: preserve cookies and let the protected layout show a
     // retryable verification state instead of signing the user out.
     return response;
   }
 
-  if (request.nextUrl.pathname === "/login") {
+  if (decision.action === "allow") {
+    if (decision.clearSession) {
+      clearSessionCookies(response, request);
+    }
+    return response;
+  }
+
+  if (decision.action === "redirect-authenticated") {
     return NextResponse.redirect(
       new URL(safeNextPath(request.nextUrl.searchParams.get("next")), request.url),
     );
   }
 
-  return response;
+  const redirectResponse = loginRedirect(request, decision.reason ?? undefined);
+  clearSessionCookies(redirectResponse, request);
+  return redirectResponse;
 }

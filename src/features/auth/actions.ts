@@ -80,6 +80,8 @@ export async function signOutAction(): Promise<void> {
 
   try {
     await supabase.auth.signOut({ scope: "local" });
+  } catch {
+    // A retryable Supabase/network failure must not block local sign-out.
   } finally {
     await clearLocalAuthCookies();
   }

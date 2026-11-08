@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useEffect } from "react";
 
 import { ErrorState } from "@/components/states/error-state";
@@ -11,6 +12,8 @@ export default function AppError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const t = useTranslations("states");
+
   useEffect(() => {
     console.error(error);
   }, [error]);
@@ -19,8 +22,9 @@ export default function AppError({
     <div className="flex min-h-[60vh] items-center justify-center">
       <ErrorState
         className="w-full max-w-xl"
-        title="This page couldn't be loaded"
-        description="An unexpected error interrupted the request. You can retry, or return to the dashboard if the problem continues."
+        title={t("pageErrorTitle")}
+        description={t("pageErrorDescription")}
+        retryLabel={t("retry")}
         onRetry={reset}
       />
     </div>

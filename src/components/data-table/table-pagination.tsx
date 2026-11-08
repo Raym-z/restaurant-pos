@@ -1,6 +1,7 @@
 "use client";
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 
@@ -17,8 +18,9 @@ export function TablePagination({
   pageSize,
   total,
   onPageChange,
-  itemLabel = "items",
+  itemLabel,
 }: TablePaginationProps) {
+  const t = useTranslations("common");
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const currentPage = Math.min(Math.max(page, 1), totalPages);
   const start = total === 0 ? 0 : (currentPage - 1) * pageSize + 1;
@@ -27,9 +29,12 @@ export function TablePagination({
   return (
     <div className="flex flex-col gap-3 border-t border-line px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
       <p className="text-[13px] text-ink-muted">
-        Showing <span className="font-medium text-ink">{start}</span>–
-        <span className="font-medium text-ink">{end}</span> of{" "}
-        <span className="font-medium text-ink">{total}</span> {itemLabel}
+        {t("showing", {
+          start,
+          end,
+          total,
+          itemLabel: itemLabel ?? t("items"),
+        })}
       </p>
       <div className="flex items-center gap-2">
         <Button
@@ -39,10 +44,10 @@ export function TablePagination({
           disabled={currentPage <= 1}
         >
           <ChevronLeft />
-          Previous
+          {t("previous")}
         </Button>
         <span className="px-1 text-[13px] text-ink-muted">
-          Page {currentPage} of {totalPages}
+          {t("pageOf", { page: currentPage, totalPages })}
         </span>
         <Button
           variant="secondary"
@@ -50,7 +55,7 @@ export function TablePagination({
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage >= totalPages}
         >
-          Next
+          {t("next")}
           <ChevronRight />
         </Button>
       </div>

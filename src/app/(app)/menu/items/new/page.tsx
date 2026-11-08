@@ -1,20 +1,25 @@
+import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 
 import { PageHeader, PageStack } from "@/components/layout/page";
 import { MenuItemForm } from "@/features/menu/components/menu-item-form";
 
-export const metadata: Metadata = {
-  title: "New menu item",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("meta");
+  return { title: t("newMenuItem") };
+}
 
-export default function NewMenuItemPage() {
+export default async function NewMenuItemPage() {
+  const t = await getTranslations("menu.form");
+  const tItem = await getTranslations("menu.item");
+
   return (
     <PageStack>
       <PageHeader
-        eyebrow="Menu"
-        title="New menu item"
-        description="Add an item to a category with pricing and branch availability."
-        backLink={{ href: "/menu", label: "Back to menu" }}
+        eyebrow={tItem("eyebrow")}
+        title={t("newTitle")}
+        description={t("newDescription")}
+        backLink={{ href: "/menu", label: tItem("back") }}
       />
       <MenuItemForm />
     </PageStack>

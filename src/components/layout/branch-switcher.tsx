@@ -1,6 +1,7 @@
 "use client";
 
 import { ChevronsUpDown, MapPin, Store } from "lucide-react";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -18,6 +19,7 @@ import { useWorkspace } from "@/providers/workspace-provider";
 
 export function BranchSwitcher() {
   const { branches, activeBranch, setActiveBranch } = useWorkspace();
+  const t = useTranslations("shell");
 
   return (
     <DropdownMenu>
@@ -26,7 +28,7 @@ export function BranchSwitcher() {
           variant="secondary"
           size="sm"
           className="h-9 max-w-[240px] gap-2 px-2.5"
-          aria-label={`Switch branch. Current branch: ${activeBranch.name}`}
+          aria-label={t("currentBranch", { branch: activeBranch.name })}
         >
           <MapPin className="text-brand" aria-hidden="true" />
           <span className="hidden min-w-0 flex-col items-start leading-tight sm:flex">
@@ -41,7 +43,7 @@ export function BranchSwitcher() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-64">
-        <DropdownMenuLabel>Switch branch</DropdownMenuLabel>
+        <DropdownMenuLabel>{t("switchBranch")}</DropdownMenuLabel>
         <DropdownMenuRadioGroup value={activeBranch.id} onValueChange={setActiveBranch}>
           {branches.map((branch) => (
             <DropdownMenuRadioItem key={branch.id} value={branch.id} className="items-start py-2.5">
@@ -56,7 +58,7 @@ export function BranchSwitcher() {
         <DropdownMenuItem asChild>
           <Link href="/branches">
             <Store />
-            Manage branches
+            {t("manageBranches")}
           </Link>
         </DropdownMenuItem>
       </DropdownMenuContent>

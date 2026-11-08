@@ -1,37 +1,38 @@
+"use client";
+
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { formatMoney, formatNumber, formatPercent } from "@/features/shared/format";
+import { useTranslations } from "next-intl";
+
+import { useLocalizedFormat } from "@/i18n/use-localized-format";
 import type { DashboardMetric } from "../types";
 
-function formatMetricValue(metric: DashboardMetric): string {
-  if (metric.format === "currency" && metric.currency) {
-    return formatMoney({
-      amountMinor: metric.value,
-      currency: metric.currency,
-    });
-  }
-  return formatNumber(metric.value);
-}
-
 export function MetricCard({ metric }: { metric: DashboardMetric }) {
+  const t = useTranslations("dashboard");
+  const format = useLocalizedFormat();
   const change = metric.changeRatio;
   const isPositive = change !== null && change > 0;
   const isNegative = change !== null && change < 0;
+  const value =
+    metric.format === "currency" && metric.currency
+      ? format.currencyAmount(metric.value, metric.currency)
+      : format.number(metric.value);
+  const comparison = t(`comparison.${metric.comparison}`, {
+    count: metric.comparisonCount ?? 0,
+  });
 
   return (
     <Card className="p-5">
-      <p className="text-sm font-medium text-ink-muted">{metric.label}</p>
-      <p className="mt-2 text-2xl font-semibold tracking-tight text-ink">
-        {formatMetricValue(metric)}
-      </p>
+      <p className="text-sm font-medium text-ink-muted">{t(`metrics.${metric.id}`)}</p>
+      <p className="mt-2 text-2xl font-semibold tracking-tight text-ink">{value}</p>
       <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
         {change !== null ? (
           <Badge variant={isPositive ? "success" : isNegative ? "danger" : "neutral"}>
             <span aria-hidden="true">{isPositive ? "▲" : isNegative ? "▼" : "■"}</span>
-            {formatPercent(Math.abs(change))}
+            {format.percent(Math.abs(change))}
           </Badge>
         ) : null}
-        <span className="text-ink-subtle">{metric.comparisonLabel}</span>
+        <span className="text-ink-subtle">{comparison}</span>
       </div>
     </Card>
   );

@@ -1,4 +1,7 @@
+"use client";
+
 import { UtensilsCrossed } from "lucide-react";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 
 import { siteConfig } from "@/config/site";
@@ -12,12 +15,14 @@ interface BrandProps {
 }
 
 export function Brand({ subtitle, compact = false, className, onNavigate }: BrandProps) {
+  const t = useTranslations("shell");
+
   return (
     <Link
       href="/dashboard"
       onClick={onNavigate}
       className={cn("flex min-w-0 items-center gap-3", className)}
-      aria-label={`${siteConfig.name} home`}
+      aria-label={t("home", { name: siteConfig.name })}
     >
       <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-brand text-white shadow-sm">
         <UtensilsCrossed className="size-[18px]" aria-hidden="true" />

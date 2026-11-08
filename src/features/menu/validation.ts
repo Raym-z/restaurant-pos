@@ -1,14 +1,20 @@
 import type { MenuCategory, MenuCategoryInput, MenuItem, MenuItemInput } from "./types";
-import { validateRequired, type ValidationErrors } from "@/features/shared/validation";
+import {
+  validateRequired,
+  type ValidationErrors,
+  type ValidationTranslator,
+} from "@/features/shared/validation";
+import { DEFAULT_CURRENCY, formatMoney, type CurrencyCode } from "@/lib/currency";
 
 export function validateMenuCategory(
   input: MenuCategoryInput,
   existingCategories: MenuCategory[],
-  currentCategoryId?: string,
+  currentCategoryId: string | undefined,
+  t: ValidationTranslator,
 ): ValidationErrors {
   const errors: ValidationErrors = {};
 
-  const name = validateRequired(input.name, "Category name", 80);
+  const name = validateRequired(input.name, "fields.categoryName", t, 80);
   if (name) {
     errors.name = name;
   } else {
@@ -18,12 +24,15 @@ export function validateMenuCategory(
         category.name.trim().toLowerCase() === input.name.trim().toLowerCase(),
     );
     if (duplicate) {
-      errors.name = "Another category already uses this name.";
+      errors.name = t("duplicateCategory");
     }
   }
 
   if (input.description.trim().length > 240) {
-    errors.description = "Description must be 240 characters or fewer.";
+    errors.description = t("maxLength", {
+      field: t("fields.categoryDescription"),
+      max: 240,
+    });
   }
 
   return errors;
@@ -32,15 +41,17 @@ export function validateMenuCategory(
 export function validateMenuItem(
   input: MenuItemInput,
   existingItems: MenuItem[],
-  currentItemId?: string,
+  currentItemId: string | undefined,
+  t: ValidationTranslator,
+  currency: CurrencyCode = DEFAULT_CURRENCY,
 ): ValidationErrors {
   const errors: ValidationErrors = {};
 
   if (!input.categoryId) {
-    errors.categoryId = "Choose a menu category.";
+    errors.categoryId = t("required", { field: t("fields.categoryName") });
   }
 
-  const name = validateRequired(input.name, "Item name", 120);
+  const name = validateRequired(input.name, "fields.itemName", t, 120);
   if (name) {
     errors.name = name;
   } else {
@@ -51,20 +62,25 @@ export function validateMenuItem(
         item.name.trim().toLowerCase() === input.name.trim().toLowerCase(),
     );
     if (duplicate) {
-      errors.name = "This category already contains an item with that name.";
+      errors.name = t("duplicateItem");
     }
   }
 
   if (input.description.trim().length > 400) {
-    errors.description = "Description must be 400 characters or fewer.";
+    errors.description = t("maxLength", {
+      field: t("fields.itemDescription"),
+      max: 400,
+    });
   }
 
   if (!Number.isInteger(input.basePriceMinor) || input.basePriceMinor <= 0) {
-    errors.basePriceMinor = "Enter a price greater than zero, for example 12.50.";
+    errors.basePriceMinor = t("pricePositive", {
+      example: formatMoney({ amountMinor: 25000, currency }),
+    });
   }
 
   if (input.tags.some((tag) => tag.trim().length === 0)) {
-    errors.tags = "Tags cannot be empty.";
+    errors.tags = t("tagsEmpty");
   }
 
   return errors;

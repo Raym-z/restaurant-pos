@@ -1,8 +1,9 @@
 "use client";
 
+import { Plus, Store } from "lucide-react";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { Plus, Store } from "lucide-react";
 
 import { DataTable, type DataTableColumn } from "@/components/data-table/data-table";
 import { PageHeader, PageStack } from "@/components/layout/page";
@@ -13,8 +14,8 @@ import { Card } from "@/components/ui/card";
 import { SearchInput } from "@/components/ui/search-input";
 import { Select } from "@/components/ui/select";
 import { useMockData } from "@/features/shared/mock-data-provider";
+import { useStatusLabel } from "@/i18n/use-labels";
 import type { Branch, BranchStatus } from "../types";
-import { BRANCH_STATUS_LABELS } from "../types";
 import { filterBranches } from "../selectors";
 
 const STATUS_OPTIONS: Array<BranchStatus | "all"> = ["all", "active", "opening_soon", "inactive"];
@@ -27,6 +28,9 @@ const STATUS_BADGES: Record<BranchStatus, "success" | "warning" | "neutral"> = {
 
 export function BranchesScreen() {
   const { branches, staff } = useMockData();
+  const t = useTranslations("branches");
+  const tCommon = useTranslations("common");
+  const statusLabel = useStatusLabel();
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<BranchStatus | "all">("all");
 
@@ -38,7 +42,7 @@ export function BranchesScreen() {
   const columns: Array<DataTableColumn<Branch>> = [
     {
       id: "branch",
-      header: "Branch",
+      header: t("table.branch"),
       cell: (branch) => (
         <div>
           <Link href={`/branches/${branch.id}`} className="font-medium text-ink hover:text-brand">
@@ -50,7 +54,7 @@ export function BranchesScreen() {
     },
     {
       id: "location",
-      header: "Location",
+      header: t("table.location"),
       cell: (branch) => (
         <div>
           <div className="text-ink">{branch.city}</div>
@@ -62,18 +66,18 @@ export function BranchesScreen() {
     },
     {
       id: "manager",
-      header: "Manager",
+      header: t("table.manager"),
       cell: (branch) => (
         <span className={branch.managerId ? "text-ink" : "text-ink-subtle"}>
           {branch.managerId
-            ? (staffById.get(branch.managerId)?.fullName ?? "Unknown")
-            : "Unassigned"}
+            ? (staffById.get(branch.managerId)?.fullName ?? tCommon("unknown"))
+            : tCommon("unassigned")}
         </span>
       ),
     },
     {
       id: "contact",
-      header: "Contact",
+      header: t("table.contact"),
       cell: (branch) => (
         <div>
           <div className="text-ink">{branch.phone}</div>
@@ -83,18 +87,18 @@ export function BranchesScreen() {
     },
     {
       id: "status",
-      header: "Status",
+      header: t("table.status"),
       cell: (branch) => (
-        <Badge variant={STATUS_BADGES[branch.status]}>{BRANCH_STATUS_LABELS[branch.status]}</Badge>
+        <Badge variant={STATUS_BADGES[branch.status]}>{statusLabel(branch.status)}</Badge>
       ),
     },
     {
       id: "actions",
-      header: <span className="sr-only">Actions</span>,
+      header: <span className="sr-only">{t("table.actions")}</span>,
       align: "right",
       cell: (branch) => (
         <Button asChild variant="ghost" size="sm">
-          <Link href={`/branches/${branch.id}`}>View</Link>
+          <Link href={`/branches/${branch.id}`}>{tCommon("view")}</Link>
         </Button>
       ),
     },
@@ -103,13 +107,13 @@ export function BranchesScreen() {
   return (
     <PageStack>
       <PageHeader
-        title="Branches"
-        description="Manage restaurant locations, operating hours, and branch managers."
+        title={t("title")}
+        description={t("description")}
         actions={
           <Button asChild>
             <Link href="/branches/new">
               <Plus />
-              New branch
+              {t("new")}
             </Link>
           </Button>
         }
@@ -119,14 +123,14 @@ export function BranchesScreen() {
         <div className="flex flex-col gap-3 border-b border-line p-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-1 flex-col gap-3 sm:flex-row">
             <SearchInput
-              label="Search branches"
-              placeholder="Search by name, code, or city"
+              label={t("search")}
+              placeholder={t("searchPlaceholder")}
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               wrapperClassName="sm:max-w-sm"
             />
             <label className="flex items-center gap-2 text-sm text-ink-muted">
-              <span className="whitespace-nowrap">Status</span>
+              <span className="whitespace-nowrap">{t("table.status")}</span>
               <Select
                 value={status}
                 onChange={(event) => setStatus(event.target.value as BranchStatus | "all")}
@@ -134,15 +138,14 @@ export function BranchesScreen() {
               >
                 {STATUS_OPTIONS.map((value) => (
                   <option key={value} value={value}>
-                    {value === "all" ? "All statuses" : BRANCH_STATUS_LABELS[value]}
+                    {value === "all" ? tCommon("allStatuses") : statusLabel(value)}
                   </option>
                 ))}
               </Select>
             </label>
           </div>
           <p className="text-sm text-ink-muted">
-            {visibleBranches.length} of {branches.length}{" "}
-            {branches.length === 1 ? "branch" : "branches"}
+            {t("count", { visible: visibleBranches.length, total: branches.length })}
           </p>
         </div>
 
@@ -150,16 +153,16 @@ export function BranchesScreen() {
           data={visibleBranches}
           columns={columns}
           getRowKey={(branch) => branch.id}
-          ariaLabel="Branches"
-          caption="Restaurant branches"
+          ariaLabel={t("title")}
+          caption={t("title")}
           emptyState={
             hasFilters ? (
               <EmptyState
                 bordered={false}
                 compact
                 icon={Store}
-                title="No branches match these filters"
-                description="Try a different search term or clear the status filter."
+                title={t("empty.filteredTitle")}
+                description={t("empty.filteredDescription")}
                 action={
                   <Button
                     variant="secondary"
@@ -169,7 +172,7 @@ export function BranchesScreen() {
                       setStatus("all");
                     }}
                   >
-                    Clear filters
+                    {tCommon("clearFilters")}
                   </Button>
                 }
               />
@@ -178,13 +181,13 @@ export function BranchesScreen() {
                 bordered={false}
                 compact
                 icon={Store}
-                title="No branches yet"
-                description="Create the first branch to start configuring operations."
+                title={t("empty.title")}
+                description={t("empty.description")}
                 action={
                   <Button asChild size="sm">
                     <Link href="/branches/new">
                       <Plus />
-                      New branch
+                      {t("new")}
                     </Link>
                   </Button>
                 }

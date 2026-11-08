@@ -1,6 +1,7 @@
 "use client";
 
 import { RefreshCw, TriangleAlert } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -16,14 +17,16 @@ interface ErrorStateProps {
 }
 
 export function ErrorState({
-  title = "Something went wrong",
-  description = "We couldn't load this information. Check your connection and try again.",
+  title,
+  description,
   onRetry,
-  retryLabel = "Try again",
+  retryLabel,
   action,
   className,
   compact = false,
 }: ErrorStateProps) {
+  const t = useTranslations("states");
+
   return (
     <div
       role="alert"
@@ -43,17 +46,17 @@ export function ErrorState({
         <TriangleAlert className={compact ? "size-5" : "size-6"} aria-hidden="true" />
       </span>
       <div className="space-y-1">
-        <h3 className="text-sm font-semibold text-ink">{title}</h3>
-        {description ? (
-          <p className="mx-auto max-w-md text-sm leading-6 text-ink-muted">{description}</p>
-        ) : null}
+        <h3 className="text-sm font-semibold text-ink">{title ?? t("errorTitle")}</h3>
+        <p className="mx-auto max-w-md text-sm leading-6 text-ink-muted">
+          {description ?? t("errorDescription")}
+        </p>
       </div>
       {onRetry || action ? (
         <div className="mt-1 flex flex-wrap items-center justify-center gap-2">
           {onRetry ? (
             <Button variant="secondary" size="sm" onClick={onRetry}>
               <RefreshCw />
-              {retryLabel}
+              {retryLabel ?? t("retry")}
             </Button>
           ) : null}
           {action}

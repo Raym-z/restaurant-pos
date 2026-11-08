@@ -1,6 +1,7 @@
 "use client";
 
 import { MapPin, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Brand } from "@/components/layout/brand";
 import { SidebarNav } from "@/components/layout/sidebar-nav";
@@ -17,6 +18,9 @@ interface SidebarProps {
 
 export function Sidebar({ collapsed, onToggle }: SidebarProps) {
   const { organization, user, activeBranch } = useWorkspace();
+  const t = useTranslations("shell");
+  const planKey = organization.planLabel.replace(/\s*plan$/i, "").toLowerCase();
+  const planLabel = t.has(`plans.${planKey}`) ? t(`plans.${planKey}`) : organization.planLabel;
 
   return (
     <aside
@@ -38,7 +42,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
             variant="ghost"
             size="icon-sm"
             onClick={onToggle}
-            aria-label="Collapse sidebar"
+            aria-label={t("collapseSidebar")}
             className="shrink-0 text-ink-subtle"
           >
             <PanelLeftClose />
@@ -50,11 +54,16 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
         <div className="flex justify-center border-b border-line py-2">
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon-sm" onClick={onToggle} aria-label="Expand sidebar">
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                onClick={onToggle}
+                aria-label={t("expandSidebar")}
+              >
                 <PanelLeftOpen />
               </Button>
             </TooltipTrigger>
-            <TooltipContent side="right">Expand sidebar</TooltipContent>
+            <TooltipContent side="right">{t("expandSidebar")}</TooltipContent>
           </Tooltip>
         </div>
       ) : null}
@@ -78,10 +87,10 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
           <div className="rounded-lg border border-line bg-surface p-3">
             <div className="flex items-center justify-between gap-2">
               <p className="text-[11px] font-medium tracking-wider text-ink-subtle uppercase">
-                Active branch
+                {t("activeBranch")}
               </p>
               <Badge variant="brand" className="text-[10px]">
-                {organization.planLabel}
+                {planLabel}
               </Badge>
             </div>
             <div className="mt-1.5 flex items-center gap-2">

@@ -8,6 +8,7 @@ import {
   validateRequired,
   validateTimezone,
   type ValidationErrors,
+  type ValidationTranslator,
 } from "@/features/shared/validation";
 
 const DAYS = [
@@ -23,14 +24,15 @@ const DAYS = [
 export function validateBranch(
   input: BranchInput,
   existingBranches: Branch[],
-  currentBranchId?: string,
+  currentBranchId: string | undefined,
+  t: ValidationTranslator,
 ): ValidationErrors {
   const errors: ValidationErrors = {};
 
-  const name = validateRequired(input.name, "Branch name", 120);
+  const name = validateRequired(input.name, "fields.branchName", t, 120);
   if (name) errors.name = name;
 
-  const codeError = validateBranchCode(input.code);
+  const codeError = validateBranchCode(input.code, t);
   if (codeError) {
     errors.code = codeError;
   } else {
@@ -40,62 +42,62 @@ export function validateBranch(
         branch.code.toUpperCase() === input.code.trim().toUpperCase(),
     );
     if (duplicate) {
-      errors.code = "Another branch already uses this code.";
+      errors.code = t("duplicateBranchCode");
     }
   }
 
-  const email = validateEmail(input.email);
+  const email = validateEmail(input.email, "fields.email", t);
   if (email) errors.email = email;
 
-  const phone = validatePhone(input.phone);
+  const phone = validatePhone(input.phone, "fields.phone", t);
   if (phone) errors.phone = phone;
 
-  const line1 = validateRequired(input.addressLine1, "Street address", 160);
+  const line1 = validateRequired(input.addressLine1, "fields.streetAddress", t, 160);
   if (line1) errors.addressLine1 = line1;
 
-  const city = validateRequired(input.city, "City", 80);
+  const city = validateRequired(input.city, "fields.city", t, 80);
   if (city) errors.city = city;
 
-  const region = validateRequired(input.region, "State or region", 80);
+  const region = validateRequired(input.region, "fields.region", t, 80);
   if (region) errors.region = region;
 
-  const postalCode = validateRequired(input.postalCode, "Postal code", 20);
+  const postalCode = validateRequired(input.postalCode, "fields.postalCode", t, 20);
   if (postalCode) errors.postalCode = postalCode;
 
-  const country = validateRequired(input.country, "Country", 80);
+  const country = validateRequired(input.country, "fields.country", t, 80);
   if (country) errors.country = country;
 
-  const timezone = validateTimezone(input.timezone);
+  const timezone = validateTimezone(input.timezone, t);
   if (timezone) errors.timezone = timezone;
 
   if (!isValidDateInput(input.openingDate.slice(0, 10))) {
-    errors.openingDate = "Choose a valid opening date.";
+    errors.openingDate = t("invalidDate");
   }
 
   for (const day of DAYS) {
     const hours = input.businessHours.find((entry) => entry.day === day);
     if (!hours) {
-      errors[`hours.${day}`] = "Business hours are missing for this day.";
+      errors[`hours.${day}`] = t("hoursMissing");
       continue;
     }
     if (hours.isClosed) {
       continue;
     }
-    if (!hours.open || validateLocalTime(hours.open)) {
-      errors[`hours.${day}.open`] = "Enter a valid opening time.";
+    if (!hours.open || validateLocalTime(hours.open, t)) {
+      errors[`hours.${day}.open`] = t("invalidTime");
     }
-    if (!hours.close || validateLocalTime(hours.close)) {
-      errors[`hours.${day}.close`] = "Enter a valid closing time.";
+    if (!hours.close || validateLocalTime(hours.close, t)) {
+      errors[`hours.${day}.close`] = t("invalidTime");
     }
     if (
       hours.open &&
       hours.close &&
-      !validateLocalTime(hours.open) &&
-      !validateLocalTime(hours.close) &&
+      !validateLocalTime(hours.open, t) &&
+      !validateLocalTime(hours.close, t) &&
       hours.close !== "00:00" &&
       hours.close <= hours.open
     ) {
-      errors[`hours.${day}.close`] = "Closing time must be after opening time.";
+      errors[`hours.${day}.close`] = t("closeAfterOpen");
     }
   }
 

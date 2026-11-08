@@ -1,28 +1,29 @@
 import { ArrowLeft } from "lucide-react";
-import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import Link from "next/link";
+import type { Metadata } from "next";
 
 import { PageHeader, PageStack } from "@/components/layout/page";
 import { UnauthorizedState } from "@/components/states/unauthorized-state";
 import { Button } from "@/components/ui/button";
 
-export const metadata: Metadata = {
-  title: "Access restricted",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("meta");
+  return { title: t("accessRestricted") };
+}
 
-export default function UnauthorizedPage() {
+export default async function UnauthorizedPage() {
+  const t = await getTranslations("states");
+
   return (
     <PageStack>
-      <PageHeader
-        title="Access restricted"
-        description="This area is available only to staff with the required role and branch access."
-      />
+      <PageHeader title={t("accessRestricted")} description={t("accessRestrictedDescription")} />
       <UnauthorizedState
         action={
           <Button asChild variant="secondary">
             <Link href="/dashboard">
               <ArrowLeft />
-              Return to dashboard
+              {t("returnToDashboard")}
             </Link>
           </Button>
         }

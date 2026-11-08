@@ -18,7 +18,8 @@ import type { LucideIcon } from "lucide-react";
 import type { StaffRole } from "@/types/workspace";
 
 export interface NavItem {
-  title: string;
+  /** Translation key under the `navigation.items` namespace. */
+  titleKey: string;
   href: string;
   icon: LucideIcon;
   /**
@@ -31,7 +32,8 @@ export interface NavItem {
 
 export interface NavSection {
   id: string;
-  label: string;
+  /** Translation key under the `navigation.sections` namespace. */
+  labelKey: string;
   items: readonly NavItem[];
 }
 
@@ -42,15 +44,39 @@ const FLOOR_AND_KITCHEN: readonly StaffRole[] = [...FLOOR, "kitchen"];
 export const NAVIGATION_SECTIONS: readonly NavSection[] = [
   {
     id: "operate",
-    label: "Operate",
+    labelKey: "navigation.sections.operate",
     items: [
-      { title: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-      { title: "Point of Sale", href: "/pos", icon: ShoppingCart, roles: FLOOR },
-      { title: "Orders", href: "/orders", icon: Receipt, roles: FLOOR_AND_KITCHEN },
-      { title: "Tables", href: "/tables", icon: TableProperties, roles: FLOOR },
-      { title: "Kitchen Display", href: "/kitchen", icon: ChefHat, roles: FLOOR_AND_KITCHEN },
       {
-        title: "Queue",
+        titleKey: "navigation.items.dashboard",
+        href: "/dashboard",
+        icon: LayoutDashboard,
+      },
+      {
+        titleKey: "navigation.items.pos",
+        href: "/pos",
+        icon: ShoppingCart,
+        roles: FLOOR,
+      },
+      {
+        titleKey: "navigation.items.orders",
+        href: "/orders",
+        icon: Receipt,
+        roles: FLOOR_AND_KITCHEN,
+      },
+      {
+        titleKey: "navigation.items.tables",
+        href: "/tables",
+        icon: TableProperties,
+        roles: FLOOR,
+      },
+      {
+        titleKey: "navigation.items.kitchen",
+        href: "/kitchen",
+        icon: ChefHat,
+        roles: FLOOR_AND_KITCHEN,
+      },
+      {
+        titleKey: "navigation.items.queue",
         href: "/queue",
         icon: ListOrdered,
         roles: [...FLOOR, "host"],
@@ -59,30 +85,62 @@ export const NAVIGATION_SECTIONS: readonly NavSection[] = [
   },
   {
     id: "manage",
-    label: "Manage",
+    labelKey: "navigation.sections.manage",
     items: [
       {
-        title: "Organization",
+        titleKey: "navigation.items.organization",
         href: "/organization",
         icon: Building2,
         roles: ["owner", "org_admin"],
       },
-      { title: "Menu", href: "/menu", icon: UtensilsCrossed, roles: FLOOR_AND_KITCHEN },
-      { title: "Staff", href: "/staff", icon: Users, roles: MANAGERS },
-      { title: "Branches", href: "/branches", icon: Store, roles: MANAGERS },
+      {
+        titleKey: "navigation.items.menu",
+        href: "/menu",
+        icon: UtensilsCrossed,
+        roles: FLOOR_AND_KITCHEN,
+      },
+      {
+        titleKey: "navigation.items.staff",
+        href: "/staff",
+        icon: Users,
+        roles: MANAGERS,
+      },
+      {
+        titleKey: "navigation.items.branches",
+        href: "/branches",
+        icon: Store,
+        roles: MANAGERS,
+      },
     ],
   },
   {
     id: "insights",
-    label: "Insights",
-    items: [{ title: "Reports", href: "/reports", icon: BarChart3, roles: MANAGERS }],
+    labelKey: "navigation.sections.insights",
+    items: [
+      {
+        titleKey: "navigation.items.reports",
+        href: "/reports",
+        icon: BarChart3,
+        roles: MANAGERS,
+      },
+    ],
   },
   {
     id: "administer",
-    label: "Administer",
+    labelKey: "navigation.sections.administer",
     items: [
-      { title: "Billing", href: "/billing", icon: CreditCard, roles: ["owner"] },
-      { title: "Settings", href: "/settings", icon: Settings, roles: MANAGERS },
+      {
+        titleKey: "navigation.items.billing",
+        href: "/billing",
+        icon: CreditCard,
+        roles: ["owner"],
+      },
+      {
+        titleKey: "navigation.items.settings",
+        href: "/settings",
+        icon: Settings,
+        roles: MANAGERS,
+      },
     ],
   },
 ];

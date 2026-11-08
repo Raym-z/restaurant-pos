@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { AlertCircle } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 import { FormActions, FormField, FormGrid, FormSection } from "@/components/ui/form-field";
 import { Button } from "@/components/ui/button";
@@ -11,12 +12,11 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useMockData } from "@/features/shared/mock-data-provider";
-import {
-  minorUnitsToPriceInput,
-  parsePriceToMinorUnits,
-  type ValidationErrors,
-} from "@/features/shared/validation";
+import type { ValidationErrors } from "@/features/shared/validation";
+import { formatMoneyInput, parseMoneyInput } from "@/lib/currency";
+import { useStatusLabel } from "@/i18n/use-labels";
 import type { MenuItem, MenuItemInput, MenuItemStatus } from "../types";
+import { localizeMenuCategory } from "../selectors";
 import { validateMenuItem } from "../validation";
 
 interface MenuItemFormProps {
@@ -25,7 +25,13 @@ interface MenuItemFormProps {
 
 export function MenuItemForm({ item }: MenuItemFormProps) {
   const router = useRouter();
-  const { menuCategories, menuItems, branches, addMenuItem, updateMenuItem } = useMockData();
+  const locale = useLocale();
+  const { menuCategories, menuItems, branches, organization, addMenuItem, updateMenuItem } =
+    useMockData();
+  const t = useTranslations("menu.form");
+  const tCommon = useTranslations("common");
+  const tValidation = useTranslations("validation");
+  const statusLabel = useStatusLabel();
   const activeCategories = menuCategories.filter(
     (category) => category.status === "active" || category.id === item?.categoryId,
   );
@@ -34,7 +40,7 @@ export function MenuItemForm({ item }: MenuItemFormProps) {
   const [name, setName] = useState(item?.name ?? "");
   const [description, setDescription] = useState(item?.description ?? "");
   const [price, setPrice] = useState(
-    item ? minorUnitsToPriceInput(item.basePrice.amountMinor) : "",
+    item ? formatMoneyInput(item.basePrice.amountMinor, item.basePrice.currency) : "",
   );
   const [status, setStatus] = useState<MenuItemStatus>(item?.status ?? "available");
   const [tags, setTags] = useState(item?.tags.join(", ") ?? "");
@@ -60,7 +66,7 @@ export function MenuItemForm({ item }: MenuItemFormProps) {
     event.preventDefault();
     setSubmitted(true);
 
-    const parsedPrice = parsePriceToMinorUnits(price);
+    const parsedPrice = parseMoneyInput(price, organization.currency);
     const input: MenuItemInput = {
       categoryId,
       name,
@@ -73,7 +79,13 @@ export function MenuItemForm({ item }: MenuItemFormProps) {
         .filter(Boolean),
       unavailableBranchIds,
     };
-    const nextErrors = validateMenuItem(input, menuItems, item?.id);
+    const nextErrors = validateMenuItem(
+      input,
+      menuItems,
+      item?.id,
+      tValidation,
+      organization.currency,
+    );
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) {
       return;
@@ -97,45 +109,49 @@ export function MenuItemForm({ item }: MenuItemFormProps) {
           className="flex items-start gap-2 rounded-lg border border-danger/20 bg-danger-soft/50 px-4 py-3 text-sm text-danger"
         >
           <AlertCircle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
-          <p>Review the highlighted fields before saving.</p>
+          <p>{tCommon("reviewFields")}</p>
         </div>
       ) : null}
 
       <Card className="space-y-6 p-5 sm:p-6">
-        <FormSection
-          title="Item details"
-          description="The name and description guests and staff will see on the menu."
-        >
+        <FormSection title={t("sections.details")} description={t("sections.detailsDescription")}>
           <FormGrid>
-            <FormField label="Category" htmlFor="item-category" required error={errors.categoryId}>
+            <FormField
+              label={t("fields.category")}
+              htmlFor="item-category"
+              required
+              error={errors.categoryId}
+            >
               <Select
                 id="item-category"
                 value={categoryId}
                 onChange={(event) => setCategoryId(event.target.value)}
                 aria-invalid={Boolean(errors.categoryId)}
+                aria-describedby={errors.categoryId ? "item-category-error" : undefined}
               >
-                <option value="">Choose a category</option>
+                <option value="">{t("placeholders.category")}</option>
                 {activeCategories.map((category) => (
                   <option key={category.id} value={category.id}>
-                    {category.name}
+                    {localizeMenuCategory(category, locale).name}
                   </option>
                 ))}
               </Select>
             </FormField>
-            <FormField label="Item name" htmlFor="item-name" required error={errors.name}>
+            <FormField label={t("fields.name")} htmlFor="item-name" required error={errors.name}>
               <Input
                 id="item-name"
                 value={name}
                 onChange={(event) => setName(event.target.value)}
                 aria-invalid={Boolean(errors.name)}
-                placeholder="Lamb Kofta Plate"
+                aria-describedby={errors.name ? "item-name-error" : undefined}
+                placeholder={t("placeholders.name")}
               />
             </FormField>
             <FormField
-              label="Description"
+              label={t("fields.description")}
               htmlFor="item-description"
               error={errors.description}
-              description="Up to 400 characters."
+              description={t("hints.description")}
               className="sm:col-span-2"
             >
               <Textarea
@@ -143,42 +159,48 @@ export function MenuItemForm({ item }: MenuItemFormProps) {
                 value={description}
                 onChange={(event) => setDescription(event.target.value)}
                 aria-invalid={Boolean(errors.description)}
+                aria-describedby={
+                  errors.description ? "item-description-error" : "item-description-description"
+                }
                 rows={3}
-                placeholder="Charred lamb kofta, green tahini, sumac onions, and grilled pita."
+                placeholder={t("placeholders.description")}
               />
             </FormField>
             <FormField
-              label="Base price"
+              label={t("fields.basePrice")}
               htmlFor="item-price"
               required
               error={errors.basePriceMinor}
-              description="Enter the price in major units, for example 28.00."
+              description={t("hints.price")}
             >
               <Input
                 id="item-price"
-                inputMode="decimal"
+                inputMode="numeric"
                 value={price}
                 onChange={(event) => setPrice(event.target.value)}
                 aria-invalid={Boolean(errors.basePriceMinor)}
-                placeholder="28.00"
+                aria-describedby={
+                  errors.basePriceMinor ? "item-price-error" : "item-price-description"
+                }
+                placeholder={t("placeholders.price")}
               />
             </FormField>
-            <FormField label="Status" htmlFor="item-status" required>
+            <FormField label={t("fields.status")} htmlFor="item-status" required>
               <Select
                 id="item-status"
                 value={status}
                 onChange={(event) => setStatus(event.target.value as MenuItemStatus)}
               >
-                <option value="available">Available</option>
-                <option value="unavailable">Unavailable</option>
-                <option value="archived">Archived</option>
+                <option value="available">{statusLabel("available")}</option>
+                <option value="unavailable">{statusLabel("unavailable")}</option>
+                <option value="archived">{statusLabel("archived")}</option>
               </Select>
             </FormField>
             <FormField
-              label="Tags"
+              label={t("fields.tags")}
               htmlFor="item-tags"
               error={errors.tags}
-              description="Comma-separated, for example vegetarian, gluten-free."
+              description={t("hints.tags")}
               className="sm:col-span-2"
             >
               <Input
@@ -186,15 +208,16 @@ export function MenuItemForm({ item }: MenuItemFormProps) {
                 value={tags}
                 onChange={(event) => setTags(event.target.value)}
                 aria-invalid={Boolean(errors.tags)}
-                placeholder="vegetarian, signature"
+                aria-describedby={errors.tags ? "item-tags-error" : "item-tags-description"}
+                placeholder={t("placeholders.tags")}
               />
             </FormField>
           </FormGrid>
         </FormSection>
 
         <FormSection
-          title="Branch availability"
-          description="Unchecked branches will not offer this item. The organization-level status still applies."
+          title={t("sections.availability")}
+          description={t("sections.availabilityDescription")}
         >
           <div className="grid gap-2 sm:grid-cols-2">
             {branches.map((branch) => {
@@ -209,7 +232,7 @@ export function MenuItemForm({ item }: MenuItemFormProps) {
                     <span className="ml-1 text-xs text-ink-subtle">{branch.code}</span>
                   </span>
                   <span className="flex items-center gap-2 text-xs text-ink-muted">
-                    Available
+                    {t("branchAvailable")}
                     <input
                       type="checkbox"
                       checked={available}
@@ -223,11 +246,10 @@ export function MenuItemForm({ item }: MenuItemFormProps) {
           </div>
           {item && (item.variants.length > 0 || item.modifierGroups.length > 0) ? (
             <p className="rounded-lg bg-surface-subtle p-3 text-[13px] leading-5 text-ink-muted">
-              This item has {item.variants.length} variant
-              {item.variants.length === 1 ? "" : "s"} and {item.modifierGroups.length} modifier
-              group
-              {item.modifierGroups.length === 1 ? "" : "s"}. They are shown on the item detail page
-              and are preserved when saving profile changes.
+              {t("variantsNote", {
+                variants: item.variants.length,
+                modifiers: item.modifierGroups.length,
+              })}
             </p>
           ) : null}
         </FormSection>
@@ -238,9 +260,9 @@ export function MenuItemForm({ item }: MenuItemFormProps) {
             variant="secondary"
             onClick={() => router.push(item ? `/menu/items/${item.id}` : "/menu")}
           >
-            Cancel
+            {tCommon("cancel")}
           </Button>
-          <Button type="submit">{item ? "Save changes" : "Create item"}</Button>
+          <Button type="submit">{item ? t("save") : t("create")}</Button>
         </FormActions>
       </Card>
     </form>

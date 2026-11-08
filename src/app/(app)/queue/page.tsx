@@ -1,20 +1,24 @@
 import { ListOrdered } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 
 import { ModulePlaceholder } from "@/components/layout/module-placeholder";
 
-export const metadata: Metadata = {
-  title: "Queue",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("meta");
+  return { title: t("queue") };
+}
 
-export default function QueuePage() {
+export default async function QueuePage() {
+  const t = await getTranslations("placeholders.modules.queue");
+
   return (
     <ModulePlaceholder
-      title="Queue"
-      description="Manage customer waits, check-ins, and seating."
+      title={t("title")}
+      description={t("description")}
       icon={ListOrdered}
-      phase="Phase 9"
-      planned={["Active queue", "Call and seat", "Status transitions", "Branch scope"]}
+      phase={t("phase")}
+      planned={t.raw("planned") as string[]}
     />
   );
 }

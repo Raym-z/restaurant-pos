@@ -1,20 +1,25 @@
+import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 
 import { PageHeader, PageStack } from "@/components/layout/page";
 import { StaffForm } from "@/features/staff/components/staff-form";
 
-export const metadata: Metadata = {
-  title: "Invite staff",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("meta");
+  return { title: t("inviteStaff") };
+}
 
-export default function NewStaffPage() {
+export default async function NewStaffPage() {
+  const t = await getTranslations("staff.form");
+  const tDetail = await getTranslations("staff.detail");
+
   return (
     <PageStack>
       <PageHeader
-        eyebrow="Staff"
-        title="Invite staff member"
-        description="Send a mock invitation and assign an initial role and branch access."
-        backLink={{ href: "/staff", label: "Back to staff" }}
+        eyebrow={tDetail("eyebrow")}
+        title={t("newTitle")}
+        description={t("newDescription")}
+        backLink={{ href: "/staff", label: tDetail("back") }}
       />
       <StaffForm />
     </PageStack>

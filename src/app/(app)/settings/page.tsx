@@ -1,20 +1,24 @@
 import { Settings } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 
 import { ModulePlaceholder } from "@/components/layout/module-placeholder";
 
-export const metadata: Metadata = {
-  title: "Settings",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("meta");
+  return { title: t("settings") };
+}
 
-export default function SettingsPage() {
+export default async function SettingsPage() {
+  const t = await getTranslations("placeholders.modules.settings");
+
   return (
     <ModulePlaceholder
-      title="Settings"
-      description="Configure organization, branch, and application preferences."
+      title={t("title")}
+      description={t("description")}
       icon={Settings}
-      phase="Phase 10"
-      planned={["Organization profile", "Branch settings", "Notifications", "Preferences"]}
+      phase={t("phase")}
+      planned={t.raw("planned") as string[]}
     />
   );
 }

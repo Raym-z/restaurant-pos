@@ -5,19 +5,21 @@ import {
   validatePhone,
   validateRequired,
   type ValidationErrors,
+  type ValidationTranslator,
 } from "@/features/shared/validation";
 
 export function validateStaff(
   input: StaffInput,
   existingStaff: StaffMember[],
-  currentStaffId?: string,
+  currentStaffId: string | undefined,
+  t: ValidationTranslator,
 ): ValidationErrors {
   const errors: ValidationErrors = {};
 
-  const fullName = validateRequired(input.fullName, "Full name", 120);
+  const fullName = validateRequired(input.fullName, "fields.fullName", t, 120);
   if (fullName) errors.fullName = fullName;
 
-  const email = validateEmail(input.email);
+  const email = validateEmail(input.email, "fields.staffEmail", t);
   if (email) {
     errors.email = email;
   } else {
@@ -27,19 +29,19 @@ export function validateStaff(
         member.email.toLowerCase() === input.email.trim().toLowerCase(),
     );
     if (duplicate) {
-      errors.email = "Another staff member already uses this email address.";
+      errors.email = t("duplicateEmail");
     }
   }
 
-  const phone = validatePhone(input.phone);
+  const phone = validatePhone(input.phone, "fields.staffPhone", t);
   if (phone) errors.phone = phone;
 
   if (input.assignments.length !== 1) {
-    errors.assignments = "Select exactly one role for this staff member.";
+    errors.assignments = t("assignmentCount");
   }
 
   input.assignments.forEach((assignment, index) => {
-    const scopeError = validateAssignment(assignment);
+    const scopeError = validateAssignment(assignment, t);
     if (scopeError) {
       errors[`assignments.${index}`] = scopeError;
     }
@@ -48,28 +50,29 @@ export function validateStaff(
   return errors;
 }
 
-export function validateAssignment(assignment: StaffRoleAssignment): string | null {
+export function validateAssignment(
+  assignment: StaffRoleAssignment,
+  t: ValidationTranslator,
+): string | null {
   if (ORGANIZATION_SCOPED_ROLES.includes(assignment.role)) {
     return assignment.scope === "organization" && assignment.branchId === null
       ? null
-      : "Organization owners must have organization-wide access.";
+      : t("ownerScope");
   }
 
   if (assignment.role === "admin") {
     if (assignment.scope === "organization") {
-      return assignment.branchId === null
-        ? null
-        : "Organization-scoped admins must not be tied to a single branch.";
+      return assignment.branchId === null ? null : t("adminScope");
     }
-    return assignment.branchId ? null : "Choose a branch for this branch-scoped admin.";
+    return assignment.branchId ? null : t("adminBranch");
   }
 
   if (BRANCH_SCOPED_ROLES.includes(assignment.role)) {
     if (assignment.scope !== "branch") {
-      return "This role must be assigned to a branch.";
+      return t("roleBranch");
     }
-    return assignment.branchId ? null : "Choose the branch this staff member belongs to.";
+    return assignment.branchId ? null : t("branchRequired");
   }
 
-  return "Choose a valid staff role.";
+  return t("invalidRole");
 }

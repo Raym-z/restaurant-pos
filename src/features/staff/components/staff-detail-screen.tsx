@@ -1,9 +1,10 @@
 "use client";
 
+import { Mail, Pencil, Phone, ShieldCheck, UserRound } from "lucide-react";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
-import { Mail, Pencil, Phone, ShieldCheck, UserRound } from "lucide-react";
 
 import { PageHeader, PageStack } from "@/components/layout/page";
 import { EmptyState } from "@/components/states/empty-state";
@@ -11,14 +12,19 @@ import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { formatDateOnly, formatDateTime } from "@/features/shared/format";
 import { useMockData } from "@/features/shared/mock-data-provider";
-import { STAFF_ROLE_LABELS, STAFF_STATUS_LABELS } from "../types";
+import { useLocalizedFormat } from "@/i18n/use-localized-format";
+import { useRoleLabel, useStatusLabel } from "@/i18n/use-labels";
 import { primaryAssignment } from "../selectors";
 
 export function StaffDetailScreen() {
   const params = useParams<{ id: string }>();
   const { staff, branches, organization, setStaffStatus } = useMockData();
+  const t = useTranslations("staff.detail");
+  const tCommon = useTranslations("common");
+  const roleLabel = useRoleLabel();
+  const statusLabel = useStatusLabel();
+  const format = useLocalizedFormat();
   const [confirmingDeactivate, setConfirmingDeactivate] = useState(false);
   const member = staff.find((entry) => entry.id === params.id);
   const branchById = new Map(branches.map((branch) => [branch.id, branch]));
@@ -26,17 +32,14 @@ export function StaffDetailScreen() {
   if (!member) {
     return (
       <PageStack>
-        <PageHeader
-          title="Staff member not found"
-          backLink={{ href: "/staff", label: "Back to staff" }}
-        />
+        <PageHeader title={t("notFoundTitle")} backLink={{ href: "/staff", label: t("back") }} />
         <EmptyState
           icon={UserRound}
-          title="This staff member could not be found"
-          description="They may have been removed, or the link is no longer valid."
+          title={t("notFoundTitle")}
+          description={t("notFoundDescription")}
           action={
             <Button asChild variant="secondary" size="sm">
-              <Link href="/staff">Back to staff</Link>
+              <Link href="/staff">{t("backToStaff")}</Link>
             </Button>
           }
         />
@@ -49,7 +52,7 @@ export function StaffDetailScreen() {
   return (
     <PageStack>
       <PageHeader
-        eyebrow="Staff"
+        eyebrow={t("eyebrow")}
         title={
           <span className="flex flex-wrap items-center gap-3">
             {member.fullName}
@@ -62,33 +65,33 @@ export function StaffDetailScreen() {
                     : "neutral"
               }
             >
-              {STAFF_STATUS_LABELS[member.status]}
+              {statusLabel(member.status)}
             </Badge>
           </span>
         }
         description={
           assignment
-            ? `${STAFF_ROLE_LABELS[assignment.role]} · ${
+            ? `${roleLabel(assignment.role)} · ${
                 assignment.scope === "organization"
-                  ? "Organization-wide"
-                  : (branchById.get(assignment.branchId ?? "")?.name ?? "Unassigned branch")
+                  ? tCommon("organizationWide")
+                  : (branchById.get(assignment.branchId ?? "")?.name ?? t("unknownBranch"))
               }`
-            : "No role assigned"
+            : tCommon("unassigned")
         }
-        backLink={{ href: "/staff", label: "Back to staff" }}
+        backLink={{ href: "/staff", label: t("back") }}
         actions={
           <>
             <Button asChild variant="secondary">
               <Link href={`/staff/${member.id}/edit`}>
                 <Pencil />
-                Edit staff
+                {t("edit")}
               </Link>
             </Button>
             {member.status === "inactive" ? (
-              <Button onClick={() => setStaffStatus(member.id, "active")}>Reactivate</Button>
+              <Button onClick={() => setStaffStatus(member.id, "active")}>{t("reactivate")}</Button>
             ) : (
               <Button variant="secondary" onClick={() => setConfirmingDeactivate(true)}>
-                {member.status === "invited" ? "Cancel invitation" : "Deactivate"}
+                {member.status === "invited" ? t("cancelInvite") : t("deactivate")}
               </Button>
             )}
           </>
@@ -98,16 +101,11 @@ export function StaffDetailScreen() {
       {confirmingDeactivate ? (
         <div
           role="alertdialog"
-          aria-label="Confirm status change"
+          aria-label={t("confirmTitle")}
           className="rounded-xl border border-warning/20 bg-warning-soft/50 p-4"
         >
-          <p className="text-sm font-medium text-ink">
-            Change this staff member&apos;s status to inactive?
-          </p>
-          <p className="mt-1 text-sm text-ink-muted">
-            In this mock workflow, the profile remains in the directory but is marked inactive.
-            Backend authorization will govern real access.
-          </p>
+          <p className="text-sm font-medium text-ink">{t("confirmTitle")}</p>
+          <p className="mt-1 text-sm text-ink-muted">{t("confirmDescription")}</p>
           <div className="mt-3 flex flex-wrap gap-2">
             <Button
               size="sm"
@@ -116,10 +114,10 @@ export function StaffDetailScreen() {
                 setConfirmingDeactivate(false);
               }}
             >
-              Confirm
+              {tCommon("confirm")}
             </Button>
             <Button size="sm" variant="secondary" onClick={() => setConfirmingDeactivate(false)}>
-              Cancel
+              {tCommon("cancel")}
             </Button>
           </div>
         </div>
@@ -128,7 +126,7 @@ export function StaffDetailScreen() {
       <div className="grid gap-6 xl:grid-cols-3">
         <Card className="xl:col-span-2">
           <CardHeader>
-            <CardTitle>Profile</CardTitle>
+            <CardTitle>{t("profile")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-5">
             <div className="flex items-center gap-4">
@@ -136,7 +134,9 @@ export function StaffDetailScreen() {
               <div>
                 <p className="text-base font-semibold text-ink">{member.fullName}</p>
                 <p className="text-sm text-ink-muted">
-                  Member since {formatDateOnly(member.joinedAt, organization.timezone)}
+                  {t("memberSince", {
+                    date: format.dateOnly(member.joinedAt, organization.timezone),
+                  })}
                 </p>
               </div>
             </div>
@@ -146,7 +146,7 @@ export function StaffDetailScreen() {
                 <Mail className="mt-0.5 size-4 text-ink-subtle" aria-hidden="true" />
                 <div>
                   <dt className="text-xs font-medium tracking-wide text-ink-subtle uppercase">
-                    Email
+                    {t("email")}
                   </dt>
                   <dd className="mt-0.5 text-sm text-ink">
                     <a href={`mailto:${member.email}`} className="hover:text-brand">
@@ -159,27 +159,27 @@ export function StaffDetailScreen() {
                 <Phone className="mt-0.5 size-4 text-ink-subtle" aria-hidden="true" />
                 <div>
                   <dt className="text-xs font-medium tracking-wide text-ink-subtle uppercase">
-                    Phone
+                    {t("phone")}
                   </dt>
                   <dd className="mt-0.5 text-sm text-ink">{member.phone}</dd>
                 </div>
               </div>
               <div>
                 <dt className="text-xs font-medium tracking-wide text-ink-subtle uppercase">
-                  Last active
+                  {t("lastActive")}
                 </dt>
                 <dd className="mt-0.5 text-sm text-ink">
                   {member.lastActiveAt
-                    ? formatDateTime(member.lastActiveAt, organization.timezone)
-                    : "Has not signed in yet"}
+                    ? format.dateTime(member.lastActiveAt, organization.timezone)
+                    : t("hasNotSignedIn")}
                 </dd>
               </div>
               <div>
                 <dt className="text-xs font-medium tracking-wide text-ink-subtle uppercase">
-                  Invitation sent
+                  {t("invitationSent")}
                 </dt>
                 <dd className="mt-0.5 text-sm text-ink">
-                  {formatDateOnly(member.joinedAt, organization.timezone)}
+                  {format.dateOnly(member.joinedAt, organization.timezone)}
                 </dd>
               </div>
             </dl>
@@ -190,25 +190,22 @@ export function StaffDetailScreen() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <ShieldCheck className="size-4 text-ink-subtle" aria-hidden="true" />
-              Access
+              {t("access")}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {member.assignments.map((assignmentEntry) => (
               <div key={`${assignmentEntry.role}-${assignmentEntry.branchId ?? "org"}`}>
-                <p className="text-sm font-medium text-ink">
-                  {STAFF_ROLE_LABELS[assignmentEntry.role]}
-                </p>
+                <p className="text-sm font-medium text-ink">{roleLabel(assignmentEntry.role)}</p>
                 <p className="text-sm text-ink-muted">
                   {assignmentEntry.scope === "organization"
-                    ? "All branches in the organization"
-                    : (branchById.get(assignmentEntry.branchId ?? "")?.name ?? "Unknown branch")}
+                    ? t("allBranches")
+                    : (branchById.get(assignmentEntry.branchId ?? "")?.name ?? t("unknownBranch"))}
                 </p>
               </div>
             ))}
             <div className="rounded-lg bg-surface-subtle p-3 text-[13px] leading-5 text-ink-muted">
-              Role changes take effect on the next authorized operation. The backend, not this
-              screen, enforces access.
+              {t("accessNote")}
             </div>
           </CardContent>
         </Card>

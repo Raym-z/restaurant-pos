@@ -1,8 +1,24 @@
-import type { MenuItem, MenuItemStatus } from "./types";
+import type { MenuCategory, MenuItem, MenuItemStatus, MenuText } from "./types";
 
 export const ALL_CATEGORIES = "all";
 export const ALL_BRANCHES = "all";
 export const ALL_STATUSES = "all";
+
+export function localizedMenuText(
+  content: { name: string; description: string; translations?: Partial<Record<string, MenuText>> },
+  locale: string,
+): MenuText {
+  const translation = content.translations?.[locale];
+  return translation ?? { name: content.name, description: content.description };
+}
+
+export function localizeMenuCategory(category: MenuCategory, locale: string): MenuText {
+  return localizedMenuText(category, locale);
+}
+
+export function localizeMenuItem(item: MenuItem, locale: string): MenuText {
+  return localizedMenuText(item, locale);
+}
 
 export interface MenuItemFilters {
   query: string;

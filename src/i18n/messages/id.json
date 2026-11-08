@@ -1,0 +1,758 @@
+{
+  "shell": {
+    "skipToContent": "Lewati ke konten utama",
+    "openNavigation": "Buka navigasi",
+    "closeNavigation": "Tutup navigasi",
+    "navigation": "Navigasi",
+    "primaryNavigation": "Navigasi utama",
+    "navigationDescription": "Navigasi aplikasi utama untuk {organization}.",
+    "workspace": "Ruang kerja",
+    "breadcrumb": "Navigasi remah",
+    "switchBranch": "Ganti cabang",
+    "currentBranch": "Cabang saat ini: {branch}",
+    "manageBranches": "Kelola cabang",
+    "activeBranch": "Cabang aktif",
+    "collapseSidebar": "Ciutkan bilah samping",
+    "expandSidebar": "Bentangkan bilah samping",
+    "language": "Bahasa",
+    "languageDescription": "Pilih bahasa antarmuka",
+    "home": "Beranda {name}",
+    "plans": {
+      "growth": "Paket Growth"
+    }
+  },
+  "languages": {
+    "id": "Bahasa Indonesia",
+    "en": "English"
+  },
+  "navigation": {
+    "sections": {
+      "operate": "Operasional",
+      "manage": "Kelola",
+      "insights": "Wawasan",
+      "administer": "Administrasi"
+    },
+    "items": {
+      "dashboard": "Dasbor",
+      "pos": "Kasir",
+      "orders": "Pesanan",
+      "tables": "Meja",
+      "kitchen": "Layar Dapur",
+      "queue": "Antrean",
+      "organization": "Organisasi",
+      "menu": "Menu",
+      "staff": "Staf",
+      "branches": "Cabang",
+      "reports": "Laporan",
+      "billing": "Tagihan",
+      "settings": "Pengaturan"
+    }
+  },
+  "roles": {
+    "owner": "Pemilik organisasi",
+    "admin": "Administrator organisasi",
+    "manager": "Manajer cabang",
+    "cashier": "Kasir",
+    "kitchenStaff": "Staf dapur",
+    "host": "Host"
+  },
+  "status": {
+    "active": "Aktif",
+    "inactive": "Nonaktif",
+    "invited": "Diundang",
+    "openingSoon": "Segera dibuka",
+    "available": "Tersedia",
+    "unavailable": "Tidak tersedia",
+    "archived": "Diarsipkan",
+    "new": "Baru",
+    "preparing": "Disiapkan",
+    "ready": "Siap",
+    "completed": "Selesai",
+    "cancelled": "Dibatalkan",
+    "closed": "Tutup"
+  },
+  "tags": {
+    "vegetarian": "Vegetarian",
+    "vegan": "Vegan",
+    "gluten-free": "Bebas gluten",
+    "spicy": "Pedas",
+    "signature": "Andalan"
+  },
+  "common": {
+    "saveChanges": "Simpan perubahan",
+    "cancel": "Batal",
+    "create": "Buat",
+    "edit": "Ubah",
+    "view": "Lihat",
+    "back": "Kembali",
+    "clearFilters": "Hapus filter",
+    "confirm": "Konfirmasi",
+    "search": "Cari",
+    "unassigned": "Belum ditugaskan",
+    "unknown": "Tidak diketahui",
+    "never": "Belum pernah",
+    "today": "Hari ini",
+    "included": "Termasuk",
+    "optional": "Opsional",
+    "all": "Semua",
+    "allStatuses": "Semua status",
+    "allBranches": "Semua cabang",
+    "allCategories": "Semua kategori",
+    "allRoles": "Semua peran",
+    "organizationWide": "Seluruh organisasi",
+    "singleBranch": "Satu cabang",
+    "showing": "Menampilkan {start}–{end} dari {total} {itemLabel}",
+    "pageOf": "Halaman {page} dari {totalPages}",
+    "previous": "Sebelumnya",
+    "next": "Berikutnya",
+    "items": "item",
+    "staffMembers": "anggota staf",
+    "branches": "cabang",
+    "menuItems": "item menu",
+    "notOpenYet": "Belum dibuka",
+    "reviewFields": "Periksa kolom yang ditandai sebelum menyimpan.",
+    "reviewFieldsNothingChanged": "Periksa kolom yang ditandai sebelum menyimpan. Belum ada perubahan."
+  },
+  "states": {
+    "loading": "Memuat…",
+    "loadingPage": "Memuat halaman",
+    "errorTitle": "Terjadi kesalahan",
+    "errorDescription": "Kami tidak dapat memuat informasi ini. Periksa koneksi Anda dan coba lagi.",
+    "retry": "Coba lagi",
+    "pageErrorTitle": "Halaman ini tidak dapat dimuat",
+    "pageErrorDescription": "Terjadi kesalahan tak terduga saat memproses permintaan. Anda dapat mencoba lagi atau kembali ke dasbor jika masalah berlanjut.",
+    "unauthorizedTitle": "Anda tidak memiliki akses ke area ini",
+    "unauthorizedDescription": "Peran atau penugasan cabang Anda tidak mencakup halaman ini. Hubungi administrator organisasi jika menurut Anda ini keliru.",
+    "accessRestricted": "Akses dibatasi",
+    "accessRestrictedDescription": "Area ini hanya tersedia untuk staf dengan peran dan akses cabang yang sesuai.",
+    "returnToDashboard": "Kembali ke dasbor",
+    "notFoundBrandSubtitle": "Ruang kerja staf",
+    "notFoundEyebrow": "Kesalahan 404",
+    "notFoundTitle": "Halaman tidak ditemukan",
+    "notFoundDescription": "Halaman yang Anda minta tidak ada, atau mungkin dipindahkan ke bagian lain ruang kerja.",
+    "backToDashboard": "Kembali ke dasbor",
+    "noRecords": "Belum ada data",
+    "recordsAppear": "Data akan muncul di sini setelah dibuat."
+  },
+  "validation": {
+    "required": "{field} wajib diisi.",
+    "maxLength": "{field} harus {max} karakter atau kurang.",
+    "invalidEmail": "Masukkan alamat email yang valid.",
+    "invalidPhone": "Gunakan nomor telepon E.164, misalnya {example}.",
+    "invalidUrl": "Masukkan URL yang valid, misalnya https://example.com.",
+    "invalidHttpUrl": "Masukkan URL HTTP atau HTTPS yang valid.",
+    "invalidCurrency": "Gunakan kode mata uang ISO 4217 tiga huruf, misalnya IDR.",
+    "invalidTimezone": "Gunakan zona waktu IANA yang valid, misalnya Asia/Jakarta.",
+    "invalidBranchCode": "Gunakan huruf kapital, angka, dan tanda hubung, misalnya JKT-SNP.",
+    "invalidTime": "Gunakan format waktu 24 jam, misalnya 21.30.",
+    "invalidDate": "Pilih tanggal yang valid.",
+    "duplicateBranchCode": "Cabang lain sudah menggunakan kode ini.",
+    "duplicateEmail": "Anggota staf lain sudah menggunakan alamat email ini.",
+    "duplicateCategory": "Kategori lain sudah menggunakan nama ini.",
+    "duplicateItem": "Kategori ini sudah memiliki item dengan nama tersebut.",
+    "assignmentCount": "Pilih tepat satu peran untuk anggota staf ini.",
+    "ownerScope": "Pemilik organisasi harus memiliki akses seluruh organisasi.",
+    "adminScope": "Administrator dengan cakupan organisasi tidak boleh terikat pada satu cabang.",
+    "adminBranch": "Pilih cabang untuk administrator dengan cakupan cabang ini.",
+    "roleBranch": "Peran ini harus ditugaskan ke cabang.",
+    "branchRequired": "Pilih cabang tempat anggota staf ini bertugas.",
+    "invalidRole": "Pilih peran staf yang valid.",
+    "assignmentsRequired": "Pilih peran dan cakupan akses.",
+    "hoursMissing": "Jam operasional untuk hari ini belum diisi.",
+    "closeAfterOpen": "Waktu tutup harus setelah waktu buka.",
+    "pricePositive": "Masukkan harga lebih dari nol, misalnya {example}.",
+    "tagsEmpty": "Tag tidak boleh kosong.",
+    "fields": {
+      "organizationName": "Nama organisasi",
+      "legalName": "Nama badan hukum",
+      "description": "Deskripsi",
+      "email": "Alamat email",
+      "phone": "Nomor telepon",
+      "website": "Situs web",
+      "timezone": "Zona waktu",
+      "currency": "Mata uang",
+      "streetAddress": "Alamat jalan",
+      "city": "Kota",
+      "region": "Provinsi atau wilayah",
+      "postalCode": "Kode pos",
+      "country": "Negara",
+      "branchName": "Nama cabang",
+      "branchCode": "Kode cabang",
+      "openingDate": "Tanggal buka",
+      "branchManager": "Manajer cabang",
+      "fullName": "Nama lengkap",
+      "staffEmail": "Alamat email",
+      "staffPhone": "Nomor telepon",
+      "role": "Peran",
+      "branch": "Cabang",
+      "categoryName": "Nama kategori",
+      "categoryDescription": "Deskripsi kategori",
+      "itemName": "Nama item",
+      "itemDescription": "Deskripsi item",
+      "basePrice": "Harga dasar",
+      "tags": "Tag"
+    }
+  },
+  "meta": {
+    "dashboard": "Dasbor",
+    "organization": "Organisasi",
+    "branches": "Cabang",
+    "newBranch": "Cabang baru",
+    "branchDetails": "Detail cabang",
+    "editBranch": "Ubah cabang",
+    "staff": "Staf",
+    "inviteStaff": "Undang staf",
+    "staffMember": "Anggota staf",
+    "editStaff": "Ubah anggota staf",
+    "menu": "Menu",
+    "newMenuItem": "Item menu baru",
+    "menuItem": "Item menu",
+    "editMenuItem": "Ubah item menu",
+    "menuCategories": "Kategori menu",
+    "newMenuCategory": "Kategori menu baru",
+    "editMenuCategory": "Ubah kategori menu",
+    "accessRestricted": "Akses dibatasi",
+    "pos": "Kasir",
+    "orders": "Pesanan",
+    "tables": "Meja",
+    "kitchen": "Layar Dapur",
+    "queue": "Antrean",
+    "reports": "Laporan",
+    "billing": "Tagihan",
+    "settings": "Pengaturan",
+    "appDescription": "Ruang kerja manajemen restoran, kasir, dan operasional dapur untuk staf."
+  },
+  "dashboard": {
+    "title": "Dasbor",
+    "openBranches": "{count, plural, one {# cabang buka} other {# cabang buka}}",
+    "asOf": "Per {date}",
+    "metrics": {
+      "net-sales": "Penjualan bersih",
+      "orders": "Pesanan",
+      "average-order-value": "Rata-rata nilai pesanan",
+      "staff-on-shift": "Staf bertugas"
+    },
+    "comparison": {
+      "vs-last-sunday": "dibanding Minggu lalu",
+      "across-open-branches": "Di {count, plural, one {# cabang yang buka} other {# cabang yang buka}}"
+    },
+    "salesTrend": {
+      "title": "Tren penjualan",
+      "subtitle": "7 hari terakhir di semua cabang",
+      "netSales": "Penjualan bersih",
+      "orders": "Pesanan",
+      "barLabel": "{date}: {revenue} dari {orders} pesanan",
+      "barTitle": "{date} · {revenue} · {orders} pesanan"
+    },
+    "operations": {
+      "title": "Operasional saat ini",
+      "subtitle": "Di cabang yang sedang buka",
+      "kitchenOrders": "Pesanan dapur",
+      "guestsWaiting": "Tamu menunggu",
+      "staffOnShift": "Staf bertugas",
+      "tablesSeated": "Meja terisi",
+      "seatingOccupancy": "Keterisian meja"
+    },
+    "branchPerformance": {
+      "title": "Performa cabang",
+      "subtitle": "Penjualan hari ini per cabang",
+      "viewBranches": "Lihat cabang",
+      "branch": "Cabang",
+      "netSales": "Penjualan bersih",
+      "orders": "Pesanan",
+      "averageOrder": "Rata-rata pesanan",
+      "revenueShare": "Porsi pendapatan",
+      "change": "Perubahan",
+      "unknownBranch": "Cabang tidak dikenal"
+    },
+    "topItems": {
+      "title": "Item terlaris",
+      "today": "Hari ini",
+      "sold": "{count} terjual",
+      "empty": "Belum ada penjualan item hari ini."
+    },
+    "recentOrders": {
+      "title": "Pesanan terbaru",
+      "subtitle": "Aktivitas layanan dalam satu jam terakhir",
+      "status": "Status",
+      "allStatuses": "Semua status",
+      "noMatch": "Tidak ada pesanan yang cocok dengan filter status ini.",
+      "order": "Pesanan",
+      "branch": "Cabang",
+      "table": "Meja",
+      "placed": "Waktu",
+      "total": "Total"
+    },
+    "attention": {
+      "title": "Perlu perhatian",
+      "staff": "Staf",
+      "empty": "Tidak ada yang perlu diperhatikan saat ini.",
+      "menuUnavailableTitle": "{count, plural, one {# item menu ditandai tidak tersedia} other {# item menu ditandai tidak tersedia}}",
+      "menuUnavailableDescription": "{item} tidak tersedia di {branch} dan ditandai habis di tingkat organisasi.",
+      "staffInvitesTitle": "{count, plural, one {# undangan staf menunggu diterima} other {# undangan staf menunggu diterima}}",
+      "staffInvitesDescription": "{first} ({firstRole}, {firstBranch}) dan {second} ({secondRole}, {secondBranch}) belum masuk.",
+      "managerVacancyTitle": "{branch} belum memiliki manajer cabang",
+      "managerVacancyDescription": "Undangan manajer cabang untuk {name} masih menunggu diterima."
+    },
+    "metricsLabel": "Metrik utama"
+  },
+  "organization": {
+    "eyebrow": "Organisasi",
+    "description": "Kelola profil bisnis restoran yang digunakan di semua cabang.",
+    "saved": "Profil organisasi disimpan dalam sesi mock ini.",
+    "sections": {
+      "identity": "Identitas bisnis",
+      "identityDescription": "Ditampilkan di ruang kerja dan dokumen tingkat organisasi.",
+      "contact": "Kontak dan pengaturan regional",
+      "contactDescription": "Digunakan sebagai mata uang dan zona waktu default untuk cabang baru.",
+      "address": "Alamat bisnis",
+      "addressDescription": "Alamat terdaftar atau alamat surat utama organisasi."
+    },
+    "fields": {
+      "displayName": "Nama tampilan",
+      "legalName": "Nama badan hukum",
+      "description": "Deskripsi",
+      "contactEmail": "Email kontak",
+      "phone": "Telepon",
+      "website": "Situs web",
+      "timezone": "Zona waktu",
+      "currency": "Mata uang",
+      "streetAddress": "Alamat jalan",
+      "addressLine2": "Alamat baris 2",
+      "city": "Kota",
+      "region": "Provinsi atau wilayah",
+      "postalCode": "Kode pos",
+      "country": "Negara"
+    },
+    "placeholders": {
+      "description": "",
+      "website": "https://example.com",
+      "addressLine2": "Suite, lantai, unit (opsional)"
+    },
+    "hints": {
+      "description": "Maksimal 500 karakter.",
+      "phone": "Format E.164, misalnya +6281234567890.",
+      "timezone": "Zona waktu IANA, misalnya Asia/Jakarta.",
+      "currency": "Kode ISO 4217. Mata uang platform ditetapkan ke IDR.",
+      "addressLine2": "Suite, lantai, unit (opsional)."
+    },
+    "workspaceSummary": "Ringkasan ruang kerja",
+    "branches": "Cabang",
+    "staff": "Staf",
+    "menuItems": "Item menu",
+    "identifiers": "Identitas organisasi",
+    "slug": "Slug ruang kerja",
+    "organizationId": "ID organisasi",
+    "created": "Dibuat",
+    "identifiersNote": "ID bersifat hanya-baca. Di produksi, ID diterbitkan dan divalidasi oleh backend."
+  },
+  "branches": {
+    "title": "Cabang",
+    "description": "Kelola lokasi restoran, jam operasional, dan manajer cabang.",
+    "new": "Cabang baru",
+    "search": "Cari cabang",
+    "searchPlaceholder": "Cari berdasarkan nama, kode, atau kota",
+    "count": "{visible} dari {total} {total, plural, one {cabang} other {cabang}}",
+    "table": {
+      "branch": "Cabang",
+      "location": "Lokasi",
+      "manager": "Manajer",
+      "contact": "Kontak",
+      "status": "Status",
+      "actions": "Aksi"
+    },
+    "empty": {
+      "filteredTitle": "Tidak ada cabang yang cocok dengan filter ini",
+      "filteredDescription": "Coba kata kunci lain atau hapus filter status.",
+      "title": "Belum ada cabang",
+      "description": "Buat cabang pertama untuk mulai mengatur operasional."
+    },
+    "form": {
+      "newTitle": "Cabang baru",
+      "editTitle": "Ubah {name}",
+      "newDescription": "Tambahkan lokasi restoran dengan detail kontak dan jam operasionalnya.",
+      "editDescription": "Perbarui profil, detail kontak, dan jam operasional untuk {code}.",
+      "sections": {
+        "details": "Detail cabang",
+        "detailsDescription": "Nama, kode, dan status operasional yang ditampilkan di seluruh POS.",
+        "contact": "Kontak",
+        "contactDescription": "Detail kontak untuk tamu di lokasi ini.",
+        "hours": "Jam operasional",
+        "hoursDescription": "Waktu lokal cabang. Gunakan 00:00 sebagai jam tutup tengah malam."
+      },
+      "fields": {
+        "name": "Nama cabang",
+        "code": "Kode cabang",
+        "status": "Status",
+        "openingDate": "Tanggal buka",
+        "manager": "Manajer cabang",
+        "phone": "Telepon",
+        "email": "Email",
+        "addressLine1": "Alamat jalan",
+        "addressLine2": "Alamat baris 2",
+        "city": "Kota",
+        "region": "Provinsi atau wilayah",
+        "postalCode": "Kode pos",
+        "country": "Negara",
+        "timezone": "Zona waktu"
+      },
+      "placeholders": {
+        "name": "Senopati",
+        "code": "JKT-SNP",
+        "phone": "+6281234567890",
+        "email": "cabang@example.com",
+        "addressLine1": "Jl. Senopati No. 8",
+        "addressLine2": "Suite, lantai, unit (opsional)",
+        "city": "Jakarta",
+        "region": "DKI Jakarta",
+        "postalCode": "12190",
+        "country": "Indonesia",
+        "timezone": "Asia/Jakarta"
+      },
+      "hints": {
+        "code": "Huruf kapital, angka, dan tanda hubung.",
+        "manager": "Hanya staf dengan penugasan manajer cabang yang ditampilkan.",
+        "phone": "Format E.164, misalnya +6281234567890.",
+        "addressLine2": "Suite, lantai, unit (opsional).",
+        "timezone": "Zona waktu IANA, misalnya Asia/Jakarta."
+      },
+      "closed": "Tutup",
+      "openingTime": "Jam buka {day}",
+      "closingTime": "Jam tutup {day}",
+      "create": "Buat cabang",
+      "save": "Simpan perubahan"
+    },
+    "detail": {
+      "eyebrow": "Cabang",
+      "back": "Kembali ke cabang",
+      "edit": "Ubah cabang",
+      "notFoundTitle": "Cabang tidak ditemukan",
+      "notFoundDescription": "Cabang ini tidak dapat ditemukan. Mungkin sudah dihapus atau tautannya tidak lagi valid.",
+      "backToBranches": "Kembali ke cabang",
+      "information": "Informasi cabang",
+      "address": "Alamat",
+      "contact": "Kontak",
+      "timezone": "Zona waktu",
+      "openingDate": "Tanggal buka",
+      "created": "Dibuat",
+      "hours": "Jam operasional",
+      "manager": "Manajer cabang",
+      "managerMissing": "Belum ada manajer yang ditugaskan. Tugaskan manajer cabang dari formulir ubah cabang.",
+      "assignedStaff": "Staf yang ditugaskan",
+      "noStaff": "Belum ada anggota staf yang ditugaskan ke cabang ini."
+    }
+  },
+  "staff": {
+    "title": "Staf",
+    "description": "Kelola profil staf, peran, dan penugasan cabang.",
+    "invite": "Undang staf",
+    "search": "Cari staf",
+    "searchPlaceholder": "Cari berdasarkan nama, email, atau telepon",
+    "allRoles": "Semua peran",
+    "allBranches": "Semua cabang",
+    "allStatuses": "Semua status",
+    "count": "{visible} dari {total} {total, plural, one {anggota staf} other {anggota staf}}",
+    "table": {
+      "member": "Anggota staf",
+      "role": "Peran",
+      "access": "Akses",
+      "status": "Status",
+      "lastActive": "Terakhir aktif",
+      "actions": "Aksi"
+    },
+    "empty": {
+      "filteredTitle": "Tidak ada staf yang cocok dengan filter ini",
+      "filteredDescription": "Coba kata kunci lain atau atur ulang filter peran, cabang, dan status.",
+      "title": "Belum ada staf",
+      "description": "Undang anggota staf pertama untuk menetapkan peran dan akses cabang."
+    },
+    "detail": {
+      "eyebrow": "Staf",
+      "back": "Kembali ke staf",
+      "edit": "Ubah staf",
+      "deactivate": "Nonaktifkan",
+      "cancelInvite": "Batalkan undangan",
+      "reactivate": "Aktifkan kembali",
+      "notFoundTitle": "Anggota staf tidak ditemukan",
+      "notFoundDescription": "Anggota staf ini tidak dapat ditemukan. Mungkin sudah dihapus atau tautannya tidak lagi valid.",
+      "backToStaff": "Kembali ke staf",
+      "confirmTitle": "Ubah status anggota staf ini menjadi nonaktif?",
+      "confirmDescription": "Dalam alur mock ini, profil tetap ada di direktori tetapi ditandai nonaktif. Otorisasi backend akan mengatur akses sebenarnya.",
+      "profile": "Profil",
+      "memberSince": "Anggota sejak {date}",
+      "email": "Email",
+      "phone": "Telepon",
+      "lastActive": "Terakhir aktif",
+      "invitationSent": "Undangan dikirim",
+      "hasNotSignedIn": "Belum pernah masuk",
+      "access": "Akses",
+      "allBranches": "Semua cabang di organisasi",
+      "unknownBranch": "Cabang tidak dikenal",
+      "accessNote": "Perubahan peran berlaku pada operasi resmi berikutnya. Backend, bukan layar ini, yang menegakkan akses."
+    },
+    "form": {
+      "newTitle": "Undang anggota staf",
+      "newDescription": "Kirim undangan mock dan tugaskan peran awal serta akses cabang.",
+      "editTitle": "Ubah {name}",
+      "editDescription": "Perbarui detail kontak, peran, dan akses cabang.",
+      "sections": {
+        "profile": "Profil staf",
+        "profileDescription": "Detail kontak yang digunakan untuk undangan dan pemberitahuan operasional.",
+        "access": "Penugasan akses",
+        "accessDescription": "Rilis awal menggunakan satu peran per anggota staf. Peran dengan cakupan cabang hanya melihat cabang yang ditugaskan."
+      },
+      "fields": {
+        "fullName": "Nama lengkap",
+        "email": "Alamat email",
+        "phone": "Telepon",
+        "role": "Peran",
+        "scope": "Cakupan akses",
+        "branch": "Cabang"
+      },
+      "scope": {
+        "organization": "Seluruh organisasi",
+        "branch": "Satu cabang"
+      },
+      "hints": {
+        "phone": "Format E.164, misalnya +6281234567890.",
+        "scope": "Pilih akses seluruh organisasi atau satu cabang."
+      },
+      "ownerNote": "Pemilik organisasi memiliki akses seluruh organisasi. Transfer kepemilikan bukan bagian dari alur mock.",
+      "orgAdminNote": "Administrator ini dapat mengakses semua cabang di organisasi.",
+      "branchNote": "Anggota staf ini hanya dapat mengakses cabang yang dipilih, sesuai otorisasi backend.",
+      "send": "Kirim undangan",
+      "save": "Simpan perubahan"
+    }
+  },
+  "menu": {
+    "title": "Menu",
+    "description": "Kelola kategori, harga, tag, dan ketersediaan cabang.",
+    "categoriesAction": "Kategori",
+    "newItem": "Item baru",
+    "search": "Cari item menu",
+    "searchPlaceholder": "Cari berdasarkan nama item, deskripsi, atau tag",
+    "allCategories": "Semua kategori",
+    "allStatuses": "Semua status",
+    "allBranches": "Semua cabang",
+    "count": "{visible} dari {total} {total, plural, one {item menu} other {item menu}}",
+    "table": {
+      "item": "Item menu",
+      "category": "Kategori",
+      "basePrice": "Harga dasar",
+      "availability": "Ketersediaan",
+      "status": "Status",
+      "updated": "Diperbarui",
+      "actions": "Aksi"
+    },
+    "availabilityCount": "{available} dari {total} {total, plural, one {cabang} other {cabang}}",
+    "branchPriceOverride": "Harga khusus cabang",
+    "uncategorized": "Tanpa kategori",
+    "empty": {
+      "filteredTitle": "Tidak ada item menu yang cocok dengan filter ini",
+      "filteredDescription": "Coba kata kunci, kategori, atau filter ketersediaan lain.",
+      "title": "Belum ada item menu",
+      "description": "Buat item menu pertama untuk organisasi ini."
+    },
+    "item": {
+      "eyebrow": "Item menu",
+      "back": "Kembali ke menu",
+      "edit": "Ubah item",
+      "notFoundTitle": "Item menu tidak ditemukan",
+      "notFoundDescription": "Item menu ini tidak dapat ditemukan. Mungkin sudah dihapus atau tautannya tidak lagi valid.",
+      "backToMenu": "Kembali ke menu",
+      "pricing": "Harga dan ketersediaan",
+      "basePrice": "Harga dasar",
+      "variantPricing": "Harga varian menggantikan harga dasar.",
+      "table": {
+        "branch": "Cabang",
+        "availability": "Ketersediaan",
+        "effectivePrice": "Harga berlaku"
+      },
+      "branchOverride": "Harga khusus cabang",
+      "variantsModifiers": "Varian dan modifier",
+      "variants": "Varian",
+      "noVariants": "Tidak ada varian. Harga dasar berlaku untuk setiap pesanan.",
+      "modifierGroups": "Grup modifier",
+      "noModifiers": "Tidak ada grup modifier untuk item ini.",
+      "choose": "Pilih {count}",
+      "upTo": "maksimal {count}",
+      "uncategorized": "Tanpa kategori",
+      "metadata": "Metadata item",
+      "category": "Kategori",
+      "tags": "Tag",
+      "noTags": "Tidak ada tag",
+      "created": "Dibuat",
+      "lastUpdated": "Terakhir diperbarui",
+      "availabilityRules": "Aturan ketersediaan",
+      "availabilityRulesText": "Item dapat dipesan di cabang hanya jika status tingkat organisasi dan ketersediaan cabang mengizinkan. Validasi dan harga menu akhir tetap menjadi tanggung jawab backend."
+    },
+    "form": {
+      "newTitle": "Item menu baru",
+      "newDescription": "Tambahkan item ke kategori dengan harga dan ketersediaan cabang.",
+      "editTitle": "Ubah {name}",
+      "editDescription": "Perbarui harga, ketersediaan, tag, dan profil item.",
+      "sections": {
+        "details": "Detail item",
+        "detailsDescription": "Nama dan deskripsi yang akan dilihat tamu dan staf di menu.",
+        "availability": "Ketersediaan cabang",
+        "availabilityDescription": "Cabang yang tidak dicentang tidak akan menawarkan item ini. Status tingkat organisasi tetap berlaku."
+      },
+      "fields": {
+        "category": "Kategori",
+        "name": "Nama item",
+        "description": "Deskripsi",
+        "basePrice": "Harga dasar",
+        "status": "Status",
+        "tags": "Tag"
+      },
+      "placeholders": {
+        "category": "Pilih kategori",
+        "name": "Kofta Domba",
+        "description": "Kofta domba bakar, tahini hijau, bawang sumac, dan pita panggang.",
+        "price": "65000",
+        "tags": "vegetarian, signature"
+      },
+      "hints": {
+        "description": "Maksimal 400 karakter.",
+        "price": "Masukkan harga dalam Rupiah, misalnya 65000.",
+        "tags": "Pisahkan dengan koma, misalnya vegetarian, gluten-free."
+      },
+      "branchAvailable": "Tersedia",
+      "variantsNote": "Item ini memiliki {variants} varian dan {modifiers} grup modifier. Keduanya ditampilkan di halaman detail item dan dipertahankan saat menyimpan perubahan profil.",
+      "create": "Buat item",
+      "save": "Simpan perubahan"
+    },
+    "categories": {
+      "eyebrow": "Menu",
+      "title": "Kategori",
+      "description": "Kelompokkan item menu ke kategori yang ditampilkan di semua cabang.",
+      "back": "Kembali ke menu",
+      "backToItems": "Kembali ke item",
+      "new": "Kategori baru",
+      "search": "Cari kategori",
+      "searchPlaceholder": "Cari berdasarkan nama atau deskripsi kategori",
+      "table": {
+        "category": "Kategori",
+        "items": "Item",
+        "sortOrder": "Urutan",
+        "status": "Status",
+        "actions": "Aksi"
+      },
+      "emptyTitle": "Belum ada kategori",
+      "emptyDescription": "Buat kategori pertama sebelum menambahkan item menu.",
+      "noMatchTitle": "Tidak ada kategori yang cocok",
+      "noMatchDescription": "Coba kata kunci lain.",
+      "form": {
+        "newTitle": "Kategori baru",
+        "newDescription": "Buat kategori untuk mengelompokkan item menu.",
+        "editTitle": "Ubah {name}",
+        "editDescription": "Perbarui tampilan kategori ini di menu.",
+        "sections": {
+          "details": "Detail kategori",
+          "detailsDescription": "Kategori mengelompokkan item menu untuk staf dan menu tamu."
+        },
+        "fields": {
+          "name": "Nama kategori",
+          "status": "Status",
+          "description": "Deskripsi"
+        },
+        "placeholders": {
+          "name": "Hidangan Utama Bakar",
+          "description": "Hidangan yang dimasak di atas kayu ek dan kayu zaitun."
+        },
+        "hints": {
+          "description": "Maksimal 240 karakter."
+        },
+        "create": "Buat kategori",
+        "save": "Simpan kategori"
+      },
+      "notFoundTitle": "Kategori tidak ditemukan",
+      "notFoundDescription": "Kategori ini tidak dapat ditemukan. Mungkin sudah dihapus atau tautannya tidak lagi valid."
+    },
+    "content": {
+      "Bread": "Roti",
+      "Extras": "Tambahan",
+      "Add-ons": "Tambahan",
+      "Choose a side": "Pilih lauk",
+      "Spice level": "Tingkat pedas",
+      "Warm pita": "Pita hangat",
+      "Gluten-free pita": "Pita bebas gluten",
+      "Extra honey": "Madu ekstra",
+      "Extra chili crisp": "Chili crisp ekstra",
+      "Extra ricotta": "Ricotta ekstra",
+      "Classic": "Klasik",
+      "Spicy soppressata": "Soppressata pedas",
+      "Single skewer": "Satu tusuk",
+      "Double skewer": "Dua tusuk",
+      "Jeweled rice": "Nasi permata",
+      "Garlic herb fries": "Kentang goreng bawang herbal",
+      "Charred broccolini": "Brokoli muda bakar",
+      "Mild": "Tidak pedas",
+      "Medium": "Sedang",
+      "Hot": "Pedas",
+      "Regular": "Reguler",
+      "Large": "Besar"
+    }
+  },
+  "placeholders": {
+    "backToOverview": "Kembali ke ringkasan",
+    "readyTitle": "{title} belum terhubung",
+    "readyDescription": "Shell ruang kerja, navigasi, sistem desain, dan komponen bersama sudah tersedia. Modul ini akan diaktifkan saat fase roadmap-nya diimplementasikan.",
+    "planned": "Kemampuan yang direncanakan",
+    "modules": {
+      "pos": {
+        "title": "Kasir",
+        "description": "Buat dan kelola pesanan dari meja kasir.",
+        "phase": "Fase 7",
+        "planned": ["Pembuat pesanan", "Asosiasi meja", "Pembayaran tunai", "Siklus pesanan"]
+      },
+      "orders": {
+        "title": "Pesanan",
+        "description": "Tinjau, perbarui, dan selesaikan pesanan aktif serta riwayat.",
+        "phase": "Fase 7",
+        "planned": ["Daftar pesanan", "Filter status", "Detail pesanan", "Alur pembatalan"]
+      },
+      "tables": {
+        "title": "Meja",
+        "description": "Atur meja makan dan sesi pemesanan pelanggan.",
+        "phase": "Fase 6",
+        "planned": ["Daftar meja", "Status meja", "Sesi QR", "Sesi makan"]
+      },
+      "kitchen": {
+        "title": "Layar Dapur",
+        "description": "Pantau pesanan masuk dan perbarui status persiapan.",
+        "phase": "Fase 8",
+        "planned": [
+          "Antrean pesanan",
+          "Status persiapan",
+          "Pembaruan real-time",
+          "Penanganan koneksi"
+        ]
+      },
+      "queue": {
+        "title": "Antrean",
+        "description": "Kelola daftar tunggu pelanggan dan alur tempat duduk.",
+        "phase": "Fase 9",
+        "planned": ["Antrean aktif", "Check-in", "Panggil dan dudukkan", "Status antrean"]
+      },
+      "reports": {
+        "title": "Laporan",
+        "description": "Tinjau penjualan, pesanan, dan performa cabang.",
+        "phase": "Fase 10",
+        "planned": ["Laporan penjualan", "Statistik pesanan", "Perbandingan cabang", "Ekspor"]
+      },
+      "billing": {
+        "title": "Tagihan",
+        "description": "Kelola informasi langganan dan tagihan.",
+        "phase": "Fase 10",
+        "planned": ["Langganan", "Faktur", "Status pembayaran", "Hak akses fitur"]
+      },
+      "settings": {
+        "title": "Pengaturan",
+        "description": "Atur preferensi organisasi, cabang, dan aplikasi.",
+        "phase": "Fase 10",
+        "planned": ["Profil organisasi", "Pengaturan cabang", "Notifikasi", "Preferensi"]
+      }
+    }
+  }
+}

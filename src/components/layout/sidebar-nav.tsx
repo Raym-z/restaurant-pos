@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -16,11 +17,13 @@ interface SidebarNavProps {
 
 export function SidebarNav({ role, collapsed = false, onNavigate }: SidebarNavProps) {
   const pathname = usePathname();
+  const t = useTranslations();
+  const tShell = useTranslations("shell");
   const sections = getNavigationForRole(role);
 
   return (
     <nav
-      aria-label="Primary navigation"
+      aria-label={tShell("primaryNavigation")}
       className={cn(
         "flex-1 scrollbar-thin overflow-y-auto",
         collapsed ? "space-y-3 px-2 py-3" : "space-y-5 px-3 py-4",
@@ -32,13 +35,14 @@ export function SidebarNav({ role, collapsed = false, onNavigate }: SidebarNavPr
             <div className="mx-2 mb-2 border-t border-line" aria-hidden="true" />
           ) : (
             <p className="px-2 pb-1.5 text-[11px] font-semibold tracking-[0.14em] text-ink-subtle uppercase">
-              {section.label}
+              {t(section.labelKey)}
             </p>
           )}
           <ul className="space-y-0.5">
             {section.items.map((item) => {
               const active = isNavItemActive(pathname, item.href);
               const Icon = item.icon;
+              const title = t(item.titleKey);
               const link = (
                 <Link
                   href={item.href}
@@ -65,7 +69,7 @@ export function SidebarNav({ role, collapsed = false, onNavigate }: SidebarNavPr
                     )}
                     aria-hidden="true"
                   />
-                  {collapsed ? null : <span className="truncate">{item.title}</span>}
+                  {collapsed ? null : <span className="truncate">{title}</span>}
                 </Link>
               );
 
@@ -74,7 +78,7 @@ export function SidebarNav({ role, collapsed = false, onNavigate }: SidebarNavPr
                   {collapsed ? (
                     <Tooltip>
                       <TooltipTrigger asChild>{link}</TooltipTrigger>
-                      <TooltipContent side="right">{item.title}</TooltipContent>
+                      <TooltipContent side="right">{title}</TooltipContent>
                     </Tooltip>
                   ) : (
                     link

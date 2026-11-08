@@ -1,7 +1,11 @@
 "use client";
 
-import { formatDateTime } from "@/features/shared/format";
+import { useLocale, useTranslations } from "next-intl";
+
+import { PageHeader, PageStack } from "@/components/layout/page";
 import { useMockData } from "@/features/shared/mock-data-provider";
+import { localizeMenuCategory, localizeMenuItem } from "@/features/menu/selectors";
+import { useLocalizedFormat } from "@/i18n/use-localized-format";
 import { mockDashboard } from "../data/dashboard";
 import { AttentionList } from "./attention-list";
 import { BranchPerformanceTable } from "./branch-performance-table";
@@ -12,25 +16,41 @@ import { SalesTrend } from "./sales-trend";
 import { TopSellingItems } from "./top-selling-items";
 
 export function DashboardScreen() {
-  const { organization, branches } = useMockData();
+  const { organization, branches, menuItems, menuCategories } = useMockData();
+  const locale = useLocale();
+  const t = useTranslations("dashboard");
+  const format = useLocalizedFormat();
   const openBranchCount = branches.filter((branch) => branch.status === "active").length;
 
-  return (
-    <div className="space-y-6">
-      <header className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-ink">Dashboard</h1>
-          <p className="mt-1 text-sm text-ink-muted">
-            {organization.name} · {openBranchCount} open{" "}
-            {openBranchCount === 1 ? "branch" : "branches"}
-          </p>
-        </div>
-        <p className="rounded-full border border-line bg-surface px-3 py-1 text-xs font-medium text-ink-muted">
-          As of {formatDateTime(mockDashboard.asOf, organization.timezone)}
-        </p>
-      </header>
+  const topSellingItems = mockDashboard.topSellingItems.map((entry) => {
+    const menuItem = menuItems.find((item) => item.id === entry.menuItemId);
+    const category = menuItem
+      ? menuCategories.find((item) => item.id === menuItem.categoryId)
+      : undefined;
+    return {
+      ...entry,
+      name: menuItem ? localizeMenuItem(menuItem, locale).name : entry.name,
+      categoryName: category ? localizeMenuCategory(category, locale).name : entry.categoryName,
+    };
+  });
 
-      <section aria-label="Key metrics">
+  return (
+    <PageStack>
+      <PageHeader
+        title={t("title")}
+        description={`${organization.name} · ${t("openBranches", {
+          count: openBranchCount,
+        })}`}
+        actions={
+          <p className="rounded-full border border-line bg-surface px-3 py-1 text-xs font-medium text-ink-muted">
+            {t("asOf", {
+              date: format.dateTime(mockDashboard.asOf, organization.timezone),
+            })}
+          </p>
+        }
+      />
+
+      <section aria-label={t("metricsLabel")}>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {mockDashboard.metrics.map((metric) => (
             <MetricCard key={metric.id} metric={metric} />
@@ -49,7 +69,7 @@ export function DashboardScreen() {
         <div className="xl:col-span-2">
           <BranchPerformanceTable rows={mockDashboard.branchPerformance} branches={branches} />
         </div>
-        <TopSellingItems items={mockDashboard.topSellingItems} />
+        <TopSellingItems items={topSellingItems} />
       </div>
 
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
@@ -62,6 +82,6 @@ export function DashboardScreen() {
         </div>
         <AttentionList items={mockDashboard.attentionItems} branches={branches} />
       </div>
-    </div>
+    </PageStack>
   );
 }

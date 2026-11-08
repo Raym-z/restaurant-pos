@@ -1,8 +1,9 @@
 "use client";
 
+import { Clock, Pencil, Store, UserRound } from "lucide-react";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { Clock, Pencil, Store, UserRound } from "lucide-react";
 
 import { PageHeader, PageStack } from "@/components/layout/page";
 import { EmptyState } from "@/components/states/empty-state";
@@ -11,21 +12,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { formatDateOnly, formatDateTime, formatLocalTime } from "@/features/shared/format";
 import { useMockData } from "@/features/shared/mock-data-provider";
-import { STAFF_ROLE_LABELS, STAFF_STATUS_LABELS } from "@/features/staff/types";
+import { useLocalizedFormat } from "@/i18n/use-localized-format";
+import { useRoleLabel, useStatusLabel } from "@/i18n/use-labels";
 import type { Weekday } from "../types";
-import { BRANCH_STATUS_LABELS, WEEKDAYS } from "../types";
-
-const DAY_LABELS: Record<Weekday, string> = {
-  monday: "Monday",
-  tuesday: "Tuesday",
-  wednesday: "Wednesday",
-  thursday: "Thursday",
-  friday: "Friday",
-  saturday: "Saturday",
-  sunday: "Sunday",
-};
+import { WEEKDAYS } from "../types";
 
 const STATUS_BADGES = {
   active: "success",
@@ -36,23 +27,26 @@ const STATUS_BADGES = {
 export function BranchDetailScreen() {
   const params = useParams<{ id: string }>();
   const { branches, staff } = useMockData();
+  const t = useTranslations("branches.detail");
+  const tCommon = useTranslations("common");
+  const tStatus = useTranslations("status");
+  const statusLabel = useStatusLabel();
+  const roleLabel = useRoleLabel();
+  const format = useLocalizedFormat();
   const branch = branches.find((entry) => entry.id === params.id);
   const manager = staff.find((member) => member.id === branch?.managerId);
 
   if (!branch) {
     return (
       <PageStack>
-        <PageHeader
-          title="Branch not found"
-          backLink={{ href: "/branches", label: "Back to branches" }}
-        />
+        <PageHeader title={t("notFoundTitle")} backLink={{ href: "/branches", label: t("back") }} />
         <EmptyState
           icon={Store}
-          title="This branch could not be found"
-          description="It may have been removed, or the link is no longer valid."
+          title={t("notFoundTitle")}
+          description={t("notFoundDescription")}
           action={
             <Button asChild variant="secondary" size="sm">
-              <Link href="/branches">Back to branches</Link>
+              <Link href="/branches">{t("backToBranches")}</Link>
             </Button>
           }
         />
@@ -65,26 +59,25 @@ export function BranchDetailScreen() {
       (assignment) => assignment.scope === "branch" && assignment.branchId === branch.id,
     ),
   );
+  const managerAssignment = manager?.assignments[0];
 
   return (
     <PageStack>
       <PageHeader
-        eyebrow="Branch"
+        eyebrow={t("eyebrow")}
         title={
           <span className="flex flex-wrap items-center gap-3">
             {branch.name}
-            <Badge variant={STATUS_BADGES[branch.status]}>
-              {BRANCH_STATUS_LABELS[branch.status]}
-            </Badge>
+            <Badge variant={STATUS_BADGES[branch.status]}>{statusLabel(branch.status)}</Badge>
           </span>
         }
         description={`${branch.code} · ${branch.city}, ${branch.region}`}
-        backLink={{ href: "/branches", label: "Back to branches" }}
+        backLink={{ href: "/branches", label: t("back") }}
         actions={
           <Button asChild variant="secondary">
             <Link href={`/branches/${branch.id}/edit`}>
               <Pencil />
-              Edit branch
+              {t("edit")}
             </Link>
           </Button>
         }
@@ -94,13 +87,13 @@ export function BranchDetailScreen() {
         <div className="space-y-6 xl:col-span-2">
           <Card>
             <CardHeader>
-              <CardTitle>Branch information</CardTitle>
+              <CardTitle>{t("information")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <dl className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <dt className="text-xs font-medium tracking-wide text-ink-subtle uppercase">
-                    Address
+                    {t("address")}
                   </dt>
                   <dd className="mt-1 text-sm text-ink">
                     {branch.addressLine1}
@@ -118,7 +111,7 @@ export function BranchDetailScreen() {
                 </div>
                 <div>
                   <dt className="text-xs font-medium tracking-wide text-ink-subtle uppercase">
-                    Contact
+                    {t("contact")}
                   </dt>
                   <dd className="mt-1 text-sm text-ink">
                     {branch.phone}
@@ -133,24 +126,24 @@ export function BranchDetailScreen() {
                 </div>
                 <div>
                   <dt className="text-xs font-medium tracking-wide text-ink-subtle uppercase">
-                    Timezone
+                    {t("timezone")}
                   </dt>
                   <dd className="mt-1 text-sm text-ink">{branch.timezone}</dd>
                 </div>
                 <div>
                   <dt className="text-xs font-medium tracking-wide text-ink-subtle uppercase">
-                    Opening date
+                    {t("openingDate")}
                   </dt>
                   <dd className="mt-1 text-sm text-ink">
-                    {formatDateOnly(branch.openingDate, branch.timezone)}
+                    {format.dateOnly(branch.openingDate, branch.timezone)}
                   </dd>
                 </div>
                 <div>
                   <dt className="text-xs font-medium tracking-wide text-ink-subtle uppercase">
-                    Created
+                    {t("created")}
                   </dt>
                   <dd className="mt-1 text-sm text-ink">
-                    {formatDateTime(branch.createdAt, branch.timezone)}
+                    {format.dateTime(branch.createdAt, branch.timezone)}
                   </dd>
                 </div>
               </dl>
@@ -161,23 +154,25 @@ export function BranchDetailScreen() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Clock className="size-4 text-ink-subtle" aria-hidden="true" />
-                Business hours
+                {t("hours")}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <dl className="divide-y divide-line">
-                {WEEKDAYS.map((day) => {
+                {WEEKDAYS.map((day: Weekday) => {
                   const hours = branch.businessHours.find((entry) => entry.day === day);
                   return (
                     <div
                       key={day}
                       className="flex items-center justify-between py-2 text-sm first:pt-0 last:pb-0"
                     >
-                      <dt className="text-ink-muted">{DAY_LABELS[day]}</dt>
+                      <dt className="text-ink-muted">{format.weekday(day)}</dt>
                       <dd className="font-medium text-ink">
                         {!hours || hours.isClosed
-                          ? "Closed"
-                          : `${formatLocalTime(hours.open ?? "")} – ${formatLocalTime(hours.close ?? "")}`}
+                          ? tStatus("closed")
+                          : `${format.localTime(hours.open ?? "")} – ${format.localTime(
+                              hours.close ?? "",
+                            )}`}
                       </dd>
                     </div>
                   );
@@ -190,7 +185,7 @@ export function BranchDetailScreen() {
         <div className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Branch manager</CardTitle>
+              <CardTitle>{t("manager")}</CardTitle>
             </CardHeader>
             <CardContent>
               {manager ? (
@@ -205,14 +200,15 @@ export function BranchDetailScreen() {
                     </Link>
                     <p className="truncate text-sm text-ink-muted">{manager.email}</p>
                     <p className="text-xs text-ink-subtle">
-                      {STAFF_ROLE_LABELS.manager} · {STAFF_STATUS_LABELS[manager.status]}
+                      {roleLabel(managerAssignment?.role ?? "manager")} ·{" "}
+                      {statusLabel(manager.status)}
                     </p>
                   </div>
                 </div>
               ) : (
                 <div className="flex items-start gap-2 rounded-lg bg-surface-subtle p-3 text-sm text-ink-muted">
                   <UserRound className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
-                  <p>No manager is assigned. Assign a branch manager from the branch edit form.</p>
+                  <p>{t("managerMissing")}</p>
                 </div>
               )}
             </CardContent>
@@ -220,13 +216,11 @@ export function BranchDetailScreen() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Assigned staff</CardTitle>
+              <CardTitle>{t("assignedStaff")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               {assignedStaff.length === 0 ? (
-                <p className="text-sm text-ink-muted">
-                  No staff members are assigned to this branch yet.
-                </p>
+                <p className="text-sm text-ink-muted">{t("noStaff")}</p>
               ) : (
                 assignedStaff.map((member, index) => (
                   <div key={member.id}>
@@ -242,8 +236,8 @@ export function BranchDetailScreen() {
                         </Link>
                         <p className="truncate text-xs text-ink-muted">
                           {member.assignments[0]
-                            ? STAFF_ROLE_LABELS[member.assignments[0].role]
-                            : "No role"}
+                            ? roleLabel(member.assignments[0].role)
+                            : tCommon("unassigned")}
                         </p>
                       </div>
                       <Badge
@@ -255,7 +249,7 @@ export function BranchDetailScreen() {
                               : "neutral"
                         }
                       >
-                        {STAFF_STATUS_LABELS[member.status]}
+                        {statusLabel(member.status)}
                       </Badge>
                     </div>
                   </div>

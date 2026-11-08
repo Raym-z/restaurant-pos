@@ -1,20 +1,24 @@
 import { ShoppingCart } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 
 import { ModulePlaceholder } from "@/components/layout/module-placeholder";
 
-export const metadata: Metadata = {
-  title: "Point of Sale",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("meta");
+  return { title: t("pos") };
+}
 
-export default function PosPage() {
+export default async function PosPage() {
+  const t = await getTranslations("placeholders.modules.pos");
+
   return (
     <ModulePlaceholder
-      title="Point of Sale"
-      description="Create and manage orders from the cashier counter."
+      title={t("title")}
+      description={t("description")}
       icon={ShoppingCart}
-      phase="Phase 7"
-      planned={["Order builder", "Table association", "Cash payments", "Order lifecycle"]}
+      phase={t("phase")}
+      planned={t.raw("planned") as string[]}
     />
   );
 }

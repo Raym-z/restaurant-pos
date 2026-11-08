@@ -2,11 +2,20 @@ import type { IsoInstant, Money, Uuid } from "@/features/shared/domain";
 
 export type MenuCategoryStatus = "active" | "archived";
 
+export type MenuContentLocale = "id" | "en";
+
+export interface MenuText {
+  name: string;
+  description: string;
+}
+
 export interface MenuCategory {
   id: Uuid;
   organizationId: Uuid;
   name: string;
   description: string;
+  /** Optional localized content for seeded demo data. User-authored content falls back to name/description. */
+  translations?: Partial<Record<MenuContentLocale, MenuText>>;
   sortOrder: number;
   status: MenuCategoryStatus;
   createdAt: IsoInstant;
@@ -47,6 +56,8 @@ export interface MenuItem {
   categoryId: Uuid;
   name: string;
   description: string;
+  /** Optional localized content for seeded demo data. User-authored content falls back to name/description. */
+  translations?: Partial<Record<MenuContentLocale, MenuText>>;
   basePrice: Money;
   status: MenuItemStatus;
   tags: string[];

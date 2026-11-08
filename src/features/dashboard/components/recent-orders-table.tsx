@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
@@ -14,10 +15,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { formatDateTime, formatMoney } from "@/features/shared/format";
+import { useLocalizedFormat } from "@/i18n/use-localized-format";
+import { useStatusLabel } from "@/i18n/use-labels";
 import type { Branch } from "@/features/branches/types";
 import type { DashboardOrderStatus, RecentOrder } from "../types";
-import { DASHBOARD_ORDER_STATUS_LABELS } from "../types";
 
 const STATUS_FILTERS: Array<DashboardOrderStatus | "all"> = [
   "all",
@@ -48,6 +49,10 @@ export function RecentOrdersTable({
   branches: Branch[];
   timeZone: string;
 }) {
+  const t = useTranslations("dashboard.recentOrders");
+  const tCommon = useTranslations("common");
+  const statusLabel = useStatusLabel();
+  const format = useLocalizedFormat();
   const [status, setStatus] = useState<DashboardOrderStatus | "all">("all");
   const branchById = useMemo(
     () => new Map(branches.map((branch) => [branch.id, branch])),
@@ -60,11 +65,11 @@ export function RecentOrdersTable({
     <Card className="overflow-hidden">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-4">
         <div>
-          <h2 className="text-base font-semibold text-ink">Recent orders</h2>
-          <p className="text-sm text-ink-muted">Live service activity from the last hour</p>
+          <h2 className="text-base font-semibold text-ink">{t("title")}</h2>
+          <p className="text-sm text-ink-muted">{t("subtitle")}</p>
         </div>
         <label className="flex items-center gap-2 text-sm text-ink-muted">
-          <span>Status</span>
+          <span>{t("status")}</span>
           <Select
             value={status}
             onChange={(event) => setStatus(event.target.value as DashboardOrderStatus | "all")}
@@ -72,7 +77,7 @@ export function RecentOrdersTable({
           >
             {STATUS_FILTERS.map((value) => (
               <option key={value} value={value}>
-                {value === "all" ? "All statuses" : DASHBOARD_ORDER_STATUS_LABELS[value]}
+                {value === "all" ? t("allStatuses") : statusLabel(value)}
               </option>
             ))}
           </Select>
@@ -80,38 +85,36 @@ export function RecentOrdersTable({
       </div>
 
       {visibleOrders.length === 0 ? (
-        <div className="px-5 py-10 text-center text-sm text-ink-muted">
-          No orders match this status filter.
-        </div>
+        <div className="px-5 py-10 text-center text-sm text-ink-muted">{t("noMatch")}</div>
       ) : (
         <TableContainer>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Order</TableHead>
-                <TableHead>Branch</TableHead>
-                <TableHead>Table</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Placed</TableHead>
-                <TableHead className="text-right">Total</TableHead>
+                <TableHead>{t("order")}</TableHead>
+                <TableHead>{t("branch")}</TableHead>
+                <TableHead>{t("table")}</TableHead>
+                <TableHead>{t("status")}</TableHead>
+                <TableHead>{t("placed")}</TableHead>
+                <TableHead className="text-right">{t("total")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {visibleOrders.map((order) => (
                 <TableRow key={order.id}>
                   <TableCell className="font-medium">{order.orderNumber}</TableCell>
-                  <TableCell>{branchById.get(order.branchId)?.name ?? "—"}</TableCell>
+                  <TableCell>
+                    {branchById.get(order.branchId)?.name ?? tCommon("unknown")}
+                  </TableCell>
                   <TableCell>{order.tableLabel}</TableCell>
                   <TableCell>
-                    <Badge variant={STATUS_BADGES[order.status]}>
-                      {DASHBOARD_ORDER_STATUS_LABELS[order.status]}
-                    </Badge>
+                    <Badge variant={STATUS_BADGES[order.status]}>{statusLabel(order.status)}</Badge>
                   </TableCell>
                   <TableCell className="text-ink-muted">
-                    {formatDateTime(order.placedAt, timeZone)}
+                    {format.dateTime(order.placedAt, timeZone)}
                   </TableCell>
                   <TableCell className="text-right font-medium">
-                    {formatMoney(order.total)}
+                    {format.money(order.total)}
                   </TableCell>
                 </TableRow>
               ))}

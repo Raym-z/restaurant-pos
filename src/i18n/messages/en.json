@@ -1,0 +1,758 @@
+{
+  "shell": {
+    "skipToContent": "Skip to main content",
+    "openNavigation": "Open navigation",
+    "closeNavigation": "Close navigation",
+    "navigation": "Navigation",
+    "primaryNavigation": "Primary navigation",
+    "navigationDescription": "Primary application navigation for {organization}.",
+    "workspace": "Workspace",
+    "breadcrumb": "Breadcrumb",
+    "switchBranch": "Switch branch",
+    "currentBranch": "Current branch: {branch}",
+    "manageBranches": "Manage branches",
+    "activeBranch": "Active branch",
+    "collapseSidebar": "Collapse sidebar",
+    "expandSidebar": "Expand sidebar",
+    "language": "Language",
+    "languageDescription": "Choose interface language",
+    "home": "{name} home",
+    "plans": {
+      "growth": "Growth plan"
+    }
+  },
+  "languages": {
+    "id": "Bahasa Indonesia",
+    "en": "English"
+  },
+  "navigation": {
+    "sections": {
+      "operate": "Operate",
+      "manage": "Manage",
+      "insights": "Insights",
+      "administer": "Administer"
+    },
+    "items": {
+      "dashboard": "Dashboard",
+      "pos": "Point of Sale",
+      "orders": "Orders",
+      "tables": "Tables",
+      "kitchen": "Kitchen Display",
+      "queue": "Queue",
+      "organization": "Organization",
+      "menu": "Menu",
+      "staff": "Staff",
+      "branches": "Branches",
+      "reports": "Reports",
+      "billing": "Billing",
+      "settings": "Settings"
+    }
+  },
+  "roles": {
+    "owner": "Organization owner",
+    "admin": "Organization administrator",
+    "manager": "Branch manager",
+    "cashier": "Cashier",
+    "kitchenStaff": "Kitchen staff",
+    "host": "Host"
+  },
+  "status": {
+    "active": "Active",
+    "inactive": "Inactive",
+    "invited": "Invited",
+    "openingSoon": "Opening soon",
+    "available": "Available",
+    "unavailable": "Unavailable",
+    "archived": "Archived",
+    "new": "New",
+    "preparing": "Preparing",
+    "ready": "Ready",
+    "completed": "Completed",
+    "cancelled": "Cancelled",
+    "closed": "Closed"
+  },
+  "tags": {
+    "vegetarian": "Vegetarian",
+    "vegan": "Vegan",
+    "gluten-free": "Gluten-free",
+    "spicy": "Spicy",
+    "signature": "Signature"
+  },
+  "common": {
+    "saveChanges": "Save changes",
+    "cancel": "Cancel",
+    "create": "Create",
+    "edit": "Edit",
+    "view": "View",
+    "back": "Back",
+    "clearFilters": "Clear filters",
+    "confirm": "Confirm",
+    "search": "Search",
+    "unassigned": "Unassigned",
+    "unknown": "Unknown",
+    "never": "Never",
+    "today": "Today",
+    "included": "Included",
+    "optional": "Optional",
+    "all": "All",
+    "allStatuses": "All statuses",
+    "allBranches": "All branches",
+    "allCategories": "All categories",
+    "allRoles": "All roles",
+    "organizationWide": "Organization-wide",
+    "singleBranch": "Single branch",
+    "showing": "Showing {start}–{end} of {total} {itemLabel}",
+    "pageOf": "Page {page} of {totalPages}",
+    "previous": "Previous",
+    "next": "Next",
+    "items": "items",
+    "staffMembers": "staff members",
+    "branches": "branches",
+    "menuItems": "menu items",
+    "notOpenYet": "Not open yet",
+    "reviewFields": "Review the highlighted fields before saving.",
+    "reviewFieldsNothingChanged": "Review the highlighted fields before saving. Nothing has been changed yet."
+  },
+  "states": {
+    "loading": "Loading…",
+    "loadingPage": "Loading page",
+    "errorTitle": "Something went wrong",
+    "errorDescription": "We couldn’t load this information. Check your connection and try again.",
+    "retry": "Try again",
+    "pageErrorTitle": "This page couldn’t be loaded",
+    "pageErrorDescription": "An unexpected error interrupted the request. You can retry, or return to the dashboard if the problem continues.",
+    "unauthorizedTitle": "You don’t have access to this area",
+    "unauthorizedDescription": "Your role or branch assignment doesn’t include this page. Contact an organization administrator if you believe this is a mistake.",
+    "accessRestricted": "Access restricted",
+    "accessRestrictedDescription": "This area is available only to staff with the required role and branch access.",
+    "returnToDashboard": "Return to dashboard",
+    "notFoundBrandSubtitle": "Staff workspace",
+    "notFoundEyebrow": "Error 404",
+    "notFoundTitle": "Page not found",
+    "notFoundDescription": "The page you requested doesn’t exist, or it may have moved to a different part of the workspace.",
+    "backToDashboard": "Back to dashboard",
+    "noRecords": "No records yet",
+    "recordsAppear": "Records will appear here once they are created."
+  },
+  "validation": {
+    "required": "{field} is required.",
+    "maxLength": "{field} must be {max} characters or fewer.",
+    "invalidEmail": "Enter a valid email address.",
+    "invalidPhone": "Use an E.164 phone number, for example {example}.",
+    "invalidUrl": "Enter a valid URL, for example https://example.com.",
+    "invalidHttpUrl": "Enter a valid HTTP or HTTPS URL.",
+    "invalidCurrency": "Use a three-letter ISO 4217 currency code, for example IDR.",
+    "invalidTimezone": "Use a valid IANA timezone, for example Asia/Jakarta.",
+    "invalidBranchCode": "Use uppercase letters, numbers, and hyphens, for example JKT-SNP.",
+    "invalidTime": "Use a 24-hour time, for example 21:30.",
+    "invalidDate": "Choose a valid date.",
+    "duplicateBranchCode": "Another branch already uses this code.",
+    "duplicateEmail": "Another staff member already uses this email address.",
+    "duplicateCategory": "Another category already uses this name.",
+    "duplicateItem": "This category already contains an item with that name.",
+    "assignmentCount": "Select exactly one role for this staff member.",
+    "ownerScope": "Organization owners must have organization-wide access.",
+    "adminScope": "Organization-scoped admins must not be tied to a single branch.",
+    "adminBranch": "Choose a branch for this branch-scoped admin.",
+    "roleBranch": "This role must be assigned to a branch.",
+    "branchRequired": "Choose the branch this staff member belongs to.",
+    "invalidRole": "Choose a valid staff role.",
+    "assignmentsRequired": "Choose a role and access scope.",
+    "hoursMissing": "Business hours are missing for this day.",
+    "closeAfterOpen": "Closing time must be after opening time.",
+    "pricePositive": "Enter a price greater than zero, for example {example}.",
+    "tagsEmpty": "Tags cannot be empty.",
+    "fields": {
+      "organizationName": "Organization name",
+      "legalName": "Legal name",
+      "description": "Description",
+      "email": "Email address",
+      "phone": "Phone number",
+      "website": "Website",
+      "timezone": "Timezone",
+      "currency": "Currency",
+      "streetAddress": "Street address",
+      "city": "City",
+      "region": "State or region",
+      "postalCode": "Postal code",
+      "country": "Country",
+      "branchName": "Branch name",
+      "branchCode": "Branch code",
+      "openingDate": "Opening date",
+      "branchManager": "Branch manager",
+      "fullName": "Full name",
+      "staffEmail": "Email address",
+      "staffPhone": "Phone number",
+      "role": "Role",
+      "branch": "Branch",
+      "categoryName": "Category name",
+      "categoryDescription": "Category description",
+      "itemName": "Item name",
+      "itemDescription": "Item description",
+      "basePrice": "Base price",
+      "tags": "Tags"
+    }
+  },
+  "meta": {
+    "dashboard": "Dashboard",
+    "organization": "Organization",
+    "branches": "Branches",
+    "newBranch": "New branch",
+    "branchDetails": "Branch details",
+    "editBranch": "Edit branch",
+    "staff": "Staff",
+    "inviteStaff": "Invite staff",
+    "staffMember": "Staff member",
+    "editStaff": "Edit staff member",
+    "menu": "Menu",
+    "newMenuItem": "New menu item",
+    "menuItem": "Menu item",
+    "editMenuItem": "Edit menu item",
+    "menuCategories": "Menu categories",
+    "newMenuCategory": "New menu category",
+    "editMenuCategory": "Edit menu category",
+    "accessRestricted": "Access restricted",
+    "pos": "Point of Sale",
+    "orders": "Orders",
+    "tables": "Tables",
+    "kitchen": "Kitchen Display",
+    "queue": "Queue",
+    "reports": "Reports",
+    "billing": "Billing",
+    "settings": "Settings",
+    "appDescription": "Staff-facing restaurant management, point of sale, and kitchen operations workspace."
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "openBranches": "{count, plural, one {# open branch} other {# open branches}}",
+    "asOf": "As of {date}",
+    "metrics": {
+      "net-sales": "Net sales",
+      "orders": "Orders",
+      "average-order-value": "Average order value",
+      "staff-on-shift": "Staff on shift"
+    },
+    "comparison": {
+      "vs-last-sunday": "vs. last Sunday",
+      "across-open-branches": "Across {count, plural, one {# open branch} other {# open branches}}"
+    },
+    "salesTrend": {
+      "title": "Sales trend",
+      "subtitle": "Last 7 days across all branches",
+      "netSales": "Net sales",
+      "orders": "Orders",
+      "barLabel": "{date}: {revenue} from {orders} orders",
+      "barTitle": "{date} · {revenue} · {orders} orders"
+    },
+    "operations": {
+      "title": "Operations now",
+      "subtitle": "Across the open branches",
+      "kitchenOrders": "Kitchen orders",
+      "guestsWaiting": "Guests waiting",
+      "staffOnShift": "Staff on shift",
+      "tablesSeated": "Tables seated",
+      "seatingOccupancy": "Seating occupancy"
+    },
+    "branchPerformance": {
+      "title": "Branch performance",
+      "subtitle": "Today’s sales by branch",
+      "viewBranches": "View branches",
+      "branch": "Branch",
+      "netSales": "Net sales",
+      "orders": "Orders",
+      "averageOrder": "Avg. order",
+      "revenueShare": "Revenue share",
+      "change": "Change",
+      "unknownBranch": "Unknown branch"
+    },
+    "topItems": {
+      "title": "Top selling items",
+      "today": "Today",
+      "sold": "{count} sold",
+      "empty": "No item sales have been recorded today."
+    },
+    "recentOrders": {
+      "title": "Recent orders",
+      "subtitle": "Live service activity from the last hour",
+      "status": "Status",
+      "allStatuses": "All statuses",
+      "noMatch": "No orders match this status filter.",
+      "order": "Order",
+      "branch": "Branch",
+      "table": "Table",
+      "placed": "Placed",
+      "total": "Total"
+    },
+    "attention": {
+      "title": "Needs attention",
+      "staff": "Staff",
+      "empty": "Nothing needs attention right now.",
+      "menuUnavailableTitle": "{count, plural, one {# menu item is marked unavailable} other {# menu items are marked unavailable}}",
+      "menuUnavailableDescription": "{item} is unavailable at {branch} and sold out at organization level.",
+      "staffInvitesTitle": "{count, plural, one {# staff invitation is awaiting acceptance} other {# staff invitations are awaiting acceptance}}",
+      "staffInvitesDescription": "{first} ({firstRole}, {firstBranch}) and {second} ({secondRole}, {secondBranch}) have not signed in yet.",
+      "managerVacancyTitle": "{branch} has no branch manager",
+      "managerVacancyDescription": "The branch manager invitation for {name} is still pending acceptance."
+    },
+    "metricsLabel": "Key metrics"
+  },
+  "organization": {
+    "eyebrow": "Organization",
+    "description": "Manage the restaurant business profile shared across every branch.",
+    "saved": "Organization profile saved in this mock session.",
+    "sections": {
+      "identity": "Business identity",
+      "identityDescription": "Shown in the workspace and on organization-level documents.",
+      "contact": "Contact and regional settings",
+      "contactDescription": "Used as the default currency and timezone for new branches.",
+      "address": "Business address",
+      "addressDescription": "The organization’s registered or primary mailing address."
+    },
+    "fields": {
+      "displayName": "Display name",
+      "legalName": "Legal name",
+      "description": "Description",
+      "contactEmail": "Contact email",
+      "phone": "Phone",
+      "website": "Website",
+      "timezone": "Timezone",
+      "currency": "Currency",
+      "streetAddress": "Street address",
+      "addressLine2": "Address line 2",
+      "city": "City",
+      "region": "State or region",
+      "postalCode": "Postal code",
+      "country": "Country"
+    },
+    "placeholders": {
+      "description": "",
+      "website": "https://example.com",
+      "addressLine2": "Suite, floor, unit (optional)"
+    },
+    "hints": {
+      "description": "Up to 500 characters.",
+      "phone": "E.164 format, for example +6281234567890.",
+      "timezone": "IANA timezone, for example Asia/Jakarta.",
+      "currency": "ISO 4217 code. Platform currency is fixed to IDR.",
+      "addressLine2": "Suite, floor, unit (optional)."
+    },
+    "workspaceSummary": "Workspace summary",
+    "branches": "Branches",
+    "staff": "Staff",
+    "menuItems": "Menu items",
+    "identifiers": "Organization identifiers",
+    "slug": "Workspace slug",
+    "organizationId": "Organization ID",
+    "created": "Created",
+    "identifiersNote": "Identifiers are read-only. In production they are issued and validated by the backend."
+  },
+  "branches": {
+    "title": "Branches",
+    "description": "Manage restaurant locations, operating hours, and branch managers.",
+    "new": "New branch",
+    "search": "Search branches",
+    "searchPlaceholder": "Search by name, code, or city",
+    "count": "{visible} of {total} {total, plural, one {branch} other {branches}}",
+    "table": {
+      "branch": "Branch",
+      "location": "Location",
+      "manager": "Manager",
+      "contact": "Contact",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "empty": {
+      "filteredTitle": "No branches match these filters",
+      "filteredDescription": "Try a different search term or clear the status filter.",
+      "title": "No branches yet",
+      "description": "Create the first branch to start configuring operations."
+    },
+    "form": {
+      "newTitle": "New branch",
+      "editTitle": "Edit {name}",
+      "newDescription": "Add a restaurant location with its contact details and business hours.",
+      "editDescription": "Update profile, contact details, and business hours for {code}.",
+      "sections": {
+        "details": "Branch details",
+        "detailsDescription": "The name, code, and operating status shown across the POS.",
+        "contact": "Contact",
+        "contactDescription": "Guest-facing contact details for this location.",
+        "hours": "Business hours",
+        "hoursDescription": "Local branch time. Use 00:00 as the closing time for midnight."
+      },
+      "fields": {
+        "name": "Branch name",
+        "code": "Branch code",
+        "status": "Status",
+        "openingDate": "Opening date",
+        "manager": "Branch manager",
+        "phone": "Phone",
+        "email": "Email",
+        "addressLine1": "Street address",
+        "addressLine2": "Address line 2",
+        "city": "City",
+        "region": "State or region",
+        "postalCode": "Postal code",
+        "country": "Country",
+        "timezone": "Timezone"
+      },
+      "placeholders": {
+        "name": "Downtown",
+        "code": "JKT-SNP",
+        "phone": "+6281234567890",
+        "email": "branch@example.com",
+        "addressLine1": "Jl. Senopati No. 8",
+        "addressLine2": "Suite, floor, unit (optional)",
+        "city": "Jakarta",
+        "region": "DKI Jakarta",
+        "postalCode": "12190",
+        "country": "Indonesia",
+        "timezone": "Asia/Jakarta"
+      },
+      "hints": {
+        "code": "Uppercase letters, numbers, and hyphens.",
+        "manager": "Only staff with a branch manager assignment are listed.",
+        "phone": "E.164 format, for example +6281234567890.",
+        "addressLine2": "Suite, floor, unit (optional).",
+        "timezone": "IANA timezone, for example Asia/Jakarta."
+      },
+      "closed": "Closed",
+      "openingTime": "{day} opening time",
+      "closingTime": "{day} closing time",
+      "create": "Create branch",
+      "save": "Save changes"
+    },
+    "detail": {
+      "eyebrow": "Branch",
+      "back": "Back to branches",
+      "edit": "Edit branch",
+      "notFoundTitle": "Branch not found",
+      "notFoundDescription": "This branch could not be found. It may have been removed, or the link is no longer valid.",
+      "backToBranches": "Back to branches",
+      "information": "Branch information",
+      "address": "Address",
+      "contact": "Contact",
+      "timezone": "Timezone",
+      "openingDate": "Opening date",
+      "created": "Created",
+      "hours": "Business hours",
+      "manager": "Branch manager",
+      "managerMissing": "No manager is assigned. Assign a branch manager from the branch edit form.",
+      "assignedStaff": "Assigned staff",
+      "noStaff": "No staff members are assigned to this branch yet."
+    }
+  },
+  "staff": {
+    "title": "Staff",
+    "description": "Manage staff profiles, roles, and branch assignments.",
+    "invite": "Invite staff",
+    "search": "Search staff",
+    "searchPlaceholder": "Search by name, email, or phone",
+    "allRoles": "All roles",
+    "allBranches": "All branches",
+    "allStatuses": "All statuses",
+    "count": "{visible} of {total} {total, plural, one {staff member} other {staff members}}",
+    "table": {
+      "member": "Staff member",
+      "role": "Role",
+      "access": "Access",
+      "status": "Status",
+      "lastActive": "Last active",
+      "actions": "Actions"
+    },
+    "empty": {
+      "filteredTitle": "No staff match these filters",
+      "filteredDescription": "Try a different search term or reset the role, branch, and status filters.",
+      "title": "No staff yet",
+      "description": "Invite the first staff member to assign a role and branch access."
+    },
+    "detail": {
+      "eyebrow": "Staff",
+      "back": "Back to staff",
+      "edit": "Edit staff",
+      "deactivate": "Deactivate",
+      "cancelInvite": "Cancel invitation",
+      "reactivate": "Reactivate",
+      "notFoundTitle": "Staff member not found",
+      "notFoundDescription": "This staff member could not be found. They may have been removed, or the link is no longer valid.",
+      "backToStaff": "Back to staff",
+      "confirmTitle": "Change this staff member’s status to inactive?",
+      "confirmDescription": "In this mock workflow, the profile remains in the directory but is marked inactive. Backend authorization will govern real access.",
+      "profile": "Profile",
+      "memberSince": "Member since {date}",
+      "email": "Email",
+      "phone": "Phone",
+      "lastActive": "Last active",
+      "invitationSent": "Invitation sent",
+      "hasNotSignedIn": "Has not signed in yet",
+      "access": "Access",
+      "allBranches": "All branches in the organization",
+      "unknownBranch": "Unknown branch",
+      "accessNote": "Role changes take effect on the next authorized operation. The backend, not this screen, enforces access."
+    },
+    "form": {
+      "newTitle": "Invite staff member",
+      "newDescription": "Send a mock invitation and assign an initial role and branch access.",
+      "editTitle": "Edit {name}",
+      "editDescription": "Update contact details, role, and branch access.",
+      "sections": {
+        "profile": "Staff profile",
+        "profileDescription": "Contact details used for invitations and operational notices.",
+        "access": "Access assignment",
+        "accessDescription": "The initial release uses one role per staff member. Branch-scoped roles only see their assigned branch."
+      },
+      "fields": {
+        "fullName": "Full name",
+        "email": "Email address",
+        "phone": "Phone",
+        "role": "Role",
+        "scope": "Access scope",
+        "branch": "Branch"
+      },
+      "scope": {
+        "organization": "Organization-wide",
+        "branch": "Single branch"
+      },
+      "hints": {
+        "phone": "E.164 format, for example +6281234567890.",
+        "scope": "Choose organization-wide or a single branch."
+      },
+      "ownerNote": "The organization owner has organization-wide access. Ownership transfer is not part of the mock workflow.",
+      "orgAdminNote": "This administrator can access all branches in the organization.",
+      "branchNote": "This staff member can only access the selected branch, subject to backend authorization.",
+      "send": "Send invitation",
+      "save": "Save changes"
+    }
+  },
+  "menu": {
+    "title": "Menu",
+    "description": "Manage categories, pricing, tags, and branch availability.",
+    "categoriesAction": "Categories",
+    "newItem": "New item",
+    "search": "Search menu items",
+    "searchPlaceholder": "Search by item name, description, or tag",
+    "allCategories": "All categories",
+    "allStatuses": "All statuses",
+    "allBranches": "All branches",
+    "count": "{visible} of {total} {total, plural, one {menu item} other {menu items}}",
+    "table": {
+      "item": "Menu item",
+      "category": "Category",
+      "basePrice": "Base price",
+      "availability": "Availability",
+      "status": "Status",
+      "updated": "Updated",
+      "actions": "Actions"
+    },
+    "availabilityCount": "{available} of {total} {total, plural, one {branch} other {branches}}",
+    "branchPriceOverride": "Branch price override",
+    "uncategorized": "Uncategorized",
+    "empty": {
+      "filteredTitle": "No menu items match these filters",
+      "filteredDescription": "Try a different search term, category, or availability filter.",
+      "title": "No menu items yet",
+      "description": "Create the first menu item for this organization."
+    },
+    "item": {
+      "eyebrow": "Menu item",
+      "back": "Back to menu",
+      "edit": "Edit item",
+      "notFoundTitle": "Menu item not found",
+      "notFoundDescription": "This menu item could not be found. It may have been removed, or the link is no longer valid.",
+      "backToMenu": "Back to menu",
+      "pricing": "Pricing and availability",
+      "basePrice": "Base price",
+      "variantPricing": "Variant pricing overrides the base price.",
+      "table": {
+        "branch": "Branch",
+        "availability": "Availability",
+        "effectivePrice": "Effective price"
+      },
+      "branchOverride": "Branch override",
+      "variantsModifiers": "Variants and modifiers",
+      "variants": "Variants",
+      "noVariants": "No variants. The base price applies to every order.",
+      "modifierGroups": "Modifier groups",
+      "noModifiers": "No modifier groups are configured for this item.",
+      "choose": "Choose {count}",
+      "upTo": "up to {count}",
+      "uncategorized": "Uncategorized",
+      "metadata": "Item metadata",
+      "category": "Category",
+      "tags": "Tags",
+      "noTags": "No tags",
+      "created": "Created",
+      "lastUpdated": "Last updated",
+      "availabilityRules": "Availability rules",
+      "availabilityRulesText": "An item is orderable at a branch only when both the organization-level status and the branch availability allow it. Final menu validation and pricing remain backend responsibilities."
+    },
+    "form": {
+      "newTitle": "New menu item",
+      "newDescription": "Add an item to a category with pricing and branch availability.",
+      "editTitle": "Edit {name}",
+      "editDescription": "Update pricing, availability, tags, and the item profile.",
+      "sections": {
+        "details": "Item details",
+        "detailsDescription": "The name and description guests and staff will see on the menu.",
+        "availability": "Branch availability",
+        "availabilityDescription": "Unchecked branches will not offer this item. The organization-level status still applies."
+      },
+      "fields": {
+        "category": "Category",
+        "name": "Item name",
+        "description": "Description",
+        "basePrice": "Base price",
+        "status": "Status",
+        "tags": "Tags"
+      },
+      "placeholders": {
+        "category": "Choose a category",
+        "name": "Lamb Kofta Plate",
+        "description": "Charred lamb kofta, green tahini, sumac onions, and grilled pita.",
+        "price": "65000",
+        "tags": "vegetarian, signature"
+      },
+      "hints": {
+        "description": "Up to 400 characters.",
+        "price": "Enter the price in Rupiah, for example 65000.",
+        "tags": "Comma-separated, for example vegetarian, gluten-free."
+      },
+      "branchAvailable": "Available",
+      "variantsNote": "This item has {variants} variants and {modifiers} modifier groups. They are shown on the item detail page and are preserved when saving profile changes.",
+      "create": "Create item",
+      "save": "Save changes"
+    },
+    "categories": {
+      "eyebrow": "Menu",
+      "title": "Categories",
+      "description": "Organize menu items into the categories shown across branches.",
+      "back": "Back to menu",
+      "backToItems": "Back to items",
+      "new": "New category",
+      "search": "Search categories",
+      "searchPlaceholder": "Search by category name or description",
+      "table": {
+        "category": "Category",
+        "items": "Items",
+        "sortOrder": "Sort order",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "emptyTitle": "No categories yet",
+      "emptyDescription": "Create the first category before adding menu items.",
+      "noMatchTitle": "No categories match",
+      "noMatchDescription": "Try a different search term.",
+      "form": {
+        "newTitle": "New category",
+        "newDescription": "Create a category to group menu items.",
+        "editTitle": "Edit {name}",
+        "editDescription": "Update how this category appears in the menu.",
+        "sections": {
+          "details": "Category details",
+          "detailsDescription": "Categories group menu items for staff and guest-facing menus."
+        },
+        "fields": {
+          "name": "Category name",
+          "status": "Status",
+          "description": "Description"
+        },
+        "placeholders": {
+          "name": "Wood-Fired Mains",
+          "description": "Plates finished over oak and olive wood."
+        },
+        "hints": {
+          "description": "Up to 240 characters."
+        },
+        "create": "Create category",
+        "save": "Save category"
+      },
+      "notFoundTitle": "Category not found",
+      "notFoundDescription": "This category could not be found. It may have been removed, or the link is no longer valid."
+    },
+    "content": {
+      "Bread": "Bread",
+      "Extras": "Extras",
+      "Add-ons": "Add-ons",
+      "Choose a side": "Choose a side",
+      "Spice level": "Spice level",
+      "Warm pita": "Warm pita",
+      "Gluten-free pita": "Gluten-free pita",
+      "Extra honey": "Extra honey",
+      "Extra chili crisp": "Extra chili crisp",
+      "Extra ricotta": "Extra ricotta",
+      "Classic": "Classic",
+      "Spicy soppressata": "Spicy soppressata",
+      "Single skewer": "Single skewer",
+      "Double skewer": "Double skewer",
+      "Jeweled rice": "Jeweled rice",
+      "Garlic herb fries": "Garlic herb fries",
+      "Charred broccolini": "Charred broccolini",
+      "Mild": "Mild",
+      "Medium": "Medium",
+      "Hot": "Hot",
+      "Regular": "Regular",
+      "Large": "Large"
+    }
+  },
+  "placeholders": {
+    "backToOverview": "Back to overview",
+    "readyTitle": "{title} is not connected yet",
+    "readyDescription": "The workspace shell, navigation, design system, and shared components are in place. This module will be enabled as its roadmap phase is implemented.",
+    "planned": "Planned capabilities",
+    "modules": {
+      "pos": {
+        "title": "Point of Sale",
+        "description": "Create and manage orders from the cashier counter.",
+        "phase": "Phase 7",
+        "planned": ["Order builder", "Table association", "Cash payments", "Order lifecycle"]
+      },
+      "orders": {
+        "title": "Orders",
+        "description": "Review, update, and complete active and past orders.",
+        "phase": "Phase 7",
+        "planned": ["Order list", "Status filters", "Order detail", "Cancellation workflow"]
+      },
+      "tables": {
+        "title": "Tables",
+        "description": "Configure dining tables and customer ordering sessions.",
+        "phase": "Phase 6",
+        "planned": ["Table list", "Table status", "QR sessions", "Dining sessions"]
+      },
+      "kitchen": {
+        "title": "Kitchen Display",
+        "description": "Monitor incoming orders and update preparation status.",
+        "phase": "Phase 8",
+        "planned": [
+          "Order queue",
+          "Preparation status",
+          "Real-time updates",
+          "Reconnection handling"
+        ]
+      },
+      "queue": {
+        "title": "Queue",
+        "description": "Manage the customer waiting list and seating flow.",
+        "phase": "Phase 9",
+        "planned": ["Active queue", "Check-in", "Call and seat", "Queue status"]
+      },
+      "reports": {
+        "title": "Reports",
+        "description": "Review sales, orders, and branch performance.",
+        "phase": "Phase 10",
+        "planned": ["Sales reports", "Order statistics", "Branch comparison", "Export"]
+      },
+      "billing": {
+        "title": "Billing",
+        "description": "Manage the subscription and billing information.",
+        "phase": "Phase 10",
+        "planned": ["Subscription", "Invoices", "Payment status", "Entitlements"]
+      },
+      "settings": {
+        "title": "Settings",
+        "description": "Configure organization, branch, and application preferences.",
+        "phase": "Phase 10",
+        "planned": ["Organization profile", "Branch settings", "Notifications", "Preferences"]
+      }
+    }
+  }
+}

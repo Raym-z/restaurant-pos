@@ -1,8 +1,9 @@
 "use client";
 
+import { Store } from "lucide-react";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { Store } from "lucide-react";
 
 import { PageHeader, PageStack } from "@/components/layout/page";
 import { EmptyState } from "@/components/states/empty-state";
@@ -13,22 +14,24 @@ import { BranchForm } from "./branch-form";
 export function BranchEditScreen() {
   const params = useParams<{ id: string }>();
   const { branches } = useMockData();
+  const t = useTranslations("branches");
+  const tForm = useTranslations("branches.form");
   const branch = branches.find((entry) => entry.id === params.id);
 
   if (!branch) {
     return (
       <PageStack>
         <PageHeader
-          title="Branch not found"
-          backLink={{ href: "/branches", label: "Back to branches" }}
+          title={t("detail.notFoundTitle")}
+          backLink={{ href: "/branches", label: t("detail.back") }}
         />
         <EmptyState
           icon={Store}
-          title="This branch could not be found"
-          description="It may have been removed, or the link is no longer valid."
+          title={t("detail.notFoundTitle")}
+          description={t("detail.notFoundDescription")}
           action={
             <Button asChild variant="secondary" size="sm">
-              <Link href="/branches">Back to branches</Link>
+              <Link href="/branches">{t("detail.backToBranches")}</Link>
             </Button>
           }
         />
@@ -39,10 +42,13 @@ export function BranchEditScreen() {
   return (
     <PageStack>
       <PageHeader
-        eyebrow="Branch"
-        title={`Edit ${branch.name}`}
-        description={`Update profile, contact details, and business hours for ${branch.code}.`}
-        backLink={{ href: `/branches/${branch.id}`, label: "Back to branch" }}
+        eyebrow={t("detail.eyebrow")}
+        title={tForm("editTitle", { name: branch.name })}
+        description={tForm("editDescription", { code: branch.code })}
+        backLink={{
+          href: `/branches/${branch.id}`,
+          label: t("detail.back"),
+        }}
       />
       <BranchForm branch={branch} />
     </PageStack>

@@ -1,4 +1,7 @@
+"use client";
+
 import { ShieldAlert } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { cn } from "@/lib/utils";
 
@@ -10,11 +13,13 @@ interface UnauthorizedStateProps {
 }
 
 export function UnauthorizedState({
-  title = "You don't have access to this area",
-  description = "Your role or branch assignment doesn't include this page. Contact an organization administrator if you believe this is a mistake.",
+  title,
+  description,
   action,
   className,
 }: UnauthorizedStateProps) {
+  const t = useTranslations("states");
+
   return (
     <div
       data-slot="unauthorized-state"
@@ -27,8 +32,10 @@ export function UnauthorizedState({
         <ShieldAlert className="size-6" aria-hidden="true" />
       </span>
       <div className="mt-4 space-y-1.5">
-        <h3 className="text-base font-semibold text-ink">{title}</h3>
-        <p className="mx-auto max-w-md text-sm leading-6 text-ink-muted">{description}</p>
+        <h3 className="text-base font-semibold text-ink">{title ?? t("unauthorizedTitle")}</h3>
+        <p className="mx-auto max-w-md text-sm leading-6 text-ink-muted">
+          {description ?? t("unauthorizedDescription")}
+        </p>
       </div>
       {action ? <div className="mt-5">{action}</div> : null}
     </div>

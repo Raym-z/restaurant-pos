@@ -1,83 +1,80 @@
 import type { DashboardData } from "../types";
 import type { Money } from "@/features/shared/domain";
+import { DEFAULT_CURRENCY } from "@/lib/currency";
 
 const money = (amountMinor: number): Money => ({
   amountMinor,
-  currency: "USD",
+  currency: DEFAULT_CURRENCY,
 });
 
 const DOWNTOWN = "branch_downtown";
 const HARBOUR = "branch_harbour";
 
 /**
- * Sample dashboard snapshot for a Sunday lunch service.
+ * Sample dashboard snapshot for a Sunday dinner service in Jakarta.
  *
  * Figures are internally consistent: branch revenue and order counts sum to
  * the organization totals shown in the KPI row.
  */
 export const mockDashboard: DashboardData = {
-  asOf: "2026-11-08T18:45:00Z",
-  comparisonWindowLabel: "vs. last Sunday",
+  asOf: "2026-11-08T10:45:00Z",
   metrics: [
     {
       id: "net-sales",
-      label: "Net sales",
-      value: 846250,
+      value: 42800000,
       format: "currency",
-      currency: "USD",
+      currency: DEFAULT_CURRENCY,
       changeRatio: 0.124,
-      comparisonLabel: "vs. last Sunday",
+      comparison: "vs-last-sunday",
     },
     {
       id: "orders",
-      label: "Orders",
       value: 214,
       format: "number",
       changeRatio: 0.081,
-      comparisonLabel: "vs. last Sunday",
+      comparison: "vs-last-sunday",
     },
     {
       id: "average-order-value",
-      label: "Average order value",
-      value: 3954,
+      value: 200000,
       format: "currency",
-      currency: "USD",
+      currency: DEFAULT_CURRENCY,
       changeRatio: 0.039,
-      comparisonLabel: "vs. last Sunday",
+      comparison: "vs-last-sunday",
     },
     {
       id: "staff-on-shift",
-      label: "Staff on shift",
       value: 18,
       format: "number",
       changeRatio: null,
-      comparisonLabel: "Across 2 open branches",
+      comparison: "across-open-branches",
+      comparisonCount: 2,
     },
   ],
   salesTrend: [
-    { date: "2026-11-02", revenue: money(612000), orders: 168 },
-    { date: "2026-11-03", revenue: money(584500), orders: 159 },
-    { date: "2026-11-04", revenue: money(638000), orders: 173 },
-    { date: "2026-11-05", revenue: money(721500), orders: 189 },
-    { date: "2026-11-06", revenue: money(934000), orders: 238 },
-    { date: "2026-11-07", revenue: money(1052700), orders: 261 },
-    { date: "2026-11-08", revenue: money(846250), orders: 214 },
+    { date: "2026-11-02", revenue: money(31200000), orders: 168 },
+    { date: "2026-11-03", revenue: money(29850000), orders: 159 },
+    { date: "2026-11-04", revenue: money(32400000), orders: 173 },
+    { date: "2026-11-05", revenue: money(36750000), orders: 189 },
+    { date: "2026-11-06", revenue: money(47900000), orders: 238 },
+    { date: "2026-11-07", revenue: money(52300000), orders: 261 },
+    { date: "2026-11-08", revenue: money(42800000), orders: 214 },
   ],
   branchPerformance: [
     {
       branchId: DOWNTOWN,
-      revenue: money(512000),
+      revenue: money(25680000),
       orders: 128,
-      averageOrderValue: money(4000),
-      revenueShare: 0.605,
+      averageOrderValue: money(200625),
+      revenueShare: 0.6,
       changeRatio: 0.092,
     },
     {
       branchId: HARBOUR,
-      revenue: money(334250),
+      revenue: money(17120000),
       orders: 86,
-      averageOrderValue: money(3887),
-      revenueShare: 0.395,
+      averageOrderValue: money(199070),
+      revenueShare: 0.4,
       changeRatio: 0.146,
     },
   ],
@@ -87,35 +84,35 @@ export const mockDashboard: DashboardData = {
       name: "Lamb Kofta Plate",
       categoryName: "Wood-Fired Mains",
       quantitySold: 64,
-      revenue: money(179200),
+      revenue: money(8640000),
     },
     {
       menuItemId: "b1000000-0000-4000-8000-000000000007",
       name: "Saffron Seafood Risotto",
       categoryName: "Wood-Fired Mains",
       quantitySold: 38,
-      revenue: money(129200),
+      revenue: money(7030000),
     },
     {
       menuItemId: "b1000000-0000-4000-8000-000000000006",
       name: "Harissa Chicken",
       categoryName: "Wood-Fired Mains",
       quantitySold: 47,
-      revenue: money(122200),
+      revenue: money(5875000),
     },
     {
       menuItemId: "b1000000-0000-4000-8000-000000000004",
       name: "Wood-Fired Flatbread",
       categoryName: "Starters & Mezze",
       quantitySold: 71,
-      revenue: money(113600),
+      revenue: money(5325000),
     },
     {
       menuItemId: "b1000000-0000-4000-8000-000000000018",
       name: "Pomegranate Spritz",
       categoryName: "Beverages",
       quantitySold: 84,
-      revenue: money(75600),
+      revenue: money(3780000),
     },
   ],
   recentOrders: [
@@ -125,8 +122,8 @@ export const mockDashboard: DashboardData = {
       branchId: DOWNTOWN,
       tableLabel: "T-12",
       status: "completed",
-      total: money(8650),
-      placedAt: "2026-11-08T18:38:00Z",
+      total: money(285000),
+      placedAt: "2026-11-08T10:38:00Z",
     },
     {
       id: "91000000-0000-4000-8000-000000000041",
@@ -134,8 +131,8 @@ export const mockDashboard: DashboardData = {
       branchId: HARBOUR,
       tableLabel: "T-04",
       status: "preparing",
-      total: money(5400),
-      placedAt: "2026-11-08T18:36:00Z",
+      total: money(175000),
+      placedAt: "2026-11-08T10:36:00Z",
     },
     {
       id: "91000000-0000-4000-8000-000000000040",
@@ -143,8 +140,8 @@ export const mockDashboard: DashboardData = {
       branchId: DOWNTOWN,
       tableLabel: "T-08",
       status: "ready",
-      total: money(3950),
-      placedAt: "2026-11-08T18:31:00Z",
+      total: money(95000),
+      placedAt: "2026-11-08T10:31:00Z",
     },
     {
       id: "91000000-0000-4000-8000-000000000039",
@@ -152,8 +149,8 @@ export const mockDashboard: DashboardData = {
       branchId: HARBOUR,
       tableLabel: "Bar 2",
       status: "new",
-      total: money(11200),
-      placedAt: "2026-11-08T18:29:00Z",
+      total: money(420000),
+      placedAt: "2026-11-08T10:29:00Z",
     },
     {
       id: "91000000-0000-4000-8000-000000000038",
@@ -161,8 +158,8 @@ export const mockDashboard: DashboardData = {
       branchId: HARBOUR,
       tableLabel: "T-15",
       status: "completed",
-      total: money(2800),
-      placedAt: "2026-11-08T18:22:00Z",
+      total: money(80000),
+      placedAt: "2026-11-08T10:22:00Z",
     },
     {
       id: "91000000-0000-4000-8000-000000000037",
@@ -170,8 +167,8 @@ export const mockDashboard: DashboardData = {
       branchId: DOWNTOWN,
       tableLabel: "T-02",
       status: "preparing",
-      total: money(6725),
-      placedAt: "2026-11-08T18:18:00Z",
+      total: money(210000),
+      placedAt: "2026-11-08T10:18:00Z",
     },
     {
       id: "91000000-0000-4000-8000-000000000036",
@@ -179,8 +176,8 @@ export const mockDashboard: DashboardData = {
       branchId: DOWNTOWN,
       tableLabel: "T-06",
       status: "ready",
-      total: money(4300),
-      placedAt: "2026-11-08T18:12:00Z",
+      total: money(135000),
+      placedAt: "2026-11-08T10:12:00Z",
     },
     {
       id: "91000000-0000-4000-8000-000000000035",
@@ -189,32 +186,30 @@ export const mockDashboard: DashboardData = {
       tableLabel: "T-09",
       status: "cancelled",
       total: money(0),
-      placedAt: "2026-11-08T18:04:00Z",
+      placedAt: "2026-11-08T10:04:00Z",
     },
   ],
   attentionItems: [
     {
       id: "menu-availability",
       tone: "warning",
-      title: "1 menu item is marked unavailable",
-      description:
-        "Charred Cauliflower Steak is unavailable at Harbour and sold out at organization level.",
-      branchId: null,
+      kind: "menu-unavailable",
+      branchId: HARBOUR,
+      menuItemId: "b1000000-0000-4000-8000-000000000009",
     },
     {
       id: "staff-invites",
       tone: "info",
-      title: "2 staff invitations are awaiting acceptance",
-      description:
-        "Nadia Haddad (Harbour manager) and Owen Wright (Downtown cashier) have not signed in yet.",
+      kind: "staff-invites",
       branchId: null,
+      staffIds: ["6e7f8a9b-0c1d-4e2f-8a3b-4c5d6e7f8a80", "4c5d6e7f-8a9b-4c0d-8e1f-2a3b4c5d6e91"],
     },
     {
       id: "manager-vacancy",
       tone: "info",
-      title: "Harbour has no branch manager",
-      description: "Nadia Haddad's branch manager invitation is still pending acceptance.",
+      kind: "manager-vacancy",
       branchId: HARBOUR,
+      staffIds: ["6e7f8a9b-0c1d-4e2f-8a3b-4c5d6e7f8a80"],
     },
   ],
   operationalSnapshot: {

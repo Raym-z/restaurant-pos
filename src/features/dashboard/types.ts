@@ -9,14 +9,14 @@ import type {
 export type MetricFormat = "currency" | "number";
 
 export interface DashboardMetric {
-  id: string;
-  label: string;
+  id: "net-sales" | "orders" | "average-order-value" | "staff-on-shift";
   value: number;
   format: MetricFormat;
   currency?: CurrencyCode;
   /** Percentage change as a fraction, e.g. 0.124 for +12.4%. */
   changeRatio: number | null;
-  comparisonLabel: string;
+  comparison: "vs-last-sunday" | "across-open-branches";
+  comparisonCount?: number;
 }
 
 export interface SalesTrendPoint {
@@ -57,12 +57,15 @@ export interface TopSellingItem {
 
 export type AttentionTone = "info" | "warning";
 
+export type AttentionKind = "menu-unavailable" | "staff-invites" | "manager-vacancy";
+
 export interface AttentionItem {
   id: string;
   tone: AttentionTone;
-  title: string;
-  description: string;
+  kind: AttentionKind;
   branchId: Uuid | null;
+  menuItemId?: Uuid;
+  staffIds?: Uuid[];
 }
 
 export interface OperationalSnapshot {
@@ -82,7 +85,6 @@ export interface DashboardData {
   recentOrders: RecentOrder[];
   attentionItems: AttentionItem[];
   operationalSnapshot: OperationalSnapshot;
-  comparisonWindowLabel: string;
 }
 
 export const DASHBOARD_ORDER_STATUS_LABELS: Record<DashboardOrderStatus, string> = {

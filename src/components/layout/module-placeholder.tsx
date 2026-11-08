@@ -1,4 +1,5 @@
 import { ArrowRight } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
 
@@ -22,7 +23,7 @@ interface ModulePlaceholderProps {
  * Feature agents should replace the placeholder with real screens while
  * keeping the PageHeader + PageStack structure.
  */
-export function ModulePlaceholder({
+export async function ModulePlaceholder({
   title,
   description,
   icon,
@@ -30,6 +31,8 @@ export function ModulePlaceholder({
   planned = [],
   showBackLink = true,
 }: ModulePlaceholderProps) {
+  const t = await getTranslations("placeholders");
+
   return (
     <PageStack>
       <PageHeader
@@ -41,13 +44,13 @@ export function ModulePlaceholder({
         <EmptyState
           icon={icon}
           bordered={false}
-          title={`${title} is not connected yet`}
-          description="The workspace shell, navigation, design system, and shared components are in place. This module will be enabled as its roadmap phase is implemented."
+          title={t("readyTitle", { title })}
+          description={t("readyDescription")}
           action={
             showBackLink ? (
               <Button asChild variant="secondary" size="sm">
                 <Link href="/dashboard">
-                  Back to overview
+                  {t("backToOverview")}
                   <ArrowRight />
                 </Link>
               </Button>
@@ -57,7 +60,7 @@ export function ModulePlaceholder({
         {planned.length > 0 ? (
           <div className="border-t border-line bg-surface-subtle px-5 py-4">
             <p className="text-xs font-medium tracking-wider text-ink-subtle uppercase">
-              Planned capabilities
+              {t("planned")}
             </p>
             <div className="mt-2.5 flex flex-wrap gap-2">
               {planned.map((capability) => (

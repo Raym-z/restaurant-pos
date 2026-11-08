@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { NextIntlClientProvider } from "next-intl";
+import { getLocale, getMessages, getTranslations } from "next-intl/server";
 
 import { siteConfig } from "@/config/site";
 
@@ -17,33 +19,46 @@ const geistMono = Geist_Mono({
 
 const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
-export const metadata: Metadata = {
-  metadataBase: new URL(appUrl),
-  applicationName: siteConfig.name,
-  title: {
-    default: siteConfig.name,
-    template: `%s · ${siteConfig.name}`,
-  },
-  description: siteConfig.description,
-  robots: {
-    index: false,
-    follow: false,
-  },
-};
+// Locale is resolved from a cookie in the root layout, so route output is
+// intentionally rendered per request rather than prerendered as a static shell.
+export const instant = false;
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("meta");
+  return {
+    metadataBase: new URL(appUrl),
+    applicationName: siteConfig.name,
+    title: {
+      default: siteConfig.name,
+      template: `%s · ${siteConfig.name}`,
+    },
+    description: t("appDescription"),
+    robots: {
+      index: false,
+      follow: false,
+    },
+  };
+}
 
 export const viewport: Viewport = {
   themeColor: "#f6f5f0",
   colorScheme: "light",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const locale = await getLocale();
+  const messages = await getMessages();
+  const t = await getTranslations("shell");
+
   return (
-    <html lang="en">
+    <html lang={locale}>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <a href="#main-content" className="skip-link">
-          Skip to main content
-        </a>
-        {children}
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          <a href="#main-content" className="skip-link">
+            {t("skipToContent")}
+          </a>
+          {children}
+        </NextIntlClientProvider>
       </body>
     </html>
   );

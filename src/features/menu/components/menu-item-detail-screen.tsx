@@ -1,8 +1,9 @@
 "use client";
 
+import { Pencil, UtensilsCrossed } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { Pencil, UtensilsCrossed } from "lucide-react";
 
 import { PageHeader, PageStack } from "@/components/layout/page";
 import { EmptyState } from "@/components/states/empty-state";
@@ -18,11 +19,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { formatDateOnly, formatMinorUnits, formatMoney } from "@/features/shared/format";
 import { useMockData } from "@/features/shared/mock-data-provider";
+import { useLocalizedFormat } from "@/i18n/use-localized-format";
+import { useStatusLabel, useTagLabel, useMenuContentLabel } from "@/i18n/use-labels";
 import type { MenuItemStatus } from "../types";
-import { MENU_ITEM_STATUS_LABELS } from "../types";
-import { effectivePriceMinor } from "../selectors";
+import { effectivePriceMinor, localizeMenuCategory, localizeMenuItem } from "../selectors";
 
 const STATUS_BADGES: Record<MenuItemStatus, "success" | "warning" | "neutral"> = {
   available: "success",
@@ -32,23 +33,27 @@ const STATUS_BADGES: Record<MenuItemStatus, "success" | "warning" | "neutral"> =
 
 export function MenuItemDetailScreen() {
   const params = useParams<{ id: string }>();
+  const locale = useLocale();
   const { menuItems, menuCategories, branches, organization } = useMockData();
+  const t = useTranslations("menu.item");
+  const tCommon = useTranslations("common");
+  const statusLabel = useStatusLabel();
+  const tagLabel = useTagLabel();
+  const contentLabel = useMenuContentLabel();
+  const format = useLocalizedFormat();
   const item = menuItems.find((entry) => entry.id === params.id);
 
   if (!item) {
     return (
       <PageStack>
-        <PageHeader
-          title="Menu item not found"
-          backLink={{ href: "/menu", label: "Back to menu" }}
-        />
+        <PageHeader title={t("notFoundTitle")} backLink={{ href: "/menu", label: t("back") }} />
         <EmptyState
           icon={UtensilsCrossed}
-          title="This menu item could not be found"
-          description="It may have been removed, or the link is no longer valid."
+          title={t("notFoundTitle")}
+          description={t("notFoundDescription")}
           action={
             <Button asChild variant="secondary" size="sm">
-              <Link href="/menu">Back to menu</Link>
+              <Link href="/menu">{t("backToMenu")}</Link>
             </Button>
           }
         />
@@ -56,28 +61,27 @@ export function MenuItemDetailScreen() {
     );
   }
 
+  const content = localizeMenuItem(item, locale);
   const category = menuCategories.find((entry) => entry.id === item.categoryId);
-  const branchById = new Map(branches.map((branch) => [branch.id, branch]));
+  const categoryContent = category ? localizeMenuCategory(category, locale) : null;
 
   return (
     <PageStack>
       <PageHeader
-        eyebrow={category?.name ?? "Menu item"}
+        eyebrow={categoryContent?.name ?? t("eyebrow")}
         title={
           <span className="flex flex-wrap items-center gap-3">
-            {item.name}
-            <Badge variant={STATUS_BADGES[item.status]}>
-              {MENU_ITEM_STATUS_LABELS[item.status]}
-            </Badge>
+            {content.name}
+            <Badge variant={STATUS_BADGES[item.status]}>{statusLabel(item.status)}</Badge>
           </span>
         }
-        description={item.description}
-        backLink={{ href: "/menu", label: "Back to menu" }}
+        description={content.description}
+        backLink={{ href: "/menu", label: t("back") }}
         actions={
           <Button asChild variant="secondary">
             <Link href={`/menu/items/${item.id}/edit`}>
               <Pencil />
-              Edit item
+              {t("edit")}
             </Link>
           </Button>
         }
@@ -87,31 +91,29 @@ export function MenuItemDetailScreen() {
         <div className="space-y-6 xl:col-span-2">
           <Card>
             <CardHeader>
-              <CardTitle>Pricing and availability</CardTitle>
+              <CardTitle>{t("pricing")}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="mb-4 flex flex-wrap items-end gap-6">
                 <div>
                   <p className="text-xs font-medium tracking-wide text-ink-subtle uppercase">
-                    Base price
+                    {t("basePrice")}
                   </p>
                   <p className="mt-1 text-2xl font-semibold text-ink">
-                    {formatMoney(item.basePrice)}
+                    {format.money(item.basePrice)}
                   </p>
                 </div>
                 {item.variants.length > 0 ? (
-                  <p className="text-sm text-ink-muted">
-                    Variant pricing overrides the base price.
-                  </p>
+                  <p className="text-sm text-ink-muted">{t("variantPricing")}</p>
                 ) : null}
               </div>
               <TableContainer>
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Branch</TableHead>
-                      <TableHead>Availability</TableHead>
-                      <TableHead className="text-right">Effective price</TableHead>
+                      <TableHead>{t("table.branch")}</TableHead>
+                      <TableHead>{t("table.availability")}</TableHead>
+                      <TableHead className="text-right">{t("table.effectivePrice")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -126,24 +128,22 @@ export function MenuItemDetailScreen() {
                         <TableRow key={branch.id}>
                           <TableCell>
                             <div className="font-medium text-ink">{branch.name}</div>
-                            <div className="text-xs text-ink-subtle">
-                              {branchById.get(branch.id)?.code}
-                            </div>
+                            <div className="text-xs text-ink-subtle">{branch.code}</div>
                           </TableCell>
                           <TableCell>
                             <Badge variant={available ? "success" : "neutral"}>
-                              {available ? "Available" : "Not available"}
+                              {statusLabel(available ? "available" : "unavailable")}
                             </Badge>
                           </TableCell>
                           <TableCell className="text-right">
                             <span className="font-medium text-ink">
-                              {formatMinorUnits(
+                              {format.currencyAmount(
                                 effectivePriceMinor(item, branch.id),
                                 item.basePrice.currency,
                               )}
                             </span>
                             {hasOverride ? (
-                              <div className="text-xs text-accent">Branch override</div>
+                              <div className="text-xs text-accent">{t("branchOverride")}</div>
                             ) : null}
                           </TableCell>
                         </TableRow>
@@ -157,15 +157,13 @@ export function MenuItemDetailScreen() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Variants and modifiers</CardTitle>
+              <CardTitle>{t("variantsModifiers")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               <div>
-                <h3 className="text-sm font-semibold text-ink">Variants</h3>
+                <h3 className="text-sm font-semibold text-ink">{t("variants")}</h3>
                 {item.variants.length === 0 ? (
-                  <p className="mt-1 text-sm text-ink-muted">
-                    No variants. The base price applies to every order.
-                  </p>
+                  <p className="mt-1 text-sm text-ink-muted">{t("noVariants")}</p>
                 ) : (
                   <ul className="mt-2 divide-y divide-line rounded-lg border border-line">
                     {item.variants.map((variant) => (
@@ -173,8 +171,8 @@ export function MenuItemDetailScreen() {
                         key={variant.id}
                         className="flex items-center justify-between px-3 py-2 text-sm"
                       >
-                        <span className="text-ink">{variant.name}</span>
-                        <span className="font-medium text-ink">{formatMoney(variant.price)}</span>
+                        <span className="text-ink">{contentLabel(variant.name)}</span>
+                        <span className="font-medium text-ink">{format.money(variant.price)}</span>
                       </li>
                     ))}
                   </ul>
@@ -182,22 +180,22 @@ export function MenuItemDetailScreen() {
               </div>
 
               <div>
-                <h3 className="text-sm font-semibold text-ink">Modifier groups</h3>
+                <h3 className="text-sm font-semibold text-ink">{t("modifierGroups")}</h3>
                 {item.modifierGroups.length === 0 ? (
-                  <p className="mt-1 text-sm text-ink-muted">
-                    No modifier groups are configured for this item.
-                  </p>
+                  <p className="mt-1 text-sm text-ink-muted">{t("noModifiers")}</p>
                 ) : (
                   <div className="mt-2 space-y-3">
                     {item.modifierGroups.map((group) => (
                       <div key={group.id} className="rounded-lg border border-line">
                         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line bg-surface-subtle px-3 py-2">
-                          <span className="text-sm font-medium text-ink">{group.name}</span>
+                          <span className="text-sm font-medium text-ink">
+                            {contentLabel(group.name)}
+                          </span>
                           <span className="text-xs text-ink-subtle">
                             {group.minSelections === 0
-                              ? "Optional"
-                              : `Choose ${group.minSelections}`}{" "}
-                            · up to {group.maxSelections}
+                              ? tCommon("optional")
+                              : t("choose", { count: group.minSelections })}{" "}
+                            · {t("upTo", { count: group.maxSelections })}
                           </span>
                         </div>
                         <ul className="divide-y divide-line">
@@ -206,11 +204,11 @@ export function MenuItemDetailScreen() {
                               key={option.id}
                               className="flex items-center justify-between px-3 py-2 text-sm"
                             >
-                              <span className="text-ink">{option.name}</span>
+                              <span className="text-ink">{contentLabel(option.name)}</span>
                               <span className="text-ink-muted">
                                 {option.priceDelta.amountMinor === 0
-                                  ? "Included"
-                                  : `+${formatMoney(option.priceDelta)}`}
+                                  ? tCommon("included")
+                                  : `+${format.money(option.priceDelta)}`}
                               </span>
                             </li>
                           ))}
@@ -227,27 +225,27 @@ export function MenuItemDetailScreen() {
         <div className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Item metadata</CardTitle>
+              <CardTitle>{t("metadata")}</CardTitle>
             </CardHeader>
             <CardContent>
               <dl className="space-y-3 text-sm">
                 <div>
                   <dt className="text-xs font-medium tracking-wide text-ink-subtle uppercase">
-                    Category
+                    {t("category")}
                   </dt>
-                  <dd className="mt-0.5 text-ink">{category?.name ?? "Uncategorized"}</dd>
+                  <dd className="mt-0.5 text-ink">{categoryContent?.name ?? t("uncategorized")}</dd>
                 </div>
                 <div>
                   <dt className="text-xs font-medium tracking-wide text-ink-subtle uppercase">
-                    Tags
+                    {t("tags")}
                   </dt>
                   <dd className="mt-1 flex flex-wrap gap-1">
                     {item.tags.length === 0 ? (
-                      <span className="text-ink-muted">No tags</span>
+                      <span className="text-ink-muted">{t("noTags")}</span>
                     ) : (
                       item.tags.map((tag) => (
                         <Badge key={tag} variant="outline">
-                          {tag}
+                          {tagLabel(tag)}
                         </Badge>
                       ))
                     )}
@@ -255,18 +253,18 @@ export function MenuItemDetailScreen() {
                 </div>
                 <div>
                   <dt className="text-xs font-medium tracking-wide text-ink-subtle uppercase">
-                    Created
+                    {t("created")}
                   </dt>
                   <dd className="mt-0.5 text-ink">
-                    {formatDateOnly(item.createdAt, organization.timezone)}
+                    {format.dateOnly(item.createdAt, organization.timezone)}
                   </dd>
                 </div>
                 <div>
                   <dt className="text-xs font-medium tracking-wide text-ink-subtle uppercase">
-                    Last updated
+                    {t("lastUpdated")}
                   </dt>
                   <dd className="mt-0.5 text-ink">
-                    {formatDateOnly(item.updatedAt, organization.timezone)}
+                    {format.dateOnly(item.updatedAt, organization.timezone)}
                   </dd>
                 </div>
               </dl>
@@ -275,14 +273,10 @@ export function MenuItemDetailScreen() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Availability rules</CardTitle>
+              <CardTitle>{t("availabilityRules")}</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-[13px] leading-5 text-ink-muted">
-                An item is orderable at a branch only when both the organization-level status and
-                the branch availability allow it. Final menu validation and pricing remain backend
-                responsibilities.
-              </p>
+              <p className="text-[13px] leading-5 text-ink-muted">{t("availabilityRulesText")}</p>
             </CardContent>
           </Card>
         </div>

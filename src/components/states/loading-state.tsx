@@ -1,4 +1,7 @@
+"use client";
+
 import { LoaderCircle } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
@@ -8,7 +11,9 @@ interface LoadingStateProps {
   className?: string;
 }
 
-export function LoadingState({ message = "Loading…", className }: LoadingStateProps) {
+export function LoadingState({ message, className }: LoadingStateProps) {
+  const t = useTranslations("states");
+
   return (
     <div
       role="status"
@@ -16,7 +21,7 @@ export function LoadingState({ message = "Loading…", className }: LoadingState
       className={cn("flex flex-col items-center justify-center gap-3 py-12", className)}
     >
       <LoaderCircle className="size-5 animate-spin text-brand" aria-hidden="true" />
-      <p className="text-sm text-ink-muted">{message}</p>
+      <p className="text-sm text-ink-muted">{message ?? t("loading")}</p>
     </div>
   );
 }
@@ -26,8 +31,10 @@ export function LoadingState({ message = "Loading…", className }: LoadingState
  * It assumes the page container padding is provided by the application shell.
  */
 export function PageLoading() {
+  const t = useTranslations("states");
+
   return (
-    <div role="status" aria-label="Loading page" className="space-y-6">
+    <div role="status" aria-label={t("loadingPage")} className="space-y-6">
       <div className="space-y-2">
         <Skeleton className="h-8 w-52" />
         <Skeleton className="h-4 w-full max-w-md" />
@@ -38,7 +45,7 @@ export function PageLoading() {
         ))}
       </div>
       <Skeleton className="h-80 rounded-xl" />
-      <span className="sr-only">Loading page</span>
+      <span className="sr-only">{t("loadingPage")}</span>
     </div>
   );
 }

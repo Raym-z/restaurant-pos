@@ -12,18 +12,34 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function TablesPage() {
-  const viewer = await getPosViewer();
-  if (!viewer) {
+  const viewerResult = await getPosViewer();
+  if (viewerResult.status === "unauthenticated") {
     redirect("/login");
   }
 
-  const result = await loadTableOverview(viewer.branchId);
-  if (!result.ok) {
-    const t = await getTranslations("tables");
+  const t = await getTranslations("tables");
+  if (viewerResult.status === "unavailable") {
     return (
-      <PosLoadError error={result.error} backHref="/dashboard" backLabel={t("backToDashboard")} />
+      <PosLoadError
+        error={viewerResult.error}
+        backHref="/dashboard"
+        backLabel={t("backToDashboard")}
+        retryHref="/tables"
+      />
     );
   }
 
-  return <TablesScreen data={result.data} viewer={viewer} />;
+  const result = await loadTableOverview(viewerResult.viewer.branchId);
+  if (!result.ok) {
+    return (
+      <PosLoadError
+        error={result.error}
+        backHref="/dashboard"
+        backLabel={t("backToDashboard")}
+        retryHref="/tables"
+      />
+    );
+  }
+
+  return <TablesScreen data={result.data} viewer={viewerResult.viewer} />;
 }

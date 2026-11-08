@@ -29,6 +29,7 @@ export interface RoleAssignmentSource {
   scope_type: "organization" | "branch";
   branch_id: string | null;
   assigned_at: string;
+  revoked_at: string | null;
 }
 
 export function mapOrganization(row: OrganizationRow, timezone: string): WorkspaceOrganization {
@@ -66,7 +67,7 @@ export function mapRoleAssignments(
   rows: readonly RoleAssignmentSource[],
 ): WorkspaceRoleAssignment[] {
   return rows.flatMap((row) => {
-    if (!isStaffRole(row.role_code)) {
+    if (row.revoked_at !== null || !isStaffRole(row.role_code)) {
       return [];
     }
 

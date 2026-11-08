@@ -11,13 +11,16 @@ export async function PosLoadError({
   error,
   backHref,
   backLabel,
+  retryHref,
 }: {
   error: PosActionError;
   backHref: string;
   backLabel: string;
+  retryHref?: string;
 }) {
   const t = await getTranslations("pos");
   const tErrors = await getTranslations("pos.errors");
+  const tStates = await getTranslations("states");
   const description = tErrors.has(error.code) ? tErrors(error.code) : error.message;
 
   return (
@@ -26,9 +29,16 @@ export async function PosLoadError({
         title={t("loadErrorTitle")}
         description={description}
         action={
-          <Button asChild variant="secondary" size="sm">
-            <Link href={backHref}>{backLabel}</Link>
-          </Button>
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            {retryHref ? (
+              <Button asChild size="sm">
+                <Link href={retryHref}>{tStates("retry")}</Link>
+              </Button>
+            ) : null}
+            <Button asChild variant="secondary" size="sm">
+              <Link href={backHref}>{backLabel}</Link>
+            </Button>
+          </div>
         }
       />
     </PageStack>

@@ -900,6 +900,7 @@
       "RATE_LIMIT_EXCEEDED": "Too many requests. Wait a moment and try again.",
       "NOT_FOUND": "The requested record could not be found.",
       "SERVICE_UNAVAILABLE": "The backend is temporarily unavailable. Try again.",
+      "WORKSPACE_NOT_READY": "The workspace is not ready yet. Retry, or ask an administrator to review your staff access.",
       "INTERNAL_ERROR": "The operation could not be completed. Try again.",
       "INVALID_RESPONSE": "The backend completed the request, but its response could not be read. The page was refreshed; verify the result before retrying."
     }

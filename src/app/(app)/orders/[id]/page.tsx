@@ -13,20 +13,40 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function OrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const viewer = await getPosViewer();
-  if (!viewer) {
+  const viewerResult = await getPosViewer();
+  if (viewerResult.status === "unauthenticated") {
     redirect("/login");
   }
 
-  const result = await loadOrderDetail(id, viewer.currency);
+  const t = await getTranslations("orders.detail");
+  const retryHref = `/orders/${id}`;
+
+  if (viewerResult.status === "unavailable") {
+    return (
+      <PosLoadError
+        error={viewerResult.error}
+        backHref="/orders"
+        backLabel={t("back")}
+        retryHref={retryHref}
+      />
+    );
+  }
+
+  const result = await loadOrderDetail(id, viewerResult.viewer.currency);
   if (!result.ok) {
     if (result.error.code === "ORDER_NOT_FOUND") {
       notFound();
     }
 
-    const t = await getTranslations("orders.detail");
-    return <PosLoadError error={result.error} backHref="/orders" backLabel={t("back")} />;
+    return (
+      <PosLoadError
+        error={result.error}
+        backHref="/orders"
+        backLabel={t("back")}
+        retryHref={retryHref}
+      />
+    );
   }
 
-  return <OrderDetailScreen data={result.data} viewer={viewer} />;
+  return <OrderDetailScreen data={result.data} viewer={viewerResult.viewer} />;
 }

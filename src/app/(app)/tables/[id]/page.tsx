@@ -13,20 +13,40 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function TableDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const viewer = await getPosViewer();
-  if (!viewer) {
+  const viewerResult = await getPosViewer();
+  if (viewerResult.status === "unauthenticated") {
     redirect("/login");
   }
 
-  const result = await loadTableDetail(id, viewer.currency);
+  const t = await getTranslations("tables.detail");
+  const retryHref = `/tables/${id}`;
+
+  if (viewerResult.status === "unavailable") {
+    return (
+      <PosLoadError
+        error={viewerResult.error}
+        backHref="/tables"
+        backLabel={t("back")}
+        retryHref={retryHref}
+      />
+    );
+  }
+
+  const result = await loadTableDetail(id, viewerResult.viewer.currency);
   if (!result.ok) {
     if (result.error.code === "TABLE_NOT_FOUND") {
       notFound();
     }
 
-    const t = await getTranslations("tables.detail");
-    return <PosLoadError error={result.error} backHref="/tables" backLabel={t("back")} />;
+    return (
+      <PosLoadError
+        error={result.error}
+        backHref="/tables"
+        backLabel={t("back")}
+        retryHref={retryHref}
+      />
+    );
   }
 
-  return <TableDetailScreen data={result.data} viewer={viewer} />;
+  return <TableDetailScreen data={result.data} viewer={viewerResult.viewer} />;
 }

@@ -7,6 +7,7 @@ import { PosLoadError } from "@/features/pos/components/pos-load-error";
 import { isOrderStatus, type OrderStatus } from "@/features/pos/contracts";
 import {
   ORDERS_PAGE_SIZE,
+  ordersPageHref,
   ordersPageOffset,
   parseOrdersPage,
 } from "@/features/pos/orders-pagination";
@@ -22,25 +23,42 @@ export default async function OrdersPage({
 }: {
   searchParams: Promise<{ page?: string; status?: string }>;
 }) {
-  const viewer = await getPosViewer();
-  if (!viewer) {
+  const viewerResult = await getPosViewer();
+  if (viewerResult.status === "unauthenticated") {
     redirect("/login");
   }
 
   const params = await searchParams;
   const page = parseOrdersPage(params.page);
   const status: OrderStatus | undefined = isOrderStatus(params.status) ? params.status : undefined;
+  const t = await getTranslations("orders");
+  const retryHref = ordersPageHref({ page, status });
 
-  const result = await loadBranchOrders(viewer.branchId, {
+  if (viewerResult.status === "unavailable") {
+    return (
+      <PosLoadError
+        error={viewerResult.error}
+        backHref="/dashboard"
+        backLabel={t("backToDashboard")}
+        retryHref={retryHref}
+      />
+    );
+  }
+
+  const result = await loadBranchOrders(viewerResult.viewer.branchId, {
     status,
     limit: ORDERS_PAGE_SIZE,
     offset: ordersPageOffset(page),
   });
 
   if (!result.ok) {
-    const t = await getTranslations("orders");
     return (
-      <PosLoadError error={result.error} backHref="/dashboard" backLabel={t("backToDashboard")} />
+      <PosLoadError
+        error={result.error}
+        backHref="/dashboard"
+        backLabel={t("backToDashboard")}
+        retryHref={retryHref}
+      />
     );
   }
 

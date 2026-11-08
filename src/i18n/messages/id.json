@@ -905,6 +905,7 @@
       "RATE_LIMIT_EXCEEDED": "Terlalu banyak permintaan. Tunggu sebentar lalu coba lagi.",
       "NOT_FOUND": "Data yang diminta tidak ditemukan.",
       "SERVICE_UNAVAILABLE": "Backend sementara tidak tersedia. Coba lagi.",
+      "WORKSPACE_NOT_READY": "Ruang kerja belum siap. Coba lagi, atau minta administrator meninjau akses staf Anda.",
       "INTERNAL_ERROR": "Operasi tidak dapat diselesaikan. Coba lagi.",
       "INVALID_RESPONSE": "Backend menyelesaikan permintaan, tetapi responsnya tidak dapat dibaca. Halaman telah dimuat ulang; verifikasi hasilnya sebelum mencoba lagi."
     }

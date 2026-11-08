@@ -4,7 +4,6 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { Database } from "@/lib/supabase/database.types";
-import { effectiveRoles } from "@/features/workspace/access";
 import { getWorkspace } from "@/features/workspace/services";
 
 import {
@@ -23,10 +22,10 @@ import type {
   OrderDetailData,
   PosLoadResult,
   PosMenu,
-  PosViewer,
   TableDetailData,
   TableOverviewData,
 } from "./types";
+import { resolvePosViewerResult, type PosViewerResult } from "./viewer";
 
 type PosClient = SupabaseClient<Database>;
 
@@ -38,20 +37,8 @@ async function loadPosClient(): Promise<PosClient> {
   return createSupabaseServerClient();
 }
 
-export async function getPosViewer(): Promise<PosViewer | null> {
-  const result = await getWorkspace();
-  if (result.status !== "ready") {
-    return null;
-  }
-
-  return {
-    roles: effectiveRoles(result.workspace.user.roles, result.workspace.activeBranch.id),
-    branchId: result.workspace.activeBranch.id,
-    timezone: result.workspace.activeBranch.timezone,
-    currency: result.workspace.organization.defaultCurrencyCode,
-    isOrganizationScoped: result.workspace.isOrganizationScoped,
-    isOrgAdmin: result.workspace.isOrgAdmin,
-  };
+export async function getPosViewer(): Promise<PosViewerResult> {
+  return resolvePosViewerResult(await getWorkspace());
 }
 
 export async function loadTableOverview(

@@ -211,6 +211,18 @@ test("role mapping ignores unknown role codes", () => {
   );
 });
 
+test("revoked role assignments never become effective roles", () => {
+  const roles = mapRoleAssignments([
+    roleRow({ id: "role-active" }),
+    roleRow({ id: "role-revoked", revoked_at: "2026-02-01T00:00:00Z" }),
+  ]);
+
+  assert.deepEqual(
+    roles.map((assignment) => assignment.id),
+    ["role-active"],
+  );
+});
+
 test("role mapping preserves the branch identifier from M2.1", () => {
   const roles = mapRoleAssignments([
     roleRow({ id: "role-org", scope_type: "organization", branch_id: null }),

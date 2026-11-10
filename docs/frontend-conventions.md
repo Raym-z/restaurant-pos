@@ -344,7 +344,11 @@ language-neutral. Navigation filtering is a provisional UX hint only. Backend
 permission identifiers are not final; replace this filtering when the backend
 authorization contract is available.
 
-The Kitchen Display System will eventually use a dedicated layout outside the standard `(app)` shell, per `docs/realtime-and-kds.md`. Coordinate before creating or changing that route group.
+The Kitchen Display System currently uses the standard `(app)` shell with a
+kitchen sub-navigation at `/kitchen`, `/kitchen/history`, and
+`/kitchen/stations`. A dedicated full-screen layout outside the shell remains
+deferred; coordinate before creating or changing that route group. See
+`docs/m4-4-kitchen-display.md`.
 
 ## 10. Mock Data Conventions
 

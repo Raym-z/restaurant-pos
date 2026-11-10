@@ -114,3 +114,26 @@ Each use case must define which users can subscribe to its events and which pers
 - Clients must recover safely from disconnections.
 - Duplicate events must not produce duplicate business operations.
 - KDS remains part of the POS repository.
+
+## 10. Implemented Frontend (M4.4)
+
+The first usable KDS frontend is implemented in this repository:
+
+- `/kitchen` — active board with station selection, status counts, manual
+  refresh, 45-second polling, stale-data handling, and item lifecycle actions.
+- `/kitchen/history` — completed/cancelled history with branch-local date
+  filters and a 31-day maximum window.
+- `/kitchen/stations` — Owner/Admin/Manager station and routing configuration.
+
+Current implementation notes:
+
+- The KDS uses the standard authenticated application shell and a kitchen
+  sub-navigation. A dedicated full-screen kitchen layout remains deferred.
+- **Supabase Realtime subscriptions are not used yet.** `BLK-008` remains open
+  because delivery and branch-isolation verification are blocked without a local
+  Supabase/Docker stack. Polling at 45 seconds is the supported fallback.
+- The board and lifecycle actions use only M4.2/M4.3 RPCs. The frontend never
+  queries kitchen ticket tables directly.
+- Financial data is excluded from KDS responses and UI.
+- See [`m4-4-kitchen-display.md`](./m4-4-kitchen-display.md) for the full
+  integration and role matrix.

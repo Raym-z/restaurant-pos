@@ -25,6 +25,11 @@ export type OrderStatus =
 export type OrderItemStatus =
   "pending" | "accepted" | "preparing" | "ready" | "served" | "cancelled";
 export type OrderSource = "guest" | "staff";
+export type KitchenStationStatus = "active" | "inactive";
+export type KitchenTicketStatus =
+  "pending" | "preparing" | "ready" | "completed" | "cancelled";
+export type KitchenTicketItemStatus =
+  "pending" | "preparing" | "ready" | "completed" | "cancelled";
 
 export interface Database {
   public: {
@@ -703,6 +708,70 @@ export interface Database {
         Args: { p_order_id: string; p_reason: string };
         Returns: Json;
       };
+      list_kitchen_tickets: {
+        Args: {
+          p_branch_id: string;
+          p_station_id?: string | null;
+          p_statuses?: KitchenTicketStatus[] | null;
+          p_limit?: number;
+          p_offset?: number;
+          p_from?: string | null;
+          p_to?: string | null;
+        };
+        Returns: Json;
+      };
+      get_kitchen_ticket: {
+        Args: { p_ticket_id: string };
+        Returns: Json;
+      };
+      list_kitchen_stations: {
+        Args: { p_branch_id: string };
+        Returns: Json;
+      };
+      create_kitchen_station: {
+        Args: { p_branch_id: string; p_name: string; p_description?: string | null };
+        Returns: Json;
+      };
+      update_kitchen_station: {
+        Args: { p_station_id: string; p_name: string; p_description?: string | null };
+        Returns: Json;
+      };
+      deactivate_kitchen_station: {
+        Args: { p_station_id: string; p_reason?: string | null };
+        Returns: Json;
+      };
+      reactivate_kitchen_station: {
+        Args: { p_station_id: string };
+        Returns: Json;
+      };
+      add_kitchen_station_category_route: {
+        Args: { p_station_id: string; p_menu_category_id: string };
+        Returns: Json;
+      };
+      remove_kitchen_station_category_route: {
+        Args: { p_station_id: string; p_menu_category_id: string };
+        Returns: Json;
+      };
+      add_kitchen_station_item_route: {
+        Args: { p_station_id: string; p_menu_item_id: string };
+        Returns: Json;
+      };
+      remove_kitchen_station_item_route: {
+        Args: { p_station_id: string; p_menu_item_id: string };
+        Returns: Json;
+      };
+      start_kitchen_ticket_item: {
+        Args: { p_ticket_item_id: string };
+        Returns: Json;
+      };
+      mark_kitchen_ticket_item_ready: {
+        Args: { p_ticket_item_id: string };
+        Returns: Json;
+      };
+      complete_kitchen_ticket_item: {
+        Args: { p_ticket_item_id: string };
+        Returns: Json;
+      };
     };
     Enums: {
       organization_status: OrganizationStatus;
@@ -715,6 +784,9 @@ export interface Database {
       order_status: OrderStatus;
       order_item_status: OrderItemStatus;
       order_source: OrderSource;
+      kitchen_station_status: KitchenStationStatus;
+      kitchen_ticket_status: KitchenTicketStatus;
+      kitchen_ticket_item_status: KitchenTicketItemStatus;
     };
     CompositeTypes: { [_ in never]: never };
   };

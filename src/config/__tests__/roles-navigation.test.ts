@@ -103,23 +103,27 @@ test("manager does not receive staff administration navigation", () => {
   assert.ok(hrefs.includes("/reports"));
 });
 
-test("cashier and kitchen navigation remain operational", () => {
-  assert.deepEqual(navigationHrefs(context(["cashier"])), [
-    "/dashboard",
-    "/pos",
-    "/orders",
-    "/tables",
-    "/kitchen",
-    "/queue",
-    "/menu",
-  ]);
+test("cashier navigation excludes kitchen operations", () => {
+  const hrefs = navigationHrefs(context(["cashier"]));
 
+  assert.deepEqual(hrefs, ["/dashboard", "/pos", "/orders", "/tables", "/queue", "/menu"]);
+  assert.ok(!hrefs.includes("/kitchen"));
+});
+
+test("kitchen staff navigation includes the active kitchen board", () => {
   assert.deepEqual(navigationHrefs(context(["kitchen_staff"])), [
     "/dashboard",
     "/orders",
     "/kitchen",
     "/menu",
   ]);
+
+  const kitchen = getNavigationForContext(context(["kitchen_staff"]))
+    .flatMap((section) => section.items)
+    .find((item) => item.href === "/kitchen");
+
+  assert.ok(kitchen);
+  assert.equal(kitchen.availability ?? "available", "available");
 });
 
 test("unavailable modules are marked and never imply functional access", () => {
@@ -131,7 +135,6 @@ test("unavailable modules are marked and never imply functional access", () => {
 
   assert.deepEqual(unavailableHrefs.sort(), [
     "/billing",
-    "/kitchen",
     "/queue",
     "/reports",
     "/settings",
@@ -140,6 +143,7 @@ test("unavailable modules are marked and never imply functional access", () => {
 
   assert.ok(!unavailableHrefs.includes("/tables"));
   assert.ok(!unavailableHrefs.includes("/orders"));
+  assert.ok(!unavailableHrefs.includes("/kitchen"));
 });
 
 test("navigation never emits unknown role identifiers", () => {

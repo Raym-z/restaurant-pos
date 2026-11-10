@@ -1,0 +1,12 @@
+warning: in the working copy of 'src/app/(app)/kitchen/page.tsx', LF will be replaced by CRLF the next time Git touches it
+ README.md                                     |   1 [32m+[m
+ docs/frontend-conventions.md                  |   6 [32m+[m[31m-[m
+ docs/implementation-roadmap.md                |   6 [32m+[m
+ docs/realtime-and-kds.md                      |  23 [32m++++[m
+ src/app/(app)/kitchen/page.tsx                |  77 [32m+++++++++[m[31m--[m
+ src/config/__tests__/roles-navigation.test.ts |  26 [32m++[m[31m--[m
+ src/config/navigation.ts                      |   6 [32m+[m[31m-[m
+ src/i18n/messages/en.json                     | 183 [32m++++++++++++++++++++++++++[m
+ src/i18n/messages/id.json                     | 183 [32m++++++++++++++++++++++++++[m
+ src/lib/supabase/database.types.ts            |  72 [32m++++++++++[m
+ 10 files changed, 559 insertions(+), 24 deletions(-)

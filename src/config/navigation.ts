@@ -50,6 +50,7 @@ export interface NavSection {
 
 const FLOOR: readonly StaffRole[] = ["owner", "admin", "manager", "cashier"];
 const FLOOR_AND_KITCHEN: readonly StaffRole[] = [...FLOOR, "kitchen_staff"];
+const KITCHEN: readonly StaffRole[] = ["owner", "admin", "manager", "kitchen_staff"];
 const MANAGEMENT: readonly StaffRole[] = ["owner", "admin", "manager"];
 
 export const NAVIGATION_SECTIONS: readonly NavSection[] = [
@@ -83,9 +84,10 @@ export const NAVIGATION_SECTIONS: readonly NavSection[] = [
       {
         titleKey: "navigation.items.kitchen",
         href: "/kitchen",
-        availability: "unavailable",
         icon: ChefHat,
-        access: { roles: FLOOR_AND_KITCHEN },
+        // M4.3 kitchen RPCs deny Cashier, so Cashier must not receive KDS
+        // navigation even though older planning text listed KDS as view-only.
+        access: { roles: KITCHEN },
       },
       {
         titleKey: "navigation.items.queue",

@@ -159,6 +159,12 @@ Expected outcome:
 
 Kitchen staff can receive and process orders through a dedicated interface.
 
+M4.4 status: the active board, ticket-item lifecycle actions, bounded history,
+and station management are implemented with polling (`/kitchen`,
+`/kitchen/history`, `/kitchen/stations`). Real-time subscriptions remain
+deferred pending `BLK-008` verification. See
+[`m4-4-kitchen-display.md`](./m4-4-kitchen-display.md).
+
 ### Phase 9: Waitlist and Queue Management
 
 Integrate the customer-facing waitlist application.

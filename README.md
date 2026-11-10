@@ -204,6 +204,7 @@ with the Node.js test runner through `tsx`.
 - [Roles and Permissions](docs/roles-and-permissions.md)
 - [Integration Contracts](docs/integration-contracts.md)
 - [Real-Time Communication and KDS](docs/realtime-and-kds.md)
+- [M4.4 Kitchen Display Frontend](docs/m4-4-kitchen-display.md)
 - [Security Guidelines](docs/security-guidelines.md)
 - [Frontend Conventions](docs/frontend-conventions.md)
 - [Localization and Currency](docs/localization.md)

@@ -18,6 +18,7 @@ export function decideSessionRoute(
   pathname: string,
 ): SessionRouteDecision {
   const onLoginPage = pathname === "/login";
+  const onAcceptInvitationPage = pathname === "/accept-invitation";
 
   if (outcome.status === "authenticated") {
     return onLoginPage
@@ -26,7 +27,7 @@ export function decideSessionRoute(
   }
 
   if (outcome.status === "unauthenticated") {
-    if (onLoginPage) {
+    if (onLoginPage || onAcceptInvitationPage) {
       return { action: "allow", clearSession: true };
     }
 

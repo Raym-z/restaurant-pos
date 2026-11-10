@@ -44,6 +44,20 @@ test("missing session on the login page stays and clears stale cookies", () => {
   });
 });
 
+test("missing session on the invitation acceptance page stays so the client can establish the invited session", () => {
+  assert.deepEqual(decideSessionRoute(unauthenticated, "/accept-invitation"), {
+    action: "allow",
+    clearSession: true,
+  });
+});
+
+test("authenticated users on the acceptance page are allowed to accept", () => {
+  assert.deepEqual(decideSessionRoute(authenticated, "/accept-invitation"), {
+    action: "allow",
+    clearSession: false,
+  });
+});
+
 test("expired session clears cookies and redirects with the expiration reason", () => {
   assert.deepEqual(decideSessionRoute(expired, "/dashboard"), {
     action: "redirect-login",

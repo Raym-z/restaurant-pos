@@ -42,6 +42,29 @@ export function parsePublicEnvironment(input: PublicEnvironmentInput): PublicEnv
     );
   }
 
+  const publishableKey = parsed.data.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+
+  // Fail closed on privileged credentials. Public Supabase variables are
+  // shipped to the browser, so a secret key or service-role JWT must never be
+  // accepted even if it is valid for the project.
+  if (publishableKey.startsWith("sb_secret_") || publishableKey.startsWith("sbp_")) {
+    throw new Error("A publishable/anon key is required; secret keys are forbidden.");
+  }
+
+  if (publishableKey.startsWith("eyJ")) {
+    let role: string | undefined;
+    try {
+      const payload = JSON.parse(atob(publishableKey.split(".")[1] ?? "")) as { role?: string };
+      role = payload.role;
+    } catch {
+      // A malformed JWT is rejected by Supabase Auth; only the role matters here.
+    }
+
+    if (role === "service_role") {
+      throw new Error("A service-role key must never be used by this application.");
+    }
+  }
+
   const url = new URL(parsed.data.NEXT_PUBLIC_SUPABASE_URL);
 
   if (url.hostname.includes(PRODUCTION_SUPABASE_REF)) {

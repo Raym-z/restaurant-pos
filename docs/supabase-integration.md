@@ -28,8 +28,18 @@ Rules:
 
 - Development project `bnticbeepxwhrzimouuh` only.
 - Production project `xzchsyxhpknlogwcfsll` is rejected by environment validation.
+- Secret keys (`sb_secret_*`), personal access tokens (`sbp_*`), and service-role JWTs are rejected by environment validation.
 - No service-role key, database password, or personal access token is used in the frontend.
 - `.env.local` is ignored by git.
+
+### Hosted Development verification
+
+`npm run verify:hosted` signs in with a Development staff account and checks
+the hosted workspace, branch-scoped roles, table/menu/order reads, and
+mutation rejection paths against the live project. Credentials are read from
+`POS_DEV_STAFF_EMAIL` and `POS_DEV_STAFF_PASSWORD`; they are never written to
+the repository or printed. The script refuses Production, secret keys, and
+service-role JWTs.
 
 ## 3. Client architecture
 

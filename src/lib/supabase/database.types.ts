@@ -548,6 +548,63 @@ export interface Database {
     };
     Views: { [_ in never]: never };
     Functions: {
+      create_menu_category: {
+        Args: { p_name: string; p_description?: string | null; p_sort_order?: number };
+        Returns: Json;
+      };
+      update_menu_category: {
+        Args: {
+          p_category_id: string;
+          p_name: string;
+          p_description?: string | null;
+          p_sort_order?: number;
+        };
+        Returns: Json;
+      };
+      archive_menu_category: {
+        Args: { p_category_id: string };
+        Returns: Json;
+      };
+      create_menu_item: {
+        Args: {
+          p_category_id: string;
+          p_name: string;
+          p_base_price_minor: number;
+          p_description?: string | null;
+          p_sort_order?: number;
+        };
+        Returns: Json;
+      };
+      update_menu_item: {
+        Args: {
+          p_menu_item_id: string;
+          p_name: string;
+          p_base_price_minor: number;
+          p_description?: string | null;
+          p_sort_order?: number;
+        };
+        Returns: Json;
+      };
+      archive_menu_item: {
+        Args: { p_menu_item_id: string };
+        Returns: Json;
+      };
+      set_branch_item_availability: {
+        Args: { p_branch_id: string; p_menu_item_id: string; p_is_available: boolean };
+        Returns: Json;
+      };
+      create_table: {
+        Args: { p_branch_id: string; p_label: string; p_capacity: number };
+        Returns: Json;
+      };
+      update_table: {
+        Args: { p_table_id: string; p_label: string; p_capacity: number };
+        Returns: Json;
+      };
+      deactivate_table: {
+        Args: { p_table_id: string; p_reason?: string | null };
+        Returns: Json;
+      };
       list_branch_tables: {
         Args: { p_branch_id: string; p_include_inactive?: boolean };
         Returns: Json;

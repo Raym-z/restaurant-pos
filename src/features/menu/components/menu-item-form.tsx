@@ -1,130 +1,132 @@
 "use client";
 
 import { AlertCircle } from "lucide-react";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useTransition } from "react";
 
-import { FormActions, FormField, FormGrid, FormSection } from "@/components/ui/form-field";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { FormActions, FormField, FormGrid, FormSection } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { useMockData } from "@/features/shared/mock-data-provider";
-import { useWorkspace } from "@/providers/workspace-provider";
 import type { ValidationErrors } from "@/features/shared/validation";
 import { formatMoneyInput, parseMoneyInput } from "@/lib/currency";
-import { useStatusLabel } from "@/i18n/use-labels";
-import { toggleUnavailableBranch, unavailableBranchIdsForItem } from "../availability";
-import { createMenuItemContentDraft, resolveContentLocale } from "../content";
-import type { MenuContentLocale, MenuItem, MenuItemInput, MenuItemStatus } from "../types";
-import { localizeMenuCategory } from "../selectors";
-import { validateMenuItem } from "../validation";
 
-interface MenuItemFormProps {
-  item?: MenuItem;
-}
+import { createMenuItemAction, updateMenuItemAction } from "../actions";
+import { validateItemForm } from "../form-validation";
+import type { MenuCategoryView, MenuItemView } from "../models";
+import { nextSortOrder } from "../models";
+import { useMenuErrorMessage } from "../use-menu-error-message";
+import { MenuReadOnlyNotice } from "./menu-read-only-notice";
 
-export function MenuItemForm({ item }: MenuItemFormProps) {
+export function MenuItemForm({
+  item,
+  items,
+  categories,
+  currency,
+  canManage,
+}: {
+  item?: MenuItemView;
+  items: MenuItemView[];
+  categories: MenuCategoryView[];
+  currency: string;
+  canManage: boolean;
+}) {
   const router = useRouter();
-  const locale = useLocale();
-  const { menuCategories, menuItems, addMenuItem, updateMenuItem } = useMockData();
-  const { branches, organization } = useWorkspace();
-  const t = useTranslations("menu.form");
+  const t = useTranslations("menuAdmin");
   const tCommon = useTranslations("common");
-  const tContentEditing = useTranslations("menu.contentEditing");
-  const tLanguages = useTranslations("languages");
   const tValidation = useTranslations("validation");
-  const statusLabel = useStatusLabel();
-  const activeCategories = menuCategories.filter(
+  const errorMessage = useMenuErrorMessage();
+
+  const selectableCategories = categories.filter(
     (category) => category.status === "active" || category.id === item?.categoryId,
   );
 
-  // Capture the content-editing locale once. Changing the interface language
-  // after mount must never retarget the draft to another translation.
-  const [editingLocale] = useState<MenuContentLocale>(() => resolveContentLocale(locale));
-  const itemContent = item ? createMenuItemContentDraft(item, editingLocale) : null;
-  const interfaceLocale = resolveContentLocale(locale);
-  const contentLocaleMismatch = interfaceLocale !== editingLocale;
-
-  const [categoryId, setCategoryId] = useState(item?.categoryId ?? activeCategories[0]?.id ?? "");
-  const [name, setName] = useState(itemContent?.name ?? "");
-  const [description, setDescription] = useState(itemContent?.description ?? "");
+  const [categoryId, setCategoryId] = useState(
+    item?.categoryId ?? selectableCategories[0]?.id ?? "",
+  );
+  const [name, setName] = useState(item?.name ?? "");
+  const [description, setDescription] = useState(item?.description ?? "");
   const [price, setPrice] = useState(
-    item ? formatMoneyInput(item.basePrice.amountMinor, item.basePrice.currency) : "",
+    item ? formatMoneyInput(item.basePriceMinor, item.currency) : "",
   );
-  const [status, setStatus] = useState<MenuItemStatus>(item?.status ?? "available");
-  const [tags, setTags] = useState(item?.tags.join(", ") ?? "");
-  const [unavailableBranchIds, setUnavailableBranchIds] = useState<string[]>(
-    item ? unavailableBranchIdsForItem(item) : [],
-  );
+  const [sortOrder, setSortOrder] = useState(String(item?.sortOrder ?? nextSortOrder(categories)));
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [submitted, setSubmitted] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [uncertain, setUncertain] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
-  function toggleBranch(branchId: string, available: boolean) {
-    setUnavailableBranchIds((current) => toggleUnavailableBranch(current, branchId, available));
+  if (!canManage) {
+    return <MenuReadOnlyNotice />;
+  }
+
+  if (selectableCategories.length === 0) {
+    return (
+      <Card className="space-y-4 p-5 text-sm sm:p-6">
+        <p className="text-ink-muted">{t("empty.categoriesDescription")}</p>
+        <Button asChild>
+          <Link href="/menu/categories/new">{t("newCategory")}</Link>
+        </Button>
+      </Card>
+    );
   }
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setSubmitted(true);
+    setActionError(null);
 
-    const parsedPrice = parseMoneyInput(price, organization.currency);
-    const input: MenuItemInput = {
-      categoryId,
-      name,
-      description,
-      basePriceMinor: parsedPrice ?? 0,
-      status,
-      tags: tags
-        .split(",")
-        .map((tag) => tag.trim().toLowerCase())
-        .filter(Boolean),
-      unavailableBranchIds,
-      contentLocale: editingLocale,
-    };
-    const nextErrors = validateMenuItem(
-      input,
-      menuItems,
+    const parsedPrice = parseMoneyInput(price, currency);
+    const nextErrors = validateItemForm(
+      {
+        categoryId,
+        name,
+        description,
+        basePriceMinor: parsedPrice,
+        sortOrder,
+      },
+      items,
       item?.id,
       tValidation,
-      organization.currency,
+      currency,
     );
     setErrors(nextErrors);
-    if (Object.keys(nextErrors).length > 0) {
+    if (Object.keys(nextErrors).length > 0 || parsedPrice === null) {
       return;
     }
 
-    if (item) {
-      updateMenuItem(item.id, input);
-      router.push(`/menu/items/${item.id}`);
-      return;
-    }
+    const values = {
+      name: name.trim(),
+      description: description.trim(),
+      basePriceMinor: parsedPrice,
+      sortOrder: Number(sortOrder),
+    };
 
-    const created = addMenuItem(input);
-    router.push(`/menu/items/${created.id}`);
+    startTransition(async () => {
+      const result = item
+        ? await updateMenuItemAction(item.id, values)
+        : await createMenuItemAction({ ...values, categoryId });
+
+      if (!result.ok) {
+        setActionError(errorMessage(result.error));
+        if (result.committed) {
+          setUncertain(true);
+          router.refresh();
+        }
+        return;
+      }
+
+      router.push(`/menu/items/${result.data.menuItemId}`);
+      router.refresh();
+    });
   }
 
   return (
     <form onSubmit={handleSubmit} noValidate className="space-y-6">
-      <p
-        role={contentLocaleMismatch ? "alert" : "status"}
-        className={
-          contentLocaleMismatch
-            ? "rounded-lg border border-warning/25 bg-warning-soft/60 px-4 py-3 text-sm text-ink"
-            : "rounded-lg border border-line bg-surface-subtle px-4 py-3 text-sm text-ink-muted"
-        }
-      >
-        {contentLocaleMismatch
-          ? tContentEditing("mismatch", {
-              language: tLanguages(editingLocale),
-            })
-          : tContentEditing("notice", {
-              language: tLanguages(editingLocale),
-            })}
-      </p>
-
       {submitted && Object.keys(errors).length > 0 ? (
         <div
           role="alert"
@@ -135,45 +137,74 @@ export function MenuItemForm({ item }: MenuItemFormProps) {
         </div>
       ) : null}
 
+      {actionError ? (
+        <div
+          role="alert"
+          className="flex items-start gap-2 rounded-lg border border-danger/20 bg-danger-soft/50 px-4 py-3 text-sm text-danger"
+        >
+          <AlertCircle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+          <p>{actionError}</p>
+        </div>
+      ) : null}
+
+      {item?.status === "archived" ? (
+        <div className="rounded-lg border border-line bg-surface-subtle px-4 py-3 text-sm text-ink-muted">
+          {t("item.archivedDescription")}
+        </div>
+      ) : null}
+
       <Card className="space-y-6 p-5 sm:p-6">
-        <FormSection title={t("sections.details")} description={t("sections.detailsDescription")}>
+        <FormSection
+          title={t("form.sections.details")}
+          description={t("form.sections.detailsDescription")}
+        >
           <FormGrid>
             <FormField
-              label={t("fields.category")}
+              label={t("form.fields.category")}
               htmlFor="item-category"
               required
               error={errors.categoryId}
+              description={item ? t("form.hints.categoryLocked") : undefined}
             >
               <Select
                 id="item-category"
                 value={categoryId}
                 onChange={(event) => setCategoryId(event.target.value)}
                 aria-invalid={Boolean(errors.categoryId)}
-                aria-describedby={errors.categoryId ? "item-category-error" : undefined}
+                aria-describedby={
+                  errors.categoryId ? "item-category-error" : "item-category-description"
+                }
+                disabled={Boolean(item) || isPending || uncertain}
               >
-                <option value="">{t("placeholders.category")}</option>
-                {activeCategories.map((category) => (
+                <option value="">{t("form.placeholders.category")}</option>
+                {selectableCategories.map((category) => (
                   <option key={category.id} value={category.id}>
-                    {localizeMenuCategory(category, locale).name}
+                    {category.name}
                   </option>
                 ))}
               </Select>
             </FormField>
-            <FormField label={t("fields.name")} htmlFor="item-name" required error={errors.name}>
+            <FormField
+              label={t("form.fields.name")}
+              htmlFor="item-name"
+              required
+              error={errors.name}
+            >
               <Input
                 id="item-name"
                 value={name}
                 onChange={(event) => setName(event.target.value)}
                 aria-invalid={Boolean(errors.name)}
                 aria-describedby={errors.name ? "item-name-error" : undefined}
-                placeholder={t("placeholders.name")}
+                placeholder={t("form.placeholders.name")}
+                disabled={isPending || uncertain || item?.status === "archived"}
               />
             </FormField>
             <FormField
-              label={t("fields.description")}
+              label={t("form.fields.description")}
               htmlFor="item-description"
               error={errors.description}
-              description={t("hints.description")}
+              description={t("form.hints.description", { max: 400 })}
               className="sm:col-span-2"
             >
               <Textarea
@@ -185,15 +216,24 @@ export function MenuItemForm({ item }: MenuItemFormProps) {
                   errors.description ? "item-description-error" : "item-description-description"
                 }
                 rows={3}
-                placeholder={t("placeholders.description")}
+                placeholder={t("form.placeholders.description")}
+                disabled={isPending || uncertain || item?.status === "archived"}
               />
             </FormField>
+          </FormGrid>
+        </FormSection>
+
+        <FormSection
+          title={t("form.sections.pricing")}
+          description={t("form.sections.pricingDescription")}
+        >
+          <FormGrid>
             <FormField
-              label={t("fields.basePrice")}
+              label={t("form.fields.basePrice")}
               htmlFor="item-price"
               required
               error={errors.basePriceMinor}
-              description={t("hints.price")}
+              description={t("form.hints.price", { currency })}
             >
               <Input
                 id="item-price"
@@ -204,76 +244,31 @@ export function MenuItemForm({ item }: MenuItemFormProps) {
                 aria-describedby={
                   errors.basePriceMinor ? "item-price-error" : "item-price-description"
                 }
-                placeholder={t("placeholders.price")}
+                placeholder={t("form.placeholders.price")}
+                disabled={isPending || uncertain || item?.status === "archived"}
               />
             </FormField>
-            <FormField label={t("fields.status")} htmlFor="item-status" required>
-              <Select
-                id="item-status"
-                value={status}
-                onChange={(event) => setStatus(event.target.value as MenuItemStatus)}
-              >
-                <option value="available">{statusLabel("available")}</option>
-                <option value="unavailable">{statusLabel("unavailable")}</option>
-                <option value="archived">{statusLabel("archived")}</option>
-              </Select>
-            </FormField>
             <FormField
-              label={t("fields.tags")}
-              htmlFor="item-tags"
-              error={errors.tags}
-              description={t("hints.tags")}
-              className="sm:col-span-2"
+              label={t("form.fields.sortOrder")}
+              htmlFor="item-sort-order"
+              required
+              error={errors.sortOrder}
+              description={t("form.hints.sortOrder")}
             >
               <Input
-                id="item-tags"
-                value={tags}
-                onChange={(event) => setTags(event.target.value)}
-                aria-invalid={Boolean(errors.tags)}
-                aria-describedby={errors.tags ? "item-tags-error" : "item-tags-description"}
-                placeholder={t("placeholders.tags")}
+                id="item-sort-order"
+                inputMode="numeric"
+                value={sortOrder}
+                onChange={(event) => setSortOrder(event.target.value)}
+                aria-invalid={Boolean(errors.sortOrder)}
+                aria-describedby={
+                  errors.sortOrder ? "item-sort-order-error" : "item-sort-order-description"
+                }
+                placeholder={t("form.placeholders.sortOrder")}
+                disabled={isPending || uncertain || item?.status === "archived"}
               />
             </FormField>
           </FormGrid>
-        </FormSection>
-
-        <FormSection
-          title={t("sections.availability")}
-          description={t("sections.availabilityDescription")}
-        >
-          <div className="grid gap-2 sm:grid-cols-2">
-            {branches.map((branch) => {
-              const available = !unavailableBranchIds.includes(branch.id);
-              return (
-                <label
-                  key={branch.id}
-                  className="flex items-center justify-between rounded-lg border border-line bg-surface-subtle px-3 py-2.5 text-sm"
-                >
-                  <span>
-                    <span className="font-medium text-ink">{branch.name}</span>
-                    <span className="ml-1 text-xs text-ink-subtle">{branch.timezone}</span>
-                  </span>
-                  <span className="flex items-center gap-2 text-xs text-ink-muted">
-                    {t("branchAvailable")}
-                    <input
-                      type="checkbox"
-                      checked={available}
-                      onChange={(event) => toggleBranch(branch.id, event.target.checked)}
-                      className="size-4 rounded border-line-strong accent-brand"
-                    />
-                  </span>
-                </label>
-              );
-            })}
-          </div>
-          {item && (item.variants.length > 0 || item.modifierGroups.length > 0) ? (
-            <p className="rounded-lg bg-surface-subtle p-3 text-[13px] leading-5 text-ink-muted">
-              {t("variantsNote", {
-                variants: item.variants.length,
-                modifiers: item.modifierGroups.length,
-              })}
-            </p>
-          ) : null}
         </FormSection>
 
         <FormActions>
@@ -281,10 +276,17 @@ export function MenuItemForm({ item }: MenuItemFormProps) {
             type="button"
             variant="secondary"
             onClick={() => router.push(item ? `/menu/items/${item.id}` : "/menu")}
+            disabled={isPending}
           >
             {tCommon("cancel")}
           </Button>
-          <Button type="submit">{item ? t("save") : t("create")}</Button>
+          <Button
+            type="submit"
+            isLoading={isPending}
+            disabled={uncertain || item?.status === "archived"}
+          >
+            {item ? t("form.saveItem") : t("form.createItem")}
+          </Button>
         </FormActions>
       </Card>
     </form>

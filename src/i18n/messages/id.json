@@ -159,6 +159,8 @@
     "duplicateEmail": "Anggota staf lain sudah menggunakan alamat email ini.",
     "duplicateCategory": "Kategori lain sudah menggunakan nama ini.",
     "duplicateItem": "Kategori ini sudah memiliki item dengan nama tersebut.",
+    "invalidSortOrder": "Urutan harus berupa bilangan bulat 0 atau lebih.",
+    "invalidTableCapacity": "Kapasitas harus berupa bilangan bulat antara 1 dan {max}.",
     "assignmentCount": "Pilih tepat satu peran untuk anggota staf ini.",
     "ownerScope": "Pemilik organisasi harus memiliki akses seluruh organisasi.",
     "adminScope": "Administrator dengan cakupan organisasi tidak boleh terikat pada satu cabang.",
@@ -199,7 +201,9 @@
       "itemName": "Nama item",
       "itemDescription": "Deskripsi item",
       "basePrice": "Harga dasar",
-      "tags": "Tag"
+      "tags": "Tag",
+      "tableLabel": "Label meja",
+      "tableCapacity": "Kapasitas kursi"
     }
   },
   "meta": {
@@ -588,6 +592,161 @@
       "save": "Simpan perubahan"
     }
   },
+  "menuAdmin": {
+    "title": "Menu",
+    "description": "Kelola kategori, harga, dan ketersediaan per cabang.",
+    "readOnlyTitle": "Menu hanya baca",
+    "readOnlyDescription": "Anda dapat melihat menu. Perubahan katalog memerlukan pemilik atau admin organisasi; ketersediaan cabang mengikuti peran cabang Anda.",
+    "loadErrorTitle": "Menu tidak dapat dimuat",
+    "backToMenu": "Kembali ke menu",
+    "backToDashboard": "Kembali ke dasbor",
+    "categoriesAction": "Kategori",
+    "newItem": "Item baru",
+    "newCategory": "Kategori baru",
+    "newItemTitle": "Item menu baru",
+    "newItemDescription": "Tambahkan item ke kategori dengan harga dasar.",
+    "searchItems": "Cari item menu",
+    "searchItemsPlaceholder": "Cari berdasarkan nama, deskripsi, atau kategori item",
+    "searchCategories": "Cari kategori",
+    "searchCategoriesPlaceholder": "Cari berdasarkan nama atau deskripsi kategori",
+    "allCategories": "Semua kategori",
+    "allStatuses": "Semua status",
+    "table": {
+      "item": "Item menu",
+      "category": "Kategori",
+      "basePrice": "Harga dasar",
+      "availability": "Ketersediaan cabang",
+      "sortOrder": "Urutan",
+      "status": "Status",
+      "updated": "Diperbarui",
+      "actions": "Tindakan",
+      "items": "Item",
+      "branch": "Cabang"
+    },
+    "availabilityCount": "{available} dari {total} {total, plural, one {cabang} other {cabang}}",
+    "branchPriceOverride": "Harga khusus cabang",
+    "uncategorized": "Tanpa kategori",
+    "stats": {
+      "categories": "Kategori",
+      "categoriesDescription": "Kategori aktif dan diarsipkan",
+      "items": "Item menu",
+      "itemsDescription": "Item aktif dan diarsipkan",
+      "activeItems": "Item aktif",
+      "activeItemsDescription": "Item yang dapat dipesan",
+      "archivedItems": "Item diarsipkan",
+      "archivedItemsDescription": "Item yang disimpan untuk riwayat"
+    },
+    "empty": {
+      "filteredTitle": "Tidak ada item menu yang cocok",
+      "filteredDescription": "Coba kata kunci, kategori, atau status lain.",
+      "title": "Belum ada item menu",
+      "description": "Buat kategori, lalu tambahkan item menu pertama.",
+      "categoriesTitle": "Belum ada kategori",
+      "categoriesDescription": "Buat kategori pertama sebelum menambahkan item menu.",
+      "categoriesFilteredTitle": "Tidak ada kategori yang cocok",
+      "categoriesFilteredDescription": "Coba kata kunci lain."
+    },
+    "item": {
+      "eyebrow": "Item menu",
+      "back": "Kembali ke menu",
+      "edit": "Ubah item",
+      "noDescription": "Tidak ada deskripsi",
+      "pricing": "Harga",
+      "basePrice": "Harga dasar",
+      "category": "Kategori",
+      "sortOrder": "Urutan",
+      "created": "Dibuat",
+      "lastUpdated": "Terakhir diperbarui",
+      "details": "Detail item",
+      "branchAvailability": "Ketersediaan cabang",
+      "branchAvailabilityDescription": "Ketersediaan hanya berlaku untuk item ini. Item yang diarsipkan tidak dapat dipesan di cabang mana pun.",
+      "effectivePrice": "Harga berlaku",
+      "branchOverride": "Harga khusus cabang",
+      "noBranches": "Tidak ada cabang yang dapat diakses",
+      "noBranchesDescription": "Akun ini tidak memiliki akses ke cabang aktif mana pun.",
+      "archivedTitle": "Item diarsipkan",
+      "archivedDescription": "Item yang diarsipkan tidak dapat dipulihkan dengan backend saat ini. Item tetap terlihat untuk riwayat.",
+      "categoryArchivedTitle": "Kategori diarsipkan",
+      "categoryArchivedDescription": "Kategori item ini diarsipkan, sehingga item tidak dapat dipesan. Backend saat ini tidak dapat memulihkan kategori yang diarsipkan.",
+      "toggleUnavailable": "Tandai tidak tersedia di cabang ini",
+      "toggleAvailable": "Tandai tersedia di cabang ini"
+    },
+    "categories": {
+      "title": "Kategori",
+      "description": "Kelompokkan item menu ke dalam kategori yang dipakai semua cabang.",
+      "back": "Kembali ke kategori",
+      "backToItems": "Kembali ke item",
+      "archivedDescription": "Kategori yang diarsipkan tidak dapat dipulihkan dengan backend saat ini. Kategori tetap terlihat untuk riwayat."
+    },
+    "form": {
+      "newItemTitle": "Item menu baru",
+      "newItemDescription": "Tambahkan item ke kategori dengan harga dasar.",
+      "editItemTitle": "Ubah {name}",
+      "editItemDescription": "Perbarui nama, deskripsi, harga, dan urutan item.",
+      "newCategoryTitle": "Kategori baru",
+      "newCategoryDescription": "Buat kategori untuk mengelompokkan item menu.",
+      "editCategoryTitle": "Ubah {name}",
+      "editCategoryDescription": "Perbarui tampilan kategori ini di menu.",
+      "sections": {
+        "details": "Detail",
+        "detailsDescription": "Nama, deskripsi, dan urutan tampilan.",
+        "pricing": "Harga",
+        "pricingDescription": "Harga menggunakan mata uang organisasi."
+      },
+      "fields": {
+        "name": "Nama",
+        "category": "Kategori",
+        "description": "Deskripsi",
+        "basePrice": "Harga dasar",
+        "sortOrder": "Urutan"
+      },
+      "hints": {
+        "description": "Maksimal {max} karakter.",
+        "price": "Masukkan harga lebih dari nol dalam {currency}.",
+        "sortOrder": "Angka lebih kecil tampil lebih dahulu.",
+        "categoryLocked": "Kategori item tidak dapat diubah setelah dibuat."
+      },
+      "placeholders": {
+        "name": "Piring Kofta Domba",
+        "category": "Pilih kategori",
+        "description": "Kofta domba bakar, tahini hijau, bawang sumac, dan pita panggang.",
+        "price": "65000",
+        "sortOrder": "0"
+      },
+      "createItem": "Buat item",
+      "saveItem": "Simpan item",
+      "createCategory": "Buat kategori",
+      "saveCategory": "Simpan kategori"
+    },
+    "archive": {
+      "action": "Arsipkan",
+      "categoryTitle": "Arsipkan {name}?",
+      "categoryDescription": "Kategori akan disembunyikan dari menu aktif tetapi tetap terlihat untuk riwayat.",
+      "itemTitle": "Arsipkan {name}?",
+      "itemDescription": "Item akan disembunyikan dari semua cabang tetapi tetap terlihat untuk riwayat.",
+      "warning": "Pengarsipan tidak dapat dibatalkan dengan backend saat ini.",
+      "archivedNote": "Data yang diarsipkan tidak dapat dipulihkan dengan backend saat ini. Data tetap terlihat untuk riwayat.",
+      "confirm": "Arsipkan",
+      "keep": "Pertahankan"
+    },
+    "errors": {
+      "AUTH_REQUIRED": "Sesi Anda telah berakhir. Silakan masuk kembali.",
+      "PERMISSION_DENIED": "Anda tidak memiliki izin untuk mengelola menu.",
+      "ROLE_REQUIRED": "Hanya pemilik dan admin organisasi yang dapat mengelola menu.",
+      "ORGANIZATION_NOT_OPERATIONAL": "Organisasi ini tidak beroperasi.",
+      "SUBSCRIPTION_RESTRICTED": "Perubahan menu diblokir selama langganan dibatasi.",
+      "MENU_ITEM_NOT_FOUND": "Kategori atau item menu tidak ditemukan.",
+      "INVALID_MENU_PRICE": "Masukkan harga yang valid dan lebih dari nol.",
+      "VALIDATION_ERROR": "Periksa detail menu yang dikirim.",
+      "BRANCH_NOT_FOUND": "Cabang tidak ditemukan.",
+      "BRANCH_ACCESS_DENIED": "Anda tidak memiliki akses ke cabang ini.",
+      "RESOURCE_CONFLICT": "Perubahan ini bertentangan dengan data menu yang ada.",
+      "RATE_LIMIT_EXCEEDED": "Terlalu banyak permintaan. Coba lagi sebentar.",
+      "SERVICE_UNAVAILABLE": "Backend sementara tidak tersedia. Coba lagi.",
+      "INVALID_RESPONSE": "Backend menyelesaikan permintaan, tetapi responsnya tidak dapat dibaca. Muat ulang sebelum mencoba lagi.",
+      "INTERNAL_ERROR": "Operasi menu tidak dapat diselesaikan."
+    }
+  },
   "menu": {
     "title": "Menu",
     "description": "Kelola kategori, harga, tag, dan ketersediaan cabang.",
@@ -873,6 +1032,113 @@
     }
   },
   "pos": {
+    "ordering": {
+      "title": "Kasir",
+      "eyebrow": "Operasional",
+      "description": "Buat pesanan untuk {branch}.",
+      "refresh": "Muat ulang",
+      "backToDashboard": "Kembali ke dasbor",
+      "restrictedNotice": "Peran Anda dapat melihat layar ini tetapi tidak dapat membuat pesanan.",
+      "selectTableTitle": "Pilih meja",
+      "selectTableDescription": "Pilih meja yang tersedia untuk membuka sesi, atau lanjutkan meja yang sedang terisi.",
+      "noTablesTitle": "Tidak ada meja tersedia",
+      "noTablesDescription": "Belum ada meja aktif untuk {branch}.",
+      "manageTables": "Kelola meja",
+      "tableCard": {
+        "capacity": "{count} kursi",
+        "available": "Tersedia",
+        "occupied": "Terisi",
+        "availableDescription": "Siap membuka sesi makan.",
+        "openedAt": "Dibuka {time}",
+        "current": "Meja saat ini",
+        "select": "Pilih meja",
+        "resume": "Lanjutkan sesi"
+      },
+      "changeTable": "Ganti meja",
+      "changeTableTitle": "Ganti meja",
+      "changeTableDescription": "Pilih meja lain untuk pesanan ini di {branch}.",
+      "changeTableCartWarning": "Keranjang Anda milik {table}. Mengganti meja akan mengosongkan keranjang saat ini; pesanan yang sudah dikirim tidak terpengaruh.",
+      "changeTableConfirm": "Pindah ke {table} dan kosongkan keranjang",
+      "changeTableCancel": "Tetap di meja ini",
+      "session": {
+        "table": "Meja",
+        "status": "Status sesi",
+        "active": "Aktif",
+        "orders": "Pesanan",
+        "orderCounts": "{total} total · {active} aktif",
+        "subtotal": "Subtotal sesi"
+      },
+      "openSession": {
+        "title": "Buka sesi makan",
+        "description": "Buka sesi untuk {table} untuk mulai membuat pesanan.",
+        "notice": "Hanya satu sesi aktif yang dapat ada per meja.",
+        "action": "Buka sesi dan mulai pesanan"
+      },
+      "menu": {
+        "title": "Menu",
+        "description": "Telusuri menu cabang dan tambahkan item ke keranjang.",
+        "emptyTitle": "Tidak ada item menu tersedia",
+        "emptyDescription": "Saat ini tidak ada item menu aktif yang tersedia di cabang ini.",
+        "manageMenu": "Buka pengelolaan menu"
+      },
+      "cart": {
+        "title": "Pesanan saat ini",
+        "addToCart": "Tambah ke keranjang",
+        "lineCount": "{count, plural, one {# baris} other {# baris}}",
+        "itemCount": "{count, plural, one {# item} other {# item}}",
+        "emptyTitle": "Keranjang kosong",
+        "emptyDescription": "Tambahkan item menu untuk memulai pesanan ini.",
+        "subtotal": "Subtotal",
+        "estimatedNotice": "Backend akan mengonfirmasi harga, ketersediaan, dan total akhir saat pesanan dikirim.",
+        "orderNotes": "Catatan pesanan",
+        "orderNotesPlaceholder": "Instruksi opsional untuk seluruh pesanan",
+        "clear": "Kosongkan keranjang",
+        "clearTitle": "Kosongkan keranjang ini?",
+        "clearDescription": "Semua item di keranjang saat ini akan dihapus. Pesanan yang sudah dikirim tidak terpengaruh.",
+        "clearConfirm": "Kosongkan keranjang",
+        "clearCancel": "Pertahankan keranjang",
+        "removeLine": "Hapus item",
+        "decreaseQuantity": "Kurangi jumlah",
+        "increaseQuantity": "Tambah jumlah",
+        "submit": "Kirim pesanan",
+        "retry": "Coba kirim ulang",
+        "uncertainTitle": "Hasil pengiriman belum pasti",
+        "uncertainDescription": "Permintaan mungkin sudah diterima backend. Keranjang dipertahankan. Mengirim ulang memakai kunci idempotensi yang sama; periksa pesanan sesi sebelum memulai pesanan berbeda.",
+        "cartIsolationTitle": "Keranjang milik sesi lain",
+        "cartIsolationDescription": "Sesi makan yang dipilih berubah. Untuk menghindari item masuk ke sesi yang salah, kosongkan keranjang ini sebelum melanjutkan.",
+        "cartIsolationAction": "Kosongkan keranjang dan lanjutkan"
+      },
+      "orders": {
+        "title": "Pesanan dalam sesi ini",
+        "description": "Pesanan yang sudah ada untuk sesi makan aktif.",
+        "emptyTitle": "Belum ada pesanan",
+        "emptyDescription": "Pesanan pertama untuk sesi ini akan muncul di sini.",
+        "itemCount": "{count, plural, one {# item} other {# item}}",
+        "payable": "Subtotal terutang",
+        "historical": "Historis {amount}",
+        "view": "Lihat pesanan"
+      },
+      "closedSession": {
+        "title": "Tidak ada sesi makan aktif",
+        "description": "Meja ini tidak memiliki sesi terbuka. Pesanan sebelumnya tetap tersedia di riwayat pesanan.",
+        "viewOrders": "Lihat riwayat pesanan"
+      },
+      "confirmation": {
+        "title": "Pesanan terkirim",
+        "description": "Pesanan {reference} dibuat untuk {table}.",
+        "reference": "Referensi pesanan",
+        "status": "Status",
+        "items": "Item",
+        "subtotal": "Subtotal terutang",
+        "backendNotice": "Backend telah mengonfirmasi pesanan dan totalnya.",
+        "viewOrder": "Lihat detail pesanan",
+        "newOrder": "Mulai pesanan lain"
+      },
+      "mobileCart": {
+        "action": "Lihat keranjang · {count} item",
+        "empty": "Lihat keranjang"
+      }
+    },
     "loadErrorTitle": "Layar operasional ini tidak dapat dimuat",
     "errors": {
       "AUTH_REQUIRED": "Sesi Anda tidak lagi valid. Silakan masuk kembali.",
@@ -912,7 +1178,7 @@
   },
   "tables": {
     "title": "Meja",
-    "description": "Ketersediaan lantai terkini untuk {branch}.",
+    "description": "Atur meja dan pantau ketersediaan lantai untuk {branch}.",
     "eyebrow": "Operasional",
     "refresh": "Muat ulang",
     "backToDashboard": "Kembali ke dasbor",
@@ -922,30 +1188,67 @@
     "allAvailability": "Semua ketersediaan",
     "stats": {
       "total": "Meja",
-      "totalDescription": "Meja aktif di cabang ini",
+      "totalDescription": "Semua meja di cabang ini",
       "available": "Tersedia",
       "availableDescription": "Siap untuk tamu",
       "occupied": "Terisi",
-      "occupiedDescription": "Sesi makan aktif"
+      "occupiedDescription": "Sesi makan aktif",
+      "inactive": "Nonaktif",
+      "inactiveDescription": "Meja yang dinonaktifkan"
     },
     "tableLabel": "Meja",
     "capacity": "Kapasitas",
     "seats": "{count, plural, other {# kursi}}",
-    "session": "Sesi dibuka",
+    "sessionOpened": "Sesi dibuka",
     "noSession": "Tidak ada sesi aktif",
     "openHint": "Buka untuk mengelola sesi dan pesanan",
     "readOnlyHint": "Hanya baca untuk peran Anda",
     "viewTable": "Lihat meja",
     "restrictedNotice": "Peran Anda dapat melihat meja tetapi tidak dapat membuka atau menutup sesi makan.",
+    "manage": {
+      "createAction": "Meja baru",
+      "createTitle": "Buat meja",
+      "createDescription": "Tambahkan meja ke cabang ini. Identitas QR dibuat otomatis.",
+      "editAction": "Edit",
+      "editTitle": "Edit {table}",
+      "editDescription": "Perbarui label meja dan kapasitas kursi. Sesi dan pesanan yang ada tetap dipertahankan.",
+      "label": "Label meja",
+      "labelPlaceholder": "Misalnya, Meja 12 atau Teras A",
+      "capacity": "Kapasitas kursi",
+      "capacityHint": "Kapasitas harus antara 1 dan 32.767 kursi.",
+      "capacityPlaceholder": "Misalnya, 4",
+      "createConfirm": "Buat meja",
+      "saveConfirm": "Simpan perubahan",
+      "createSuccess": "Meja {table} berhasil dibuat.",
+      "editSuccess": "Meja {table} berhasil diperbarui.",
+      "viewCreated": "Lihat meja",
+      "close": "Tutup",
+      "cancel": "Batal",
+      "uncertain": "Permintaan mungkin sudah selesai. Muat ulang dan verifikasi meja sebelum mencoba lagi.",
+      "deactivatedLabel": "Dinonaktifkan",
+      "deactivateAction": "Nonaktifkan",
+      "deactivateTitle": "Nonaktifkan {table}?",
+      "deactivateDescription": "Meja nonaktif tidak dapat membuka sesi makan atau menerima pesanan baru. Riwayat pesanan tetap dipertahankan.",
+      "deactivateReason": "Alasan",
+      "deactivateReasonPlaceholder": "Catatan opsional untuk jejak audit",
+      "deactivateReasonHint": "Opsional. Disimpan bersama catatan audit meja.",
+      "deactivateConfirm": "Nonaktifkan meja",
+      "deactivateSuccess": "Meja {table} berhasil dinonaktifkan.",
+      "deactivateBlocked": "Tutup sesi makan aktif sebelum menonaktifkan meja ini.",
+      "deactivateInactive": "Meja ini sudah nonaktif.",
+      "reactivationUnavailable": "Aktivasi ulang meja belum didukung kontrak backend saat ini. Meja nonaktif tidak dapat dipulihkan dari halaman ini.",
+      "restrictedNotice": "Peran Anda dapat menggunakan meja untuk pesanan tetapi tidak dapat mengubah konfigurasi meja."
+    },
     "availability": {
       "available": "Tersedia",
-      "occupied": "Terisi"
+      "occupied": "Terisi",
+      "inactive": "Nonaktif"
     },
     "empty": {
       "filteredTitle": "Tidak ada meja yang cocok",
       "filteredDescription": "Coba kata pencarian lain atau hapus filter ketersediaan.",
       "title": "Belum ada meja",
-      "description": "Belum ada meja aktif yang dikonfigurasi untuk cabang ini."
+      "description": "Belum ada meja yang dikonfigurasi untuk cabang ini."
     },
     "loadingTitle": "Memuat meja",
     "detail": {

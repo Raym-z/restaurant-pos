@@ -132,8 +132,6 @@ test("unavailable modules are marked and never imply functional access", () => {
   assert.deepEqual(unavailableHrefs.sort(), [
     "/billing",
     "/kitchen",
-    "/menu",
-    "/pos",
     "/queue",
     "/reports",
     "/settings",

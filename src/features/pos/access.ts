@@ -1,4 +1,5 @@
 import type { StaffRole } from "@/types/roles";
+import { MANAGER_ROLES } from "@/types/roles";
 
 import type { OrderStatus, TransitionTargetStatus } from "./contracts";
 
@@ -9,6 +10,7 @@ import type { OrderStatus, TransitionTargetStatus } from "./contracts";
  */
 export const FLOOR_ROLES: readonly StaffRole[] = ["owner", "admin", "manager", "cashier"];
 export const KITCHEN_ROLES: readonly StaffRole[] = ["owner", "admin", "manager", "kitchen_staff"];
+export const TABLE_MANAGEMENT_ROLES: readonly StaffRole[] = MANAGER_ROLES;
 
 function hasAnyRole(roles: readonly StaffRole[], allowed: readonly StaffRole[]): boolean {
   return roles.some((role) => allowed.includes(role));
@@ -17,6 +19,11 @@ function hasAnyRole(roles: readonly StaffRole[], allowed: readonly StaffRole[]):
 /** Open/close dining sessions and create or edit orders. */
 export function canOperateFloor(roles: readonly StaffRole[]): boolean {
   return hasAnyRole(roles, FLOOR_ROLES);
+}
+
+/** Create, edit, and deactivate tables. Cashiers and kitchen staff cannot. */
+export function canManageTables(roles: readonly StaffRole[]): boolean {
+  return hasAnyRole(roles, TABLE_MANAGEMENT_ROLES);
 }
 
 /** Add/remove/update order items and cancel orders. */

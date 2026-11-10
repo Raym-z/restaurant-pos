@@ -29,7 +29,9 @@ export default async function TablesPage() {
     );
   }
 
-  const result = await loadTableOverview(viewerResult.viewer.branchId);
+  const result = await loadTableOverview(viewerResult.viewer.branchId, {
+    includeInactive: true,
+  });
   if (!result.ok) {
     return (
       <PosLoadError

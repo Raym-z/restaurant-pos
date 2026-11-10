@@ -12,6 +12,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "tsx --test \"src/**/*.test.ts\"",
+    "verify:hosted": "tsx scripts/verify-hosted-development.ts",
+    "verify:hosted:writes": "tsx scripts/verify-hosted-development.ts --allow-writes",
     "check": "npm run lint && npm run typecheck"
   },
   "dependencies": {

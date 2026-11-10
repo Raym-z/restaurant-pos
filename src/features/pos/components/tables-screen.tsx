@@ -1,6 +1,6 @@
 "use client";
 
-import { DoorOpen, RefreshCw, TableProperties, Users } from "lucide-react";
+import { DoorOpen, PowerOff, RefreshCw, TableProperties, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -8,7 +8,6 @@ import { useMemo, useState, useTransition } from "react";
 
 import { PageHeader, PageStack } from "@/components/layout/page";
 import { EmptyState } from "@/components/states/empty-state";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { SearchInput } from "@/components/ui/search-input";
@@ -17,36 +16,31 @@ import { StatCard } from "@/components/ui/stat-card";
 import { useLocalizedFormat } from "@/i18n/use-localized-format";
 import { useWorkspace } from "@/providers/workspace-provider";
 
-import type { TableAvailability } from "../contracts";
-import { canOperateFloor } from "../access";
+import { canManageTables, canOperateFloor } from "../access";
 import type { PosViewer, TableOverviewData } from "../types";
+import { DeactivateTableDialog } from "./deactivate-table-dialog";
 import { TableAvailabilityBadge } from "./pos-status-badges";
-
-type AvailabilityFilter = TableAvailability | "all";
+import { TableFormDialog } from "./table-form-dialog";
+import { filterTables, type TableAvailabilityFilter } from "../table-management";
 
 export function TablesScreen({ data, viewer }: { data: TableOverviewData; viewer: PosViewer }) {
   const t = useTranslations("tables");
+  const tManage = useTranslations("tables.manage");
   const tCommon = useTranslations("common");
   const format = useLocalizedFormat();
   const router = useRouter();
   const { activeBranch, organization } = useWorkspace();
   const [query, setQuery] = useState("");
-  const [availability, setAvailability] = useState<AvailabilityFilter>("all");
+  const [availability, setAvailability] = useState<TableAvailabilityFilter>("all");
   const [isRefreshing, startRefresh] = useTransition();
 
-  const visibleTables = useMemo(() => {
-    const normalized = query.trim().toLowerCase();
-    return data.tables.filter((table) => {
-      const matchesQuery =
-        !normalized ||
-        table.label.toLowerCase().includes(normalized) ||
-        (table.activeSessionId ?? "").toLowerCase().includes(normalized);
-      const matchesAvailability = availability === "all" || table.availability === availability;
-      return matchesQuery && matchesAvailability;
-    });
-  }, [availability, data.tables, query]);
+  const visibleTables = useMemo(
+    () => filterTables(data.tables, query, availability),
+    [availability, data.tables, query],
+  );
 
   const canOperate = canOperateFloor(viewer.roles);
+  const canManage = canManageTables(viewer.roles);
   const hasFilters = query.trim().length > 0 || availability !== "all";
 
   return (
@@ -56,18 +50,21 @@ export function TablesScreen({ data, viewer }: { data: TableOverviewData; viewer
         description={t("description", { branch: activeBranch.name })}
         eyebrow={t("eyebrow")}
         actions={
-          <Button
-            variant="secondary"
-            onClick={() => startRefresh(() => router.refresh())}
-            isLoading={isRefreshing}
-          >
-            <RefreshCw />
-            {t("refresh")}
-          </Button>
+          <>
+            <Button
+              variant="secondary"
+              onClick={() => startRefresh(() => router.refresh())}
+              isLoading={isRefreshing}
+            >
+              <RefreshCw />
+              {t("refresh")}
+            </Button>
+            {canManage ? <TableFormDialog mode="create" branchId={data.branchId} /> : null}
+          </>
         }
       />
 
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
           label={t("stats.total")}
           value={format.number(data.stats.total)}
@@ -86,6 +83,12 @@ export function TablesScreen({ data, viewer }: { data: TableOverviewData; viewer
           icon={Users}
           description={t("stats.occupiedDescription")}
         />
+        <StatCard
+          label={t("stats.inactive")}
+          value={format.number(data.stats.inactive)}
+          icon={PowerOff}
+          description={t("stats.inactiveDescription")}
+        />
       </div>
 
       <Card>
@@ -101,12 +104,13 @@ export function TablesScreen({ data, viewer }: { data: TableOverviewData; viewer
             <span className="sr-only">{t("filterAvailability")}</span>
             <Select
               value={availability}
-              onChange={(event) => setAvailability(event.target.value as AvailabilityFilter)}
+              onChange={(event) => setAvailability(event.target.value as TableAvailabilityFilter)}
               className="h-10 w-44"
             >
               <option value="all">{t("allAvailability")}</option>
               <option value="available">{t("availability.available")}</option>
               <option value="occupied">{t("availability.occupied")}</option>
+              <option value="inactive">{t("availability.inactive")}</option>
             </Select>
           </label>
         </div>
@@ -137,53 +141,75 @@ export function TablesScreen({ data, viewer }: { data: TableOverviewData; viewer
           ) : (
             <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
               {visibleTables.map((table) => (
-                <Link
-                  key={table.tableId}
-                  href={`/tables/${table.tableId}`}
-                  className="group rounded-xl border border-line bg-surface p-4 transition-colors hover:border-brand/40 hover:bg-brand-soft/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="text-[11px] font-semibold tracking-[0.14em] text-ink-subtle uppercase">
-                        {t("tableLabel")}
-                      </p>
-                      <h2 className="mt-1 truncate text-lg font-semibold tracking-tight text-ink group-hover:text-brand">
-                        {table.label}
-                      </h2>
+                <Card key={table.tableId} className="flex flex-col">
+                  <CardContent className="flex flex-1 flex-col gap-4 p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="text-[11px] font-semibold tracking-[0.14em] text-ink-subtle uppercase">
+                          {t("tableLabel")}
+                        </p>
+                        <Link
+                          href={`/tables/${table.tableId}`}
+                          className="mt-1 block truncate text-lg font-semibold tracking-tight text-ink hover:text-brand focus-visible:underline focus-visible:outline-none"
+                        >
+                          {table.label}
+                        </Link>
+                      </div>
+                      <TableAvailabilityBadge availability={table.availability} />
                     </div>
-                    <TableAvailabilityBadge availability={table.availability} />
-                  </div>
 
-                  <dl className="mt-4 space-y-1.5 text-sm">
-                    <div className="flex items-center justify-between gap-3">
-                      <dt className="text-ink-muted">{t("capacity")}</dt>
-                      <dd className="font-medium text-ink">
-                        {t("seats", { count: table.capacity })}
-                      </dd>
-                    </div>
-                    <div className="flex items-center justify-between gap-3">
-                      <dt className="text-ink-muted">{t("session")}</dt>
-                      <dd className="text-right font-medium text-ink">
-                        {table.activeSessionOpenedAt
-                          ? format.dateTime(table.activeSessionOpenedAt, organization.timezone)
-                          : t("noSession")}
-                      </dd>
-                    </div>
-                  </dl>
+                    <dl className="space-y-1.5 text-sm">
+                      <div className="flex items-center justify-between gap-3">
+                        <dt className="text-ink-muted">{t("capacity")}</dt>
+                        <dd className="font-medium text-ink">
+                          {t("seats", { count: table.capacity })}
+                        </dd>
+                      </div>
+                      <div className="flex items-center justify-between gap-3">
+                        <dt className="text-ink-muted">{t("sessionOpened")}</dt>
+                        <dd className="text-right font-medium text-ink">
+                          {table.activeSessionOpenedAt
+                            ? format.dateTime(table.activeSessionOpenedAt, organization.timezone)
+                            : t("noSession")}
+                        </dd>
+                      </div>
+                      {table.status === "inactive" && table.deactivatedAt ? (
+                        <div className="flex items-center justify-between gap-3">
+                          <dt className="text-ink-muted">{tManage("deactivatedLabel")}</dt>
+                          <dd className="text-right font-medium text-ink">
+                            {format.dateTime(table.deactivatedAt, organization.timezone)}
+                          </dd>
+                        </div>
+                      ) : null}
+                    </dl>
 
-                  <div className="mt-4 flex items-center justify-between gap-2 border-t border-line pt-3">
-                    <span className="text-xs text-ink-subtle">
-                      {canOperate ? t("openHint") : t("readOnlyHint")}
-                    </span>
-                    <Badge variant="outline">{t("viewTable")}</Badge>
-                  </div>
-                </Link>
+                    <div className="mt-auto flex flex-wrap items-center justify-between gap-2 border-t border-line pt-3">
+                      <Button asChild variant="ghost" size="sm">
+                        <Link href={`/tables/${table.tableId}`}>{t("viewTable")}</Link>
+                      </Button>
+                      {canManage ? (
+                        <div className="flex flex-wrap items-center gap-2">
+                          <TableFormDialog mode="edit" branchId={data.branchId} table={table} />
+                          {table.status === "active" ? (
+                            <DeactivateTableDialog table={table} />
+                          ) : null}
+                        </div>
+                      ) : (
+                        <span className="text-xs text-ink-subtle">{t("readOnlyHint")}</span>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
               ))}
             </div>
           )}
         </CardContent>
       </Card>
 
+      {canManage && data.stats.inactive > 0 ? (
+        <p className="text-sm text-ink-muted">{tManage("reactivationUnavailable")}</p>
+      ) : null}
+      {!canManage ? <p className="text-sm text-ink-muted">{tManage("restrictedNotice")}</p> : null}
       {!canOperate ? <p className="text-sm text-ink-muted">{t("restrictedNotice")}</p> : null}
     </PageStack>
   );

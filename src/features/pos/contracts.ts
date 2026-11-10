@@ -211,6 +211,38 @@ export const ListBranchTablesResponseSchema = z.object({
 
 export type ListBranchTablesResponse = z.infer<typeof ListBranchTablesResponseSchema>;
 
+export const TableInputSchema = z
+  .object({
+    label: z.string().trim().min(1).max(80),
+    capacity: z.number().int().min(1).max(32767),
+  })
+  .strict();
+
+export type TableInput = z.infer<typeof TableInputSchema>;
+
+export const CreateTableResponseSchema = z.object({
+  tableId: UuidSchema,
+  branchId: UuidSchema,
+  qrPublicId: UuidSchema,
+});
+
+export type CreateTableResponse = z.infer<typeof CreateTableResponseSchema>;
+
+export const UpdateTableResponseSchema = z.object({
+  tableId: UuidSchema,
+  label: z.string().min(1).max(80),
+  capacity: z.number().int().min(1).max(32767),
+});
+
+export type UpdateTableResponse = z.infer<typeof UpdateTableResponseSchema>;
+
+export const DeactivateTableResponseSchema = z.object({
+  tableId: UuidSchema,
+  status: z.literal("inactive"),
+});
+
+export type DeactivateTableResponse = z.infer<typeof DeactivateTableResponseSchema>;
+
 export const GetActiveDiningSessionResponseSchema = z.object({
   tableId: UuidSchema,
   activeSession: DiningSessionDetailSchema.nullable(),

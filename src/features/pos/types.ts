@@ -73,6 +73,7 @@ export interface TableOverviewStats {
   total: number;
   available: number;
   occupied: number;
+  inactive: number;
 }
 
 export interface TableOverviewData {
@@ -85,6 +86,12 @@ export interface TableDetailData {
   table: TableSummary;
   activeSession: DiningSessionDetail | null;
   menu: PosMenu | null;
+}
+
+/** Table state plus its active session, without reloading the menu. */
+export interface TableSessionData {
+  table: TableSummary;
+  activeSession: DiningSessionDetail | null;
 }
 
 export interface OrderDetailData {

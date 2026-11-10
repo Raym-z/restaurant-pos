@@ -65,7 +65,6 @@ export const NAVIGATION_SECTIONS: readonly NavSection[] = [
       {
         titleKey: "navigation.items.pos",
         href: "/pos",
-        availability: "unavailable",
         icon: ShoppingCart,
         access: { roles: FLOOR },
       },
@@ -111,7 +110,6 @@ export const NAVIGATION_SECTIONS: readonly NavSection[] = [
         titleKey: "navigation.items.menu",
         href: "/menu",
         icon: UtensilsCrossed,
-        availability: "unavailable",
       },
       {
         titleKey: "navigation.items.staff",

@@ -159,6 +159,8 @@
     "duplicateEmail": "Another staff member already uses this email address.",
     "duplicateCategory": "Another category already uses this name.",
     "duplicateItem": "This category already contains an item with that name.",
+    "invalidSortOrder": "Sort order must be a whole number of 0 or greater.",
+    "invalidTableCapacity": "Capacity must be a whole number between 1 and {max}.",
     "assignmentCount": "Select exactly one role for this staff member.",
     "ownerScope": "Organization owners must have organization-wide access.",
     "adminScope": "Organization-scoped admins must not be tied to a single branch.",
@@ -199,7 +201,9 @@
       "itemName": "Item name",
       "itemDescription": "Item description",
       "basePrice": "Base price",
-      "tags": "Tags"
+      "tags": "Tags",
+      "tableLabel": "Table label",
+      "tableCapacity": "Seating capacity"
     }
   },
   "meta": {
@@ -583,6 +587,161 @@
       "save": "Save changes"
     }
   },
+  "menuAdmin": {
+    "title": "Menu",
+    "description": "Manage categories, pricing, and branch availability.",
+    "readOnlyTitle": "Read-only menu",
+    "readOnlyDescription": "You can review the menu. Catalog changes require an organization owner or admin; branch availability follows your branch role.",
+    "loadErrorTitle": "The menu could not be loaded",
+    "backToMenu": "Back to menu",
+    "backToDashboard": "Back to dashboard",
+    "categoriesAction": "Categories",
+    "newItem": "New item",
+    "newCategory": "New category",
+    "newItemTitle": "New menu item",
+    "newItemDescription": "Add an item to a category with a base price.",
+    "searchItems": "Search menu items",
+    "searchItemsPlaceholder": "Search by item name, description, or category",
+    "searchCategories": "Search categories",
+    "searchCategoriesPlaceholder": "Search by category name or description",
+    "allCategories": "All categories",
+    "allStatuses": "All statuses",
+    "table": {
+      "item": "Menu item",
+      "category": "Category",
+      "basePrice": "Base price",
+      "availability": "Branch availability",
+      "sortOrder": "Sort order",
+      "status": "Status",
+      "updated": "Updated",
+      "actions": "Actions",
+      "items": "Items",
+      "branch": "Branch"
+    },
+    "availabilityCount": "{available} of {total} {total, plural, one {branch} other {branches}}",
+    "branchPriceOverride": "Branch price override",
+    "uncategorized": "Uncategorized",
+    "stats": {
+      "categories": "Categories",
+      "categoriesDescription": "Active and archived categories",
+      "items": "Menu items",
+      "itemsDescription": "Active and archived items",
+      "activeItems": "Active items",
+      "activeItemsDescription": "Items available to order",
+      "archivedItems": "Archived items",
+      "archivedItemsDescription": "Items retained for history"
+    },
+    "empty": {
+      "filteredTitle": "No menu items match these filters",
+      "filteredDescription": "Try a different search term, category, or status.",
+      "title": "No menu items yet",
+      "description": "Create a category, then add the first menu item.",
+      "categoriesTitle": "No categories yet",
+      "categoriesDescription": "Create the first category before adding menu items.",
+      "categoriesFilteredTitle": "No categories match",
+      "categoriesFilteredDescription": "Try a different search term."
+    },
+    "item": {
+      "eyebrow": "Menu item",
+      "back": "Back to menu",
+      "edit": "Edit item",
+      "noDescription": "No description",
+      "pricing": "Pricing",
+      "basePrice": "Base price",
+      "category": "Category",
+      "sortOrder": "Sort order",
+      "created": "Created",
+      "lastUpdated": "Last updated",
+      "details": "Item details",
+      "branchAvailability": "Branch availability",
+      "branchAvailabilityDescription": "Availability applies to this item only. An archived item is not orderable at any branch.",
+      "effectivePrice": "Effective price",
+      "branchOverride": "Branch override",
+      "noBranches": "No accessible branches",
+      "noBranchesDescription": "This account does not have access to any active branches.",
+      "archivedTitle": "Archived item",
+      "archivedDescription": "Archived items cannot be restored with the current backend. They remain visible for history.",
+      "categoryArchivedTitle": "Category archived",
+      "categoryArchivedDescription": "This item's category is archived, so the item is not orderable. The current backend cannot restore archived categories.",
+      "toggleUnavailable": "Mark unavailable at this branch",
+      "toggleAvailable": "Mark available at this branch"
+    },
+    "categories": {
+      "title": "Categories",
+      "description": "Organize menu items into categories shared by every branch.",
+      "back": "Back to categories",
+      "backToItems": "Back to items",
+      "archivedDescription": "Archived categories cannot be restored with the current backend. They remain visible for history."
+    },
+    "form": {
+      "newItemTitle": "New menu item",
+      "newItemDescription": "Add an item to a category with a base price.",
+      "editItemTitle": "Edit {name}",
+      "editItemDescription": "Update the item name, description, price, and sort order.",
+      "newCategoryTitle": "New category",
+      "newCategoryDescription": "Create a category to group menu items.",
+      "editCategoryTitle": "Edit {name}",
+      "editCategoryDescription": "Update how this category appears in the menu.",
+      "sections": {
+        "details": "Details",
+        "detailsDescription": "Name, description, and display order.",
+        "pricing": "Pricing",
+        "pricingDescription": "Prices use the organization currency."
+      },
+      "fields": {
+        "name": "Name",
+        "category": "Category",
+        "description": "Description",
+        "basePrice": "Base price",
+        "sortOrder": "Sort order"
+      },
+      "hints": {
+        "description": "Up to {max} characters.",
+        "price": "Enter a price greater than zero in {currency}.",
+        "sortOrder": "Lower numbers appear first.",
+        "categoryLocked": "An item's category cannot be changed after creation."
+      },
+      "placeholders": {
+        "name": "Lamb Kofta Plate",
+        "category": "Choose a category",
+        "description": "Charred lamb kofta, green tahini, sumac onions, and grilled pita.",
+        "price": "65000",
+        "sortOrder": "0"
+      },
+      "createItem": "Create item",
+      "saveItem": "Save item",
+      "createCategory": "Create category",
+      "saveCategory": "Save category"
+    },
+    "archive": {
+      "action": "Archive",
+      "categoryTitle": "Archive {name}?",
+      "categoryDescription": "The category will be hidden from active menus but remains visible for history.",
+      "itemTitle": "Archive {name}?",
+      "itemDescription": "The item will be hidden from every branch but remains visible for history.",
+      "warning": "Archiving cannot be undone with the current backend.",
+      "archivedNote": "Archived records cannot be restored with the current backend. They remain visible for history.",
+      "confirm": "Archive",
+      "keep": "Keep"
+    },
+    "errors": {
+      "AUTH_REQUIRED": "Your session has expired. Sign in again.",
+      "PERMISSION_DENIED": "You do not have permission to manage the menu.",
+      "ROLE_REQUIRED": "Only organization owners and admins can manage the menu.",
+      "ORGANIZATION_NOT_OPERATIONAL": "This organization is not operational.",
+      "SUBSCRIPTION_RESTRICTED": "Menu changes are blocked while the subscription is restricted.",
+      "MENU_ITEM_NOT_FOUND": "The menu category or item could not be found.",
+      "INVALID_MENU_PRICE": "Enter a valid, positive price.",
+      "VALIDATION_ERROR": "Check the submitted menu details.",
+      "BRANCH_NOT_FOUND": "The branch could not be found.",
+      "BRANCH_ACCESS_DENIED": "You do not have access to this branch.",
+      "RESOURCE_CONFLICT": "This change conflicts with existing menu data.",
+      "RATE_LIMIT_EXCEEDED": "Too many requests. Try again shortly.",
+      "SERVICE_UNAVAILABLE": "The backend is temporarily unavailable. Try again.",
+      "INVALID_RESPONSE": "The backend completed the request, but its response could not be read. Refresh before retrying.",
+      "INTERNAL_ERROR": "The menu operation could not be completed."
+    }
+  },
   "menu": {
     "title": "Menu",
     "description": "Manage categories, pricing, tags, and branch availability.",
@@ -868,6 +1027,113 @@
     }
   },
   "pos": {
+    "ordering": {
+      "title": "Point of Sale",
+      "eyebrow": "Operate",
+      "description": "Take orders for {branch}.",
+      "refresh": "Refresh",
+      "backToDashboard": "Back to dashboard",
+      "restrictedNotice": "Your role can view this screen but cannot take orders.",
+      "selectTableTitle": "Select a table",
+      "selectTableDescription": "Choose an available table to open a session, or resume an occupied table.",
+      "noTablesTitle": "No tables available",
+      "noTablesDescription": "No active table has been configured for {branch}.",
+      "manageTables": "Manage tables",
+      "tableCard": {
+        "capacity": "{count} seats",
+        "available": "Available",
+        "occupied": "Occupied",
+        "availableDescription": "Ready to open a dining session.",
+        "openedAt": "Opened {time}",
+        "current": "Current table",
+        "select": "Select table",
+        "resume": "Resume session"
+      },
+      "changeTable": "Change table",
+      "changeTableTitle": "Change table",
+      "changeTableDescription": "Select another table for this order at {branch}.",
+      "changeTableCartWarning": "Your cart belongs to {table}. Switching tables clears the current cart; submitted orders are not affected.",
+      "changeTableConfirm": "Switch to {table} and clear cart",
+      "changeTableCancel": "Stay on this table",
+      "session": {
+        "table": "Table",
+        "status": "Session status",
+        "active": "Active",
+        "orders": "Orders",
+        "orderCounts": "{total} total · {active} active",
+        "subtotal": "Session subtotal"
+      },
+      "openSession": {
+        "title": "Open a dining session",
+        "description": "Open a session for {table} to start taking orders.",
+        "notice": "Only one active session can exist per table.",
+        "action": "Open session and start order"
+      },
+      "menu": {
+        "title": "Menu",
+        "description": "Browse the branch menu and add items to the cart.",
+        "emptyTitle": "No menu items available",
+        "emptyDescription": "There are no active, branch-available menu items right now.",
+        "manageMenu": "Open menu management"
+      },
+      "cart": {
+        "title": "Current order",
+        "addToCart": "Add to cart",
+        "lineCount": "{count, plural, one {# line} other {# lines}}",
+        "itemCount": "{count, plural, one {# item} other {# items}}",
+        "emptyTitle": "Cart is empty",
+        "emptyDescription": "Add menu items to start this order.",
+        "subtotal": "Subtotal",
+        "estimatedNotice": "The backend confirms final prices, availability, and totals when the order is submitted.",
+        "orderNotes": "Order notes",
+        "orderNotesPlaceholder": "Optional instructions for the whole order",
+        "clear": "Clear cart",
+        "clearTitle": "Clear this cart?",
+        "clearDescription": "All items in the current cart will be removed. Submitted orders are not affected.",
+        "clearConfirm": "Clear cart",
+        "clearCancel": "Keep cart",
+        "removeLine": "Remove item",
+        "decreaseQuantity": "Decrease quantity",
+        "increaseQuantity": "Increase quantity",
+        "submit": "Send order",
+        "retry": "Retry submission",
+        "uncertainTitle": "Submission outcome is uncertain",
+        "uncertainDescription": "The request may have reached the backend. The cart was preserved. Retrying uses the same idempotency key; check the session orders before starting a different order.",
+        "cartIsolationTitle": "Cart belongs to another session",
+        "cartIsolationDescription": "The selected dining session changed. To avoid attaching items to the wrong session, clear this cart before continuing.",
+        "cartIsolationAction": "Clear cart and continue"
+      },
+      "orders": {
+        "title": "Orders in this session",
+        "description": "Existing orders for the active dining session.",
+        "emptyTitle": "No orders yet",
+        "emptyDescription": "The first order for this session will appear here.",
+        "itemCount": "{count, plural, one {# item} other {# items}}",
+        "payable": "Payable subtotal",
+        "historical": "Historical {amount}",
+        "view": "View order"
+      },
+      "closedSession": {
+        "title": "No active dining session",
+        "description": "This table has no open session. Previous orders remain available in the order history.",
+        "viewOrders": "View order history"
+      },
+      "confirmation": {
+        "title": "Order submitted",
+        "description": "Order {reference} was created for {table}.",
+        "reference": "Order reference",
+        "status": "Status",
+        "items": "Items",
+        "subtotal": "Payable subtotal",
+        "backendNotice": "The backend confirmed this order and its total.",
+        "viewOrder": "View order details",
+        "newOrder": "Start another order"
+      },
+      "mobileCart": {
+        "action": "View cart · {count} items",
+        "empty": "View cart"
+      }
+    },
     "loadErrorTitle": "This operational screen could not be loaded",
     "errors": {
       "AUTH_REQUIRED": "Your session is no longer valid. Sign in again.",
@@ -907,7 +1173,7 @@
   },
   "tables": {
     "title": "Tables",
-    "description": "Live floor availability for {branch}.",
+    "description": "Configure tables and monitor floor availability for {branch}.",
     "eyebrow": "Operate",
     "refresh": "Refresh",
     "backToDashboard": "Back to dashboard",
@@ -917,30 +1183,67 @@
     "allAvailability": "All availability",
     "stats": {
       "total": "Tables",
-      "totalDescription": "Active tables at this branch",
+      "totalDescription": "All tables at this branch",
       "available": "Available",
       "availableDescription": "Ready to seat guests",
       "occupied": "Occupied",
-      "occupiedDescription": "Active dining sessions"
+      "occupiedDescription": "Active dining sessions",
+      "inactive": "Inactive",
+      "inactiveDescription": "Deactivated tables"
     },
     "tableLabel": "Table",
     "capacity": "Capacity",
     "seats": "{count, plural, one {# seat} other {# seats}}",
-    "session": "Session opened",
+    "sessionOpened": "Session opened",
     "noSession": "No active session",
     "openHint": "Open to manage the session and orders",
     "readOnlyHint": "Read-only for your role",
     "viewTable": "View table",
     "restrictedNotice": "Your role can view tables but cannot open or close dining sessions.",
+    "manage": {
+      "createAction": "New table",
+      "createTitle": "Create a table",
+      "createDescription": "Add a table to this branch. A QR identifier is created automatically.",
+      "editAction": "Edit",
+      "editTitle": "Edit {table}",
+      "editDescription": "Update the table label and seating capacity. Existing sessions and orders are preserved.",
+      "label": "Table label",
+      "labelPlaceholder": "For example, Table 12 or Patio A",
+      "capacity": "Seating capacity",
+      "capacityHint": "Capacity must be between 1 and 32,767 seats.",
+      "capacityPlaceholder": "For example, 4",
+      "createConfirm": "Create table",
+      "saveConfirm": "Save changes",
+      "createSuccess": "Table {table} was created.",
+      "editSuccess": "Table {table} was updated.",
+      "viewCreated": "View table",
+      "close": "Close",
+      "cancel": "Cancel",
+      "uncertain": "The request may have completed. Refresh and verify the table before retrying.",
+      "deactivatedLabel": "Deactivated",
+      "deactivateAction": "Deactivate",
+      "deactivateTitle": "Deactivate {table}?",
+      "deactivateDescription": "Inactive tables cannot open dining sessions or receive new orders. Existing order history is preserved.",
+      "deactivateReason": "Reason",
+      "deactivateReasonPlaceholder": "Optional note for the audit trail",
+      "deactivateReasonHint": "Optional. Stored with the table audit record.",
+      "deactivateConfirm": "Deactivate table",
+      "deactivateSuccess": "Table {table} was deactivated.",
+      "deactivateBlocked": "Close the active dining session before deactivating this table.",
+      "deactivateInactive": "This table is already inactive.",
+      "reactivationUnavailable": "Table reactivation is not supported by the current backend contract. An inactive table cannot be restored from this page.",
+      "restrictedNotice": "Your role can use tables for orders but cannot change table configuration."
+    },
     "availability": {
       "available": "Available",
-      "occupied": "Occupied"
+      "occupied": "Occupied",
+      "inactive": "Inactive"
     },
     "empty": {
       "filteredTitle": "No tables match these filters",
       "filteredDescription": "Try a different search term or clear the availability filter.",
       "title": "No tables yet",
-      "description": "No active table has been configured for this branch."
+      "description": "No table has been configured for this branch."
     },
     "loadingTitle": "Loading tables",
     "detail": {

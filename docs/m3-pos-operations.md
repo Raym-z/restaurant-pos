@@ -123,7 +123,39 @@ screens.
 - **Per-branch human order display numbering** is deferred by the backend;
   `orderReference` is displayed as published.
 
-## 7. Manual verification
+## 7. Hosted Development status
+
+Verified against `bnticbeepxwhrzimouuh` using
+`npm run verify:hosted` (Owner sign-in, publishable key only):
+
+- All POS-facing M2.1 and M3 RPCs are present and executable by an
+  authenticated staff session; the anonymous role is denied.
+- Workspace, organization, Owner role, and branch loading succeed.
+- `list_branch_tables`, `list_branch_orders`, `get_order`,
+  `get_dining_session`, and menu reads parse with the frontend schemas.
+- Unknown branch, table, session, order, and order-item identifiers are
+  rejected with the documented application error codes.
+- The unauthenticated role receives `42501` for every POS RPC.
+
+`npm run verify:hosted:writes` additionally performs an approved disposable
+write lifecycle. It creates a uniquely labelled category, menu item, and
+table; opens a session; creates orders; verifies authoritative totals, order
+references, idempotent replay and conflict handling, add/update/remove item
+operations, the full pending → completed transition chain, zero-item
+served/completed rejection, cancellation with historical totals, terminal
+guards, and session close. It then archives the menu records and deactivates
+the table.
+
+No hard-delete RPC exists. Archived menu records, deactivated tables, closed
+sessions, and terminal orders remain in Development as identifiable
+`POS-VERIFY-*` history; the run prints the exact fixture, session, and order
+IDs. The Development organization currently has one active branch, so live
+branch switching and non-Owner role behavior (Manager, Cashier, Kitchen Staff,
+revocation/inactive assignment) were not exercised with separate staff
+accounts. Those behaviors are covered by unit tests and the backend's own
+authorization suite; creating additional staff accounts was out of scope.
+
+## 8. Manual verification
 
 1. Sign in as a floor role with access to the active branch.
 2. Open **Tables** and verify available/occupied counts and table cards.

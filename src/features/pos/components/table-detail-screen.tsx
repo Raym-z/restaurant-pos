@@ -15,25 +15,29 @@ import { Separator } from "@/components/ui/separator";
 import { useLocalizedFormat } from "@/i18n/use-localized-format";
 import { useWorkspace } from "@/providers/workspace-provider";
 
-import { canOperateFloor } from "../access";
+import { canManageTables, canOperateFloor } from "../access";
 import { resolveBranchContext } from "../branch-context";
 import type { OrderSummary } from "../contracts";
 import type { PosViewer, TableDetailData } from "../types";
 import { CloseSessionDialog } from "./close-session-dialog";
 import { CreateOrderDialog } from "./create-order-dialog";
+import { DeactivateTableDialog } from "./deactivate-table-dialog";
 import { OpenSessionDialog } from "./open-session-dialog";
 import { OrderStatusBadge, TableAvailabilityBadge } from "./pos-status-badges";
+import { TableFormDialog } from "./table-form-dialog";
 
 export function TableDetailScreen({ data, viewer }: { data: TableDetailData; viewer: PosViewer }) {
   const t = useTranslations("tables.detail");
   const tSession = useTranslations("tables.session");
   const tOrder = useTranslations("tables.order");
+  const tManage = useTranslations("tables.manage");
   const format = useLocalizedFormat();
   const router = useRouter();
   const { branches, organization } = useWorkspace();
   const [isRefreshing, startRefresh] = useTransition();
   const { table, activeSession, menu } = data;
   const canOperate = canOperateFloor(viewer.roles);
+  const canManage = canManageTables(viewer.roles);
   const branchContext = resolveBranchContext({
     branches,
     branchId: table.branchId,
@@ -53,6 +57,8 @@ export function TableDetailScreen({ data, viewer }: { data: TableDetailData; vie
       >
         {t("refresh")}
       </Button>
+      {canManage ? <TableFormDialog mode="edit" branchId={table.branchId} table={table} /> : null}
+      {canManage && table.status === "active" ? <DeactivateTableDialog table={table} /> : null}
       {!activeSession && table.availability === "available" && canOperate ? (
         <OpenSessionDialog tableId={table.tableId} tableLabel={table.label} />
       ) : null}
@@ -103,6 +109,14 @@ export function TableDetailScreen({ data, viewer }: { data: TableDetailData; vie
               <div className="flex items-center justify-between gap-3">
                 <span className="text-ink-muted">{t("qr")}</span>
                 <Badge variant="outline">{t("qrLinked")}</Badge>
+              </div>
+            ) : null}
+            {table.status === "inactive" && table.deactivatedAt ? (
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-ink-muted">{tManage("deactivatedLabel")}</span>
+                <span className="text-right font-medium text-ink">
+                  {format.dateTime(table.deactivatedAt, branchTimezone)}
+                </span>
               </div>
             ) : null}
           </CardContent>
@@ -222,6 +236,10 @@ export function TableDetailScreen({ data, viewer }: { data: TableDetailData; vie
       </PageSection>
 
       {!canOperate ? <p className="text-sm text-ink-muted">{t("restrictedNotice")}</p> : null}
+      {!canManage ? <p className="text-sm text-ink-muted">{tManage("restrictedNotice")}</p> : null}
+      {canManage && table.status === "inactive" ? (
+        <p className="text-sm text-ink-muted">{tManage("reactivationUnavailable")}</p>
+      ) : null}
     </PageStack>
   );
 }

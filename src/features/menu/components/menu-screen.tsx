@@ -1,7 +1,7 @@
 "use client";
 
-import { Plus, Tags, UtensilsCrossed } from "lucide-react";
-import { useLocale, useTranslations } from "next-intl";
+import { Archive, CircleCheck, Plus, Tags, UtensilsCrossed } from "lucide-react";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
@@ -14,148 +14,118 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { SearchInput } from "@/components/ui/search-input";
 import { Select } from "@/components/ui/select";
-import { useMockData } from "@/features/shared/mock-data-provider";
-import { useWorkspace } from "@/providers/workspace-provider";
+import { StatCard } from "@/components/ui/stat-card";
 import { useLocalizedFormat } from "@/i18n/use-localized-format";
-import { useStatusLabel, useTagLabel } from "@/i18n/use-labels";
-import type { MenuItem, MenuItemStatus } from "../types";
-import {
-  availableBranchCount,
-  filterMenuItems,
-  localizeMenuCategory,
-  localizeMenuItem,
-} from "../selectors";
+import { useStatusLabel } from "@/i18n/use-labels";
+
+import type { MenuItemView, MenuOverviewData, MenuStatus } from "../models";
+import { MenuReadOnlyNotice } from "./menu-read-only-notice";
 
 const PAGE_SIZE = 10;
 
-const STATUS_BADGES: Record<MenuItemStatus, "success" | "warning" | "neutral"> = {
-  available: "success",
-  unavailable: "warning",
+const STATUS_BADGES: Record<MenuStatus, "success" | "neutral"> = {
+  active: "success",
   archived: "neutral",
 };
 
-export function MenuScreen() {
-  const { menuItems, menuCategories } = useMockData();
-  const { branches, organization, activeBranch, setActiveBranch } = useWorkspace();
-  const locale = useLocale();
-  const t = useTranslations("menu");
+export function MenuScreen({ data }: { data: MenuOverviewData }) {
+  const t = useTranslations("menuAdmin");
   const tCommon = useTranslations("common");
   const statusLabel = useStatusLabel();
-  const tagLabel = useTagLabel();
   const format = useLocalizedFormat();
+
   const [query, setQuery] = useState("");
   const [categoryId, setCategoryId] = useState("all");
-  const [status, setStatus] = useState<MenuItemStatus | "all">("all");
-  // `null` follows the workspace's active branch. Selecting "All branches"
-  // stores an explicit override; a header branch change clears it again.
-  const [branchOverride, setBranchOverride] = useState<string | null>(null);
-  const [lastActiveBranchId, setLastActiveBranchId] = useState(activeBranch.id);
+  const [status, setStatus] = useState<MenuStatus | "all">("all");
   const [page, setPage] = useState(1);
 
-  if (lastActiveBranchId !== activeBranch.id) {
-    setLastActiveBranchId(activeBranch.id);
-    setBranchOverride(null);
-    setPage(1);
-  }
+  const activeItems = data.items.filter((item) => item.status === "active").length;
+  const archivedItems = data.items.length - activeItems;
 
-  const branchId = branchOverride ?? activeBranch.id;
+  const visibleItems = useMemo(() => {
+    const normalized = query.trim().toLowerCase();
+    return data.items.filter((item) => {
+      const matchesQuery =
+        !normalized ||
+        item.name.toLowerCase().includes(normalized) ||
+        (item.description ?? "").toLowerCase().includes(normalized) ||
+        (item.categoryName ?? "").toLowerCase().includes(normalized);
+      const matchesCategory = categoryId === "all" || item.categoryId === categoryId;
+      const matchesStatus = status === "all" || item.status === status;
+      return matchesQuery && matchesCategory && matchesStatus;
+    });
+  }, [categoryId, data.items, query, status]);
 
-  const categoryById = useMemo(
-    () => new Map(menuCategories.map((category) => [category.id, category])),
-    [menuCategories],
-  );
-
-  const visibleItems = filterMenuItems(menuItems, {
-    query,
-    categoryId,
-    status,
-    branchId,
-    locale,
-    tagLabel,
-  });
   const totalPages = Math.max(1, Math.ceil(visibleItems.length / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
   const pageRows = visibleItems.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
-  const hasFilters =
-    query.trim().length > 0 || categoryId !== "all" || status !== "all" || branchId !== "all";
+  const hasFilters = query.trim().length > 0 || categoryId !== "all" || status !== "all";
+
+  const categoriesForFilter = useMemo(
+    () => [...data.categories].sort((left, right) => left.sortOrder - right.sortOrder),
+    [data.categories],
+  );
 
   function resetPage() {
     setPage(1);
   }
 
-  const categoriesForFilter = [...menuCategories].sort(
-    (left, right) => left.sortOrder - right.sortOrder,
-  );
-
-  const columns: Array<DataTableColumn<MenuItem>> = [
+  const columns: Array<DataTableColumn<MenuItemView>> = [
     {
       id: "item",
       header: t("table.item"),
       className: "min-w-[240px]",
-      cell: (item) => {
-        const content = localizeMenuItem(item, locale);
-        return (
-          <div className="max-w-xs">
-            <Link href={`/menu/items/${item.id}`} className="font-medium text-ink hover:text-brand">
-              {content.name}
-            </Link>
-            <p className="line-clamp-1 text-xs text-ink-subtle">{content.description}</p>
-            {item.tags.length > 0 ? (
-              <div className="mt-1 flex flex-wrap gap-1">
-                {item.tags.slice(0, 3).map((tag) => (
-                  <Badge key={tag} variant="outline">
-                    {tagLabel(tag)}
-                  </Badge>
-                ))}
-              </div>
-            ) : null}
-          </div>
-        );
-      },
+      cell: (item) => (
+        <div className="max-w-xs">
+          <Link href={`/menu/items/${item.id}`} className="font-medium text-ink hover:text-brand">
+            {item.name}
+          </Link>
+          <p className="line-clamp-1 text-xs text-ink-subtle">
+            {item.description || t("item.noDescription")}
+          </p>
+        </div>
+      ),
     },
     {
       id: "category",
       header: t("table.category"),
       className: "whitespace-nowrap",
-      cell: (item) => {
-        const category = categoryById.get(item.categoryId);
-        return (
-          <span className="text-ink-muted">
-            {category ? localizeMenuCategory(category, locale).name : t("uncategorized")}
-          </span>
-        );
-      },
+      cell: (item) => (
+        <span className="inline-flex flex-wrap items-center gap-2 text-ink-muted">
+          {item.categoryName ?? t("uncategorized")}
+          {item.categoryArchived ? (
+            <Badge variant="neutral">{statusLabel("archived")}</Badge>
+          ) : null}
+        </span>
+      ),
     },
     {
       id: "price",
       header: t("table.basePrice"),
       align: "right",
-      cell: (item) => <span className="font-medium text-ink">{format.money(item.basePrice)}</span>,
+      cell: (item) => (
+        <span className="font-medium text-ink">
+          {format.currencyAmount(item.basePriceMinor, item.currency)}
+        </span>
+      ),
     },
     {
       id: "availability",
       header: t("table.availability"),
       className: "whitespace-nowrap",
-      cell: (item) => {
-        const availableCount = availableBranchCount(
-          item,
-          branches.map((branch) => branch.id),
-        );
-        const hasOverride = item.branchAvailability.some((entry) => entry.priceOverride !== null);
-        return (
-          <div>
-            <span className="text-ink">
-              {t("availabilityCount", {
-                available: availableCount,
-                total: branches.length,
-              })}
-            </span>
-            {hasOverride ? (
-              <div className="text-xs text-ink-subtle">{t("branchPriceOverride")}</div>
-            ) : null}
-          </div>
-        );
-      },
+      cell: (item) => (
+        <div>
+          <span className="text-ink">
+            {t("availabilityCount", {
+              available: item.availableBranchCount,
+              total: data.branches.length,
+            })}
+          </span>
+          {item.hasPriceOverride ? (
+            <div className="text-xs text-ink-subtle">{t("branchPriceOverride")}</div>
+          ) : null}
+        </div>
+      ),
     },
     {
       id: "status",
@@ -168,9 +138,7 @@ export function MenuScreen() {
       id: "updated",
       header: t("table.updated"),
       cell: (item) => (
-        <span className="text-ink-muted">
-          {format.dateOnly(item.updatedAt, organization.timezone)}
-        </span>
+        <span className="text-ink-muted">{format.dateOnly(item.updatedAt, data.timezone)}</span>
       ),
     },
     {
@@ -178,9 +146,16 @@ export function MenuScreen() {
       header: <span className="sr-only">{t("table.actions")}</span>,
       align: "right",
       cell: (item) => (
-        <Button asChild variant="ghost" size="sm">
-          <Link href={`/menu/items/${item.id}`}>{tCommon("view")}</Link>
-        </Button>
+        <div className="flex justify-end gap-2">
+          <Button asChild variant="ghost" size="sm">
+            <Link href={`/menu/items/${item.id}`}>{tCommon("view")}</Link>
+          </Button>
+          {data.canManage && item.status === "active" ? (
+            <Button asChild variant="ghost" size="sm">
+              <Link href={`/menu/items/${item.id}/edit`}>{tCommon("edit")}</Link>
+            </Button>
+          ) : null}
+        </div>
       ),
     },
   ];
@@ -198,27 +173,57 @@ export function MenuScreen() {
                 {t("categoriesAction")}
               </Link>
             </Button>
-            <Button asChild>
-              <Link href="/menu/items/new">
-                <Plus />
-                {t("newItem")}
-              </Link>
-            </Button>
+            {data.canManage ? (
+              <Button asChild>
+                <Link href="/menu/items/new">
+                  <Plus />
+                  {t("newItem")}
+                </Link>
+              </Button>
+            ) : null}
           </>
         }
       />
 
+      {!data.canManage ? <MenuReadOnlyNotice /> : null}
+
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <StatCard
+          label={t("stats.categories")}
+          value={format.number(data.categories.length)}
+          icon={Tags}
+          description={t("stats.categoriesDescription")}
+        />
+        <StatCard
+          label={t("stats.items")}
+          value={format.number(data.items.length)}
+          icon={UtensilsCrossed}
+          description={t("stats.itemsDescription")}
+        />
+        <StatCard
+          label={t("stats.activeItems")}
+          value={format.number(activeItems)}
+          icon={CircleCheck}
+          description={t("stats.activeItemsDescription")}
+        />
+        <StatCard
+          label={t("stats.archivedItems")}
+          value={format.number(archivedItems)}
+          icon={Archive}
+          description={t("stats.archivedItemsDescription")}
+        />
+      </div>
+
       <Card className="overflow-hidden">
-        <div className="grid gap-3 border-b border-line p-4 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_auto_auto_auto] lg:items-center">
+        <div className="grid gap-3 border-b border-line p-4 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_auto_auto] lg:items-center">
           <SearchInput
-            label={t("search")}
-            placeholder={t("searchPlaceholder")}
+            label={t("searchItems")}
+            placeholder={t("searchItemsPlaceholder")}
             value={query}
             onChange={(event) => {
               setQuery(event.target.value);
               resetPage();
             }}
-            wrapperClassName="sm:col-span-2 lg:col-span-1"
           />
           <label className="flex items-center gap-2 text-sm text-ink-muted">
             <span className="sr-only">{t("allCategories")}</span>
@@ -233,7 +238,7 @@ export function MenuScreen() {
               <option value="all">{t("allCategories")}</option>
               {categoriesForFilter.map((category) => (
                 <option key={category.id} value={category.id}>
-                  {localizeMenuCategory(category, locale).name}
+                  {category.name}
                 </option>
               ))}
             </Select>
@@ -243,39 +248,14 @@ export function MenuScreen() {
             <Select
               value={status}
               onChange={(event) => {
-                setStatus(event.target.value as MenuItemStatus | "all");
+                setStatus(event.target.value as MenuStatus | "all");
                 resetPage();
               }}
               className="h-10 w-40"
             >
               <option value="all">{t("allStatuses")}</option>
-              <option value="available">{statusLabel("available")}</option>
-              <option value="unavailable">{statusLabel("unavailable")}</option>
+              <option value="active">{statusLabel("active")}</option>
               <option value="archived">{statusLabel("archived")}</option>
-            </Select>
-          </label>
-          <label className="flex items-center gap-2 text-sm text-ink-muted">
-            <span className="sr-only">{t("allBranches")}</span>
-            <Select
-              value={branchId}
-              onChange={(event) => {
-                const nextBranchId = event.target.value;
-                if (nextBranchId === "all") {
-                  setBranchOverride("all");
-                } else {
-                  setBranchOverride(null);
-                  setActiveBranch(nextBranchId);
-                }
-                resetPage();
-              }}
-              className="h-10 w-44"
-            >
-              <option value="all">{t("allBranches")}</option>
-              {branches.map((branch) => (
-                <option key={branch.id} value={branch.id}>
-                  {branch.name}
-                </option>
-              ))}
             </Select>
           </label>
         </div>
@@ -302,7 +282,6 @@ export function MenuScreen() {
                       setQuery("");
                       setCategoryId("all");
                       setStatus("all");
-                      setBranchOverride("all");
                       resetPage();
                     }}
                   >
@@ -318,12 +297,18 @@ export function MenuScreen() {
                 title={t("empty.title")}
                 description={t("empty.description")}
                 action={
-                  <Button asChild size="sm">
-                    <Link href="/menu/items/new">
-                      <Plus />
-                      {t("newItem")}
-                    </Link>
-                  </Button>
+                  data.canManage ? (
+                    <Button asChild size="sm">
+                      <Link
+                        href={
+                          data.categories.length === 0 ? "/menu/categories/new" : "/menu/items/new"
+                        }
+                      >
+                        <Plus />
+                        {data.categories.length === 0 ? t("newCategory") : t("newItem")}
+                      </Link>
+                    </Button>
+                  ) : undefined
                 }
               />
             )

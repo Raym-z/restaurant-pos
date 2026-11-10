@@ -1,15 +1,17 @@
 "use client";
 
-import { Pencil, UtensilsCrossed } from "lucide-react";
-import { useLocale, useTranslations } from "next-intl";
+import { Pencil, TriangleAlert, UtensilsCrossed } from "lucide-react";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { useState, useTransition } from "react";
 
 import { PageHeader, PageStack } from "@/components/layout/page";
 import { EmptyState } from "@/components/states/empty-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Table,
   TableBody,
@@ -19,212 +21,211 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useMockData } from "@/features/shared/mock-data-provider";
-import { useWorkspace } from "@/providers/workspace-provider";
 import { useLocalizedFormat } from "@/i18n/use-localized-format";
-import { useStatusLabel, useTagLabel, useMenuContentLabel } from "@/i18n/use-labels";
-import type { MenuItemStatus } from "../types";
-import {
-  effectivePriceMinor,
-  isMenuItemAvailableAtBranch,
-  localizeMenuCategory,
-  localizeMenuItem,
-} from "../selectors";
+import { useStatusLabel } from "@/i18n/use-labels";
 
-const STATUS_BADGES: Record<MenuItemStatus, "success" | "warning" | "neutral"> = {
-  available: "success",
-  unavailable: "warning",
+import { setMenuItemBranchAvailabilityAction } from "../actions";
+import type { MenuItemView, MenuStatus } from "../models";
+import { useMenuErrorMessage } from "../use-menu-error-message";
+import { ArchiveMenuDialog } from "./archive-menu-dialog";
+import { MenuReadOnlyNotice } from "./menu-read-only-notice";
+
+const STATUS_BADGES: Record<MenuStatus, "success" | "neutral"> = {
+  active: "success",
   archived: "neutral",
 };
 
-export function MenuItemDetailScreen() {
-  const params = useParams<{ id: string }>();
-  const locale = useLocale();
-  const { menuItems, menuCategories } = useMockData();
-  const { branches, organization } = useWorkspace();
-  const t = useTranslations("menu.item");
-  const tCommon = useTranslations("common");
+export function MenuItemDetailScreen({
+  item,
+  timezone,
+  canManage,
+}: {
+  item: MenuItemView;
+  timezone: string;
+  canManage: boolean;
+}) {
+  const t = useTranslations("menuAdmin");
   const statusLabel = useStatusLabel();
-  const tagLabel = useTagLabel();
-  const contentLabel = useMenuContentLabel();
   const format = useLocalizedFormat();
-  const item = menuItems.find((entry) => entry.id === params.id);
+  const router = useRouter();
+  const errorMessage = useMenuErrorMessage();
+  const [pendingBranchId, setPendingBranchId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
 
-  if (!item) {
-    return (
-      <PageStack>
-        <PageHeader title={t("notFoundTitle")} backLink={{ href: "/menu", label: t("back") }} />
-        <EmptyState
-          icon={UtensilsCrossed}
-          title={t("notFoundTitle")}
-          description={t("notFoundDescription")}
-          action={
-            <Button asChild variant="secondary" size="sm">
-              <Link href="/menu">{t("backToMenu")}</Link>
-            </Button>
-          }
-        />
-      </PageStack>
-    );
+  const canToggle = item.status === "active" && !item.categoryArchived && !isPending;
+
+  function toggleAvailability(branchId: string, nextAvailable: boolean) {
+    setPendingBranchId(branchId);
+    setError(null);
+    startTransition(async () => {
+      const result = await setMenuItemBranchAvailabilityAction(item.id, branchId, nextAvailable);
+      setPendingBranchId(null);
+
+      if (!result.ok) {
+        setError(errorMessage(result.error));
+        if (result.committed) {
+          router.refresh();
+        }
+        return;
+      }
+
+      router.refresh();
+    });
   }
-
-  const content = localizeMenuItem(item, locale);
-  const category = menuCategories.find((entry) => entry.id === item.categoryId);
-  const categoryContent = category ? localizeMenuCategory(category, locale) : null;
 
   return (
     <PageStack>
       <PageHeader
-        eyebrow={categoryContent?.name ?? t("eyebrow")}
+        eyebrow={item.categoryName ?? t("uncategorized")}
         title={
           <span className="flex flex-wrap items-center gap-3">
-            {content.name}
+            {item.name}
             <Badge variant={STATUS_BADGES[item.status]}>{statusLabel(item.status)}</Badge>
           </span>
         }
-        description={content.description}
-        backLink={{ href: "/menu", label: t("back") }}
+        description={item.description || t("item.noDescription")}
+        backLink={{ href: "/menu", label: t("item.back") }}
         actions={
-          <Button asChild variant="secondary">
-            <Link href={`/menu/items/${item.id}/edit`}>
-              <Pencil />
-              {t("edit")}
-            </Link>
-          </Button>
+          canManage && item.status === "active" ? (
+            <>
+              <Button asChild variant="secondary">
+                <Link href={`/menu/items/${item.id}/edit`}>
+                  <Pencil />
+                  {t("item.edit")}
+                </Link>
+              </Button>
+              <ArchiveMenuDialog kind="item" id={item.id} name={item.name} redirectTo="/menu" />
+            </>
+          ) : undefined
         }
       />
+
+      {!canManage ? <MenuReadOnlyNotice /> : null}
+
+      {error ? (
+        <div
+          role="alert"
+          className="flex items-start gap-2 rounded-lg border border-danger/20 bg-danger-soft/50 px-4 py-3 text-sm text-danger"
+        >
+          <TriangleAlert className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+          <p>{error}</p>
+        </div>
+      ) : null}
+
+      {item.status === "archived" ? (
+        <div className="rounded-lg border border-line bg-surface-subtle px-4 py-3 text-sm">
+          <p className="font-medium text-ink">{t("item.archivedTitle")}</p>
+          <p className="mt-0.5 text-ink-muted">{t("item.archivedDescription")}</p>
+        </div>
+      ) : null}
+
+      {item.status === "active" && item.categoryArchived ? (
+        <div className="rounded-lg border border-warning/25 bg-warning-soft/50 px-4 py-3 text-sm">
+          <p className="font-medium text-ink">{t("item.categoryArchivedTitle")}</p>
+          <p className="mt-0.5 text-ink-muted">{t("item.categoryArchivedDescription")}</p>
+        </div>
+      ) : null}
 
       <div className="grid gap-6 xl:grid-cols-3">
         <div className="space-y-6 xl:col-span-2">
           <Card>
             <CardHeader>
-              <CardTitle>{t("pricing")}</CardTitle>
+              <CardTitle>{t("item.pricing")}</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="mb-4 flex flex-wrap items-end gap-6">
-                <div>
-                  <p className="text-xs font-medium tracking-wide text-ink-subtle uppercase">
-                    {t("basePrice")}
-                  </p>
-                  <p className="mt-1 text-2xl font-semibold text-ink">
-                    {format.money(item.basePrice)}
-                  </p>
-                </div>
-                {item.variants.length > 0 ? (
-                  <p className="text-sm text-ink-muted">{t("variantPricing")}</p>
-                ) : null}
+              <div className="mb-4">
+                <p className="text-xs font-medium tracking-wide text-ink-subtle uppercase">
+                  {t("item.basePrice")}
+                </p>
+                <p className="mt-1 text-2xl font-semibold text-ink">
+                  {format.currencyAmount(item.basePriceMinor, item.currency)}
+                </p>
               </div>
-              <TableContainer>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>{t("table.branch")}</TableHead>
-                      <TableHead>{t("table.availability")}</TableHead>
-                      <TableHead className="text-right">{t("table.effectivePrice")}</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {branches.map((branch) => {
-                      const entry = item.branchAvailability.find(
-                        (candidate) => candidate.branchId === branch.id,
-                      );
-                      const available = isMenuItemAvailableAtBranch(item, branch.id);
-                      const hasOverride =
-                        entry?.priceOverride !== null && entry?.priceOverride !== undefined;
-                      return (
-                        <TableRow key={branch.id}>
-                          <TableCell>
-                            <div className="font-medium text-ink">{branch.name}</div>
-                            <div className="text-xs text-ink-subtle">{branch.timezone}</div>
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant={available ? "success" : "neutral"}>
-                              {statusLabel(available ? "available" : "unavailable")}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <span className="font-medium text-ink">
-                              {format.currencyAmount(
-                                effectivePriceMinor(item, branch.id),
-                                item.basePrice.currency,
-                              )}
-                            </span>
-                            {hasOverride ? (
-                              <div className="text-xs text-accent">{t("branchOverride")}</div>
-                            ) : null}
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
-              </TableContainer>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle>{t("variantsModifiers")}</CardTitle>
+              <CardTitle>{t("item.branchAvailability")}</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div>
-                <h3 className="text-sm font-semibold text-ink">{t("variants")}</h3>
-                {item.variants.length === 0 ? (
-                  <p className="mt-1 text-sm text-ink-muted">{t("noVariants")}</p>
-                ) : (
-                  <ul className="mt-2 divide-y divide-line rounded-lg border border-line">
-                    {item.variants.map((variant) => (
-                      <li
-                        key={variant.id}
-                        className="flex items-center justify-between px-3 py-2 text-sm"
-                      >
-                        <span className="text-ink">{contentLabel(variant.name)}</span>
-                        <span className="font-medium text-ink">{format.money(variant.price)}</span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-
-              <div>
-                <h3 className="text-sm font-semibold text-ink">{t("modifierGroups")}</h3>
-                {item.modifierGroups.length === 0 ? (
-                  <p className="mt-1 text-sm text-ink-muted">{t("noModifiers")}</p>
-                ) : (
-                  <div className="mt-2 space-y-3">
-                    {item.modifierGroups.map((group) => (
-                      <div key={group.id} className="rounded-lg border border-line">
-                        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line bg-surface-subtle px-3 py-2">
-                          <span className="text-sm font-medium text-ink">
-                            {contentLabel(group.name)}
-                          </span>
-                          <span className="text-xs text-ink-subtle">
-                            {group.minSelections === 0
-                              ? tCommon("optional")
-                              : t("choose", { count: group.minSelections })}{" "}
-                            · {t("upTo", { count: group.maxSelections })}
-                          </span>
-                        </div>
-                        <ul className="divide-y divide-line">
-                          {group.options.map((option) => (
-                            <li
-                              key={option.id}
-                              className="flex items-center justify-between px-3 py-2 text-sm"
-                            >
-                              <span className="text-ink">{contentLabel(option.name)}</span>
-                              <span className="text-ink-muted">
-                                {option.priceDelta.amountMinor === 0
-                                  ? tCommon("included")
-                                  : `+${format.money(option.priceDelta)}`}
-                              </span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+            <CardContent className="space-y-4">
+              <p className="text-[13px] leading-5 text-ink-muted">
+                {t("item.branchAvailabilityDescription")}
+              </p>
+              {item.availability.length === 0 ? (
+                <EmptyState
+                  bordered={false}
+                  compact
+                  icon={UtensilsCrossed}
+                  title={t("item.noBranches")}
+                  description={t("item.noBranchesDescription")}
+                />
+              ) : (
+                <TableContainer>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>{t("table.branch")}</TableHead>
+                        <TableHead>{t("table.availability")}</TableHead>
+                        <TableHead className="text-right">{t("item.effectivePrice")}</TableHead>
+                        <TableHead className="text-right">
+                          <span className="sr-only">{t("item.edit")}</span>
+                        </TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {item.availability.map((entry) => (
+                        <TableRow key={entry.branchId}>
+                          <TableCell>
+                            <div className="font-medium text-ink">{entry.branchName}</div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant={entry.isAvailable ? "success" : "neutral"}>
+                              {entry.isAvailable
+                                ? statusLabel("available")
+                                : statusLabel("unavailable")}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <span className="font-medium text-ink">
+                              {format.currencyAmount(entry.effectivePriceMinor, item.currency)}
+                            </span>
+                            {entry.priceOverrideMinor !== null ? (
+                              <div className="text-xs text-accent">{t("item.branchOverride")}</div>
+                            ) : null}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {entry.canManageAvailability ? (
+                              <label className="inline-flex items-center gap-2 text-xs text-ink-muted">
+                                <span>
+                                  {entry.isAvailable
+                                    ? t("item.toggleUnavailable")
+                                    : t("item.toggleAvailable")}
+                                </span>
+                                <Checkbox
+                                  checked={entry.isAvailable}
+                                  disabled={!canToggle || pendingBranchId === entry.branchId}
+                                  onChange={(event) =>
+                                    toggleAvailability(entry.branchId, event.target.checked)
+                                  }
+                                  aria-label={
+                                    entry.isAvailable
+                                      ? t("item.toggleUnavailable")
+                                      : t("item.toggleAvailable")
+                                  }
+                                />
+                              </label>
+                            ) : (
+                              <span className="text-xs text-ink-subtle">—</span>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -232,58 +233,35 @@ export function MenuItemDetailScreen() {
         <div className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>{t("metadata")}</CardTitle>
+              <CardTitle>{t("item.details")}</CardTitle>
             </CardHeader>
             <CardContent>
               <dl className="space-y-3 text-sm">
                 <div>
                   <dt className="text-xs font-medium tracking-wide text-ink-subtle uppercase">
-                    {t("category")}
+                    {t("item.category")}
                   </dt>
-                  <dd className="mt-0.5 text-ink">{categoryContent?.name ?? t("uncategorized")}</dd>
+                  <dd className="mt-0.5 text-ink">{item.categoryName ?? t("uncategorized")}</dd>
                 </div>
                 <div>
                   <dt className="text-xs font-medium tracking-wide text-ink-subtle uppercase">
-                    {t("tags")}
+                    {t("item.sortOrder")}
                   </dt>
-                  <dd className="mt-1 flex flex-wrap gap-1">
-                    {item.tags.length === 0 ? (
-                      <span className="text-ink-muted">{t("noTags")}</span>
-                    ) : (
-                      item.tags.map((tag) => (
-                        <Badge key={tag} variant="outline">
-                          {tagLabel(tag)}
-                        </Badge>
-                      ))
-                    )}
-                  </dd>
+                  <dd className="mt-0.5 text-ink">{format.number(item.sortOrder)}</dd>
                 </div>
                 <div>
                   <dt className="text-xs font-medium tracking-wide text-ink-subtle uppercase">
-                    {t("created")}
+                    {t("item.created")}
                   </dt>
-                  <dd className="mt-0.5 text-ink">
-                    {format.dateOnly(item.createdAt, organization.timezone)}
-                  </dd>
+                  <dd className="mt-0.5 text-ink">{format.dateOnly(item.createdAt, timezone)}</dd>
                 </div>
                 <div>
                   <dt className="text-xs font-medium tracking-wide text-ink-subtle uppercase">
-                    {t("lastUpdated")}
+                    {t("item.lastUpdated")}
                   </dt>
-                  <dd className="mt-0.5 text-ink">
-                    {format.dateOnly(item.updatedAt, organization.timezone)}
-                  </dd>
+                  <dd className="mt-0.5 text-ink">{format.dateOnly(item.updatedAt, timezone)}</dd>
                 </div>
               </dl>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>{t("availabilityRules")}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-[13px] leading-5 text-ink-muted">{t("availabilityRulesText")}</p>
             </CardContent>
           </Card>
         </div>

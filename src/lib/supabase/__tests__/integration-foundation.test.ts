@@ -35,6 +35,28 @@ test("environment rejects the production project", () => {
   );
 });
 
+test("environment rejects secret keys and service-role JWTs", () => {
+  assert.throws(
+    () =>
+      parsePublicEnvironment({
+        NEXT_PUBLIC_SUPABASE_URL: `https://${DEVELOPMENT_SUPABASE_REF}.supabase.co`,
+        NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "sb_secret_development",
+      }),
+    /secret keys are forbidden/i,
+  );
+
+  const header = Buffer.from(JSON.stringify({ alg: "HS256", typ: "JWT" })).toString("base64url");
+  const payload = Buffer.from(JSON.stringify({ role: "service_role" })).toString("base64url");
+  assert.throws(
+    () =>
+      parsePublicEnvironment({
+        NEXT_PUBLIC_SUPABASE_URL: `https://${DEVELOPMENT_SUPABASE_REF}.supabase.co`,
+        NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: `${header}.${payload}.signature`,
+      }),
+    /service-role/i,
+  );
+});
+
 test("environment rejects unrelated hosted projects and missing keys", () => {
   assert.throws(
     () =>

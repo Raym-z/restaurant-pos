@@ -18,12 +18,14 @@ import {
 } from "./contracts";
 import { normalizePosError } from "./errors";
 import { buildPosMenu, type BranchMenuSource, type MenuItemModifierGroupSource } from "./menu";
+import { tableOverviewStats } from "./table-management";
 import type {
   OrderDetailData,
   PosLoadResult,
   PosMenu,
   TableDetailData,
   TableOverviewData,
+  TableSessionData,
 } from "./types";
 import { resolvePosViewerResult, type PosViewerResult } from "./viewer";
 
@@ -43,11 +45,12 @@ export async function getPosViewer(): Promise<PosViewerResult> {
 
 export async function loadTableOverview(
   branchId: string,
+  options: { includeInactive?: boolean } = {},
 ): Promise<PosLoadResult<TableOverviewData>> {
   const supabase = await loadPosClient();
   const { data, error } = await supabase.rpc("list_branch_tables", {
     p_branch_id: branchId,
-    p_include_inactive: false,
+    p_include_inactive: options.includeInactive ?? false,
   });
 
   if (error) {
@@ -60,19 +63,13 @@ export async function loadTableOverview(
   }
 
   const tables = parsed.data.tables;
-  const available = tables.filter((table) => table.availability === "available").length;
-  const occupied = tables.filter((table) => table.availability === "occupied").length;
 
   return {
     ok: true,
     data: {
       branchId: parsed.data.branchId,
       tables,
-      stats: {
-        total: tables.length,
-        available,
-        occupied,
-      },
+      stats: tableOverviewStats(tables),
     },
   };
 }
@@ -150,10 +147,7 @@ export async function loadBranchMenu(
   return { ok: true, data: buildPosMenu(branchId, defaultCurrency, source) };
 }
 
-export async function loadTableDetail(
-  tableId: string,
-  defaultCurrency: string,
-): Promise<PosLoadResult<TableDetailData>> {
+export async function loadTableSession(tableId: string): Promise<PosLoadResult<TableSessionData>> {
   const supabase = await loadPosClient();
 
   const [tableResult, sessionResult] = await Promise.all([
@@ -178,9 +172,27 @@ export async function loadTableDetail(
     return failure(session.error);
   }
 
+  return {
+    ok: true,
+    data: {
+      table: table.data,
+      activeSession: session.data.activeSession,
+    },
+  };
+}
+
+export async function loadTableDetail(
+  tableId: string,
+  defaultCurrency: string,
+): Promise<PosLoadResult<TableDetailData>> {
+  const selection = await loadTableSession(tableId);
+  if (!selection.ok) {
+    return selection;
+  }
+
   let menu: PosMenu | null = null;
-  if (session.data.activeSession) {
-    const menuResult = await loadBranchMenu(table.data.branchId, defaultCurrency);
+  if (selection.data.activeSession) {
+    const menuResult = await loadBranchMenu(selection.data.table.branchId, defaultCurrency);
     if (!menuResult.ok) {
       return menuResult;
     }
@@ -190,8 +202,8 @@ export async function loadTableDetail(
   return {
     ok: true,
     data: {
-      table: table.data,
-      activeSession: session.data.activeSession,
+      table: selection.data.table,
+      activeSession: selection.data.activeSession,
       menu,
     },
   };

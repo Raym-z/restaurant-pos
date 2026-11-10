@@ -8,12 +8,20 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import {
   AddOrderItemInputSchema,
   CreateOrderInputSchema,
+  CreateTableResponseSchema,
+  DeactivateTableResponseSchema,
   DiningSessionDetailSchema,
   OrderDetailSchema,
+  TableInputSchema,
   TransitionTargetStatusSchema,
+  UpdateTableResponseSchema,
   UuidSchema,
+  type CreateTableResponse,
+  type DeactivateTableResponse,
   type DiningSessionDetail,
   type OrderDetail,
+  type TableInput,
+  type UpdateTableResponse,
 } from "./contracts";
 import { resolveMutationResponse, type RpcResponse } from "./mutation";
 import type { PosActionError, PosActionResult } from "./types";
@@ -84,6 +92,13 @@ function parseSession(value: unknown): DiningSessionDetail | null {
 function parseOrder(value: unknown): OrderDetail | null {
   const parsed = OrderDetailSchema.safeParse(value);
   return parsed.success ? parsed.data : null;
+}
+
+function parseWith<T>(schema: z.ZodType<T>) {
+  return (value: unknown): T | null => {
+    const parsed = schema.safeParse(value);
+    return parsed.success ? parsed.data : null;
+  };
 }
 
 export async function openDiningSessionAction(
@@ -269,4 +284,71 @@ export async function cancelOrderAction(
       p_reason: parsed.data.reason,
     });
   }, parseOrder);
+}
+
+const CreateTableActionSchema = TableInputSchema.extend({ branchId: UuidSchema }).strict();
+
+export async function createTableAction(input: {
+  branchId: string;
+  label: string;
+  capacity: number;
+}): Promise<PosActionResult<CreateTableResponse>> {
+  const parsed = CreateTableActionSchema.safeParse(input);
+  if (!parsed.success) {
+    return validationFailure("The table details are invalid.");
+  }
+
+  return mutate(async () => {
+    const supabase = await createSupabaseServerClient();
+    return supabase.rpc("create_table", {
+      p_branch_id: parsed.data.branchId,
+      p_label: parsed.data.label,
+      p_capacity: parsed.data.capacity,
+    });
+  }, parseWith(CreateTableResponseSchema));
+}
+
+export async function updateTableAction(
+  tableId: string,
+  input: TableInput,
+): Promise<PosActionResult<UpdateTableResponse>> {
+  const parsed = z
+    .object({ tableId: UuidSchema, values: TableInputSchema })
+    .strict()
+    .safeParse({ tableId, values: input });
+
+  if (!parsed.success) {
+    return validationFailure("The table details are invalid.");
+  }
+
+  return mutate(async () => {
+    const supabase = await createSupabaseServerClient();
+    return supabase.rpc("update_table", {
+      p_table_id: parsed.data.tableId,
+      p_label: parsed.data.values.label,
+      p_capacity: parsed.data.values.capacity,
+    });
+  }, parseWith(UpdateTableResponseSchema));
+}
+
+export async function deactivateTableAction(
+  tableId: string,
+  reason?: string,
+): Promise<PosActionResult<DeactivateTableResponse>> {
+  const parsed = z
+    .object({ tableId: UuidSchema, reason: ReasonSchema })
+    .strict()
+    .safeParse({ tableId, reason });
+
+  if (!parsed.success) {
+    return validationFailure("The deactivation request is invalid.");
+  }
+
+  return mutate(async () => {
+    const supabase = await createSupabaseServerClient();
+    return supabase.rpc("deactivate_table", {
+      p_table_id: parsed.data.tableId,
+      p_reason: parsed.data.reason ?? null,
+    });
+  }, parseWith(DeactivateTableResponseSchema));
 }

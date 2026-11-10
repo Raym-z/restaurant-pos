@@ -70,6 +70,8 @@
     "new": "Baru",
     "pending": "Menunggu",
     "accepted": "Diterima",
+    "revoked": "Dicabut",
+    "expired": "Kedaluwarsa",
     "preparing": "Disiapkan",
     "ready": "Siap",
     "served": "Disajikan",
@@ -215,6 +217,7 @@
     "editBranch": "Ubah cabang",
     "staff": "Staf",
     "inviteStaff": "Undang staf",
+    "acceptInvitation": "Terima undangan",
     "staffMember": "Anggota staf",
     "editStaff": "Ubah anggota staf",
     "menu": "Menu",
@@ -558,16 +561,45 @@
       "unknownBranch": "Cabang tidak dikenal",
       "accessNote": "Perubahan peran berlaku pada operasi resmi berikutnya. Backend, bukan layar ini, yang menegakkan akses."
     },
+    "invitations": {
+      "title": "Undangan staf",
+      "retentionNote": "Undangan yang diterima dan dicabut disimpan untuk audit.",
+      "emptyTitle": "Belum ada undangan",
+      "emptyDescription": "Undang manajer, kasir, atau staf dapur untuk memulai.",
+      "loadError": "Undangan tidak dapat dimuat. Muat ulang untuk mencoba lagi.",
+      "unknownBranch": "Cabang tidak dikenal",
+      "expires": "Kedaluwarsa {date}",
+      "sentCount": "{count, plural, other {dikirim # kali}}",
+      "resend": "Kirim ulang",
+      "revoke": "Cabut",
+      "resendSuccess": "Undangan dikirim ulang. Tautan sebelumnya tidak lagi berlaku.",
+      "revokeSuccess": "Undangan dicabut.",
+      "status": {
+        "pending": "Menunggu",
+        "accepted": "Diterima",
+        "revoked": "Dicabut",
+        "expired": "Kedaluwarsa"
+      }
+    },
     "form": {
       "newTitle": "Undang anggota staf",
-      "newDescription": "Kirim undangan mock dan tugaskan peran awal serta akses cabang.",
+      "newDescription": "Kirim undangan nyata, tetapkan peran yang diizinkan, dan tentukan cakupan cabang.",
       "editTitle": "Ubah {name}",
       "editDescription": "Perbarui detail kontak, peran, dan akses cabang.",
+      "noPermissionTitle": "Undangan staf dibatasi",
+      "noPermissionDescription": "Hanya Owner atau Admin dengan cakupan organisasi yang dapat mengundang staf.",
+      "invalidDetails": "Periksa nama, email, peran, dan cabang sebelum mengirim.",
+      "successTitle": "Undangan dibuat",
+      "successDescription": "Undangan dikirim ke {email} untuk peran {role}.",
+      "inviteAnother": "Undang lagi",
+      "backToStaff": "Kembali ke staf",
       "sections": {
         "profile": "Profil staf",
         "profileDescription": "Detail kontak yang digunakan untuk undangan dan pemberitahuan operasional.",
+        "inviteProfileDescription": "Orang yang diundang harus masuk dengan alamat email ini.",
         "access": "Penugasan akses",
-        "accessDescription": "Rilis awal menggunakan satu peran per anggota staf. Peran dengan cakupan cabang hanya melihat cabang yang ditugaskan."
+        "accessDescription": "Rilis awal menggunakan satu peran per anggota staf. Peran dengan cakupan cabang hanya melihat cabang yang ditugaskan.",
+        "inviteAccessDescription": "Pilih peran yang diizinkan backend untuk Anda undang dan cakupan cabangnya."
       },
       "fields": {
         "fullName": "Nama lengkap",
@@ -583,11 +615,13 @@
       },
       "hints": {
         "phone": "Format E.164, misalnya +6281234567890.",
-        "scope": "Pilih akses seluruh organisasi atau satu cabang."
+        "scope": "Pilih akses seluruh organisasi atau satu cabang.",
+        "inviteScope": "Admin dengan cakupan organisasi dapat mengelola semua cabang."
       },
       "ownerNote": "Pemilik organisasi memiliki akses seluruh organisasi. Transfer kepemilikan bukan bagian dari alur mock.",
       "orgAdminNote": "Administrator ini dapat mengakses semua cabang di organisasi.",
       "branchNote": "Anggota staf ini hanya dapat mengakses cabang yang dipilih, sesuai otorisasi backend.",
+      "inviteBranchNote": "Orang yang diundang hanya dapat mengakses cabang yang dipilih setelah menerima, sesuai otorisasi backend.",
       "send": "Kirim undangan",
       "save": "Simpan perubahan"
     }
@@ -1550,6 +1584,7 @@
       "station": "Stasiun",
       "allStations": "Semua stasiun",
       "maxRangeNote": "Riwayat dibatasi {days} hari per permintaan.",
+      "dateBasisNote": "Filter tanggal menggunakan waktu tiket dibuat. Waktu selesai dan pembatalan ditampilkan pada setiap tiket.",
       "reset": "Atur ulang ke 7 hari terakhir",
       "apply": "Terapkan filter",
       "loadErrorTitle": "Riwayat dapur tidak dapat dimuat",
@@ -1670,6 +1705,20 @@
       "pending": "Sedang masuk?",
       "sessionExpired": "Sesi Anda telah berakhir. Silakan masuk lagi untuk melanjutkan.",
       "staffOnly": "Akses POS hanya untuk staf restoran yang berwenang. Tautan pelanggan dan tamu tidak dapat digunakan di sini."
+    },
+    "acceptInvitation": {
+      "eyebrow": "Undangan staf",
+      "title": "Bergabung dengan tim restoran Anda",
+      "description": "Terima undangan sekali pakai ini untuk menyelesaikan penyiapan akun staf Anda.",
+      "accepting": "Memeriksa undangan dan sesi Anda…",
+      "signInRequired": "Masuk dengan alamat email yang menerima undangan, lalu buka kembali tautan ini.",
+      "signIn": "Masuk untuk menerima",
+      "successTitle": "Undangan diterima",
+      "successDescription": "Keanggotaan staf Anda aktif. Masuk kembali jika ruang kerja tidak terbuka otomatis.",
+      "goToDashboard": "Buka dasbor",
+      "missingToken": "Tautan penerimaan ini tidak lengkap. Minta administrator organisasi mengirim ulang undangan.",
+      "invalidResponse": "Undangan diterima, tetapi respons tidak dapat dibaca. Hubungi administrator organisasi.",
+      "backToLogin": "Kembali ke halaman masuk"
     },
     "errors": {
       "invalid_input": "Masukkan alamat email dan kata sandi yang valid.",

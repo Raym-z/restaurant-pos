@@ -51,6 +51,8 @@ test("all kitchen UI keys exist in both locales", () => {
     ["kitchen", "history", "from"],
     ["kitchen", "history", "to"],
     ["kitchen", "history", "status"],
+    ["kitchen", "history", "maxRangeNote"],
+    ["kitchen", "history", "dateBasisNote"],
     ["kitchen", "history", "emptyTitle"],
     ["kitchen", "history", "errors", "RANGE_TOO_LONG"],
     ["kitchen", "stations", "title"],

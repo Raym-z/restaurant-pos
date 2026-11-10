@@ -38,6 +38,14 @@ test("branch-local date boundaries are converted to UTC instants", () => {
   assert.equal(todayDateOnly(new Date("2026-11-10T17:00:00Z"), "Asia/Jakarta"), "2026-11-11");
 });
 
+test("branch-local conversion remains correct across daylight-saving changes", () => {
+  // 2026-03-08 is the US spring-forward date and 2026-11-01 is the fall-back date.
+  assert.equal(startOfDayInTimeZone("2026-03-08", "America/New_York"), "2026-03-08T05:00:00.000Z");
+  assert.equal(startOfDayInTimeZone("2026-11-01", "America/New_York"), "2026-11-01T04:00:00.000Z");
+  // Jakarta has no daylight saving, so the offset stays constant.
+  assert.equal(startOfDayInTimeZone("2026-11-01", "Asia/Jakarta"), "2026-10-31T17:00:00.000Z");
+});
+
 test("history requests require both dates and a chronological bounded window", () => {
   assert.deepEqual(parseKitchenHistoryFilters({ from: "2026-11-01" }, "Asia/Jakarta", NOW), {
     ok: false,

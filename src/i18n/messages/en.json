@@ -70,6 +70,8 @@
     "new": "New",
     "pending": "Pending",
     "accepted": "Accepted",
+    "revoked": "Revoked",
+    "expired": "Expired",
     "preparing": "Preparing",
     "ready": "Ready",
     "served": "Served",
@@ -215,6 +217,7 @@
     "editBranch": "Edit branch",
     "staff": "Staff",
     "inviteStaff": "Invite staff",
+    "acceptInvitation": "Accept invitation",
     "staffMember": "Staff member",
     "editStaff": "Edit staff member",
     "menu": "Menu",
@@ -553,16 +556,45 @@
       "unknownBranch": "Unknown branch",
       "accessNote": "Role changes take effect on the next authorized operation. The backend, not this screen, enforces access."
     },
+    "invitations": {
+      "title": "Staff invitations",
+      "retentionNote": "Accepted and revoked invitations are retained for audit.",
+      "emptyTitle": "No invitations yet",
+      "emptyDescription": "Invite a manager, cashier, or kitchen staff member to get started.",
+      "loadError": "Invitations could not be loaded. Refresh to try again.",
+      "unknownBranch": "Unknown branch",
+      "expires": "Expires {date}",
+      "sentCount": "{count, plural, one {sent once} other {sent # times}}",
+      "resend": "Resend",
+      "revoke": "Revoke",
+      "resendSuccess": "Invitation resent. The previous link no longer works.",
+      "revokeSuccess": "Invitation revoked.",
+      "status": {
+        "pending": "Pending",
+        "accepted": "Accepted",
+        "revoked": "Revoked",
+        "expired": "Expired"
+      }
+    },
     "form": {
       "newTitle": "Invite staff member",
-      "newDescription": "Send a mock invitation and assign an initial role and branch access.",
+      "newDescription": "Send a real invitation, assign a permitted role, and scope branch access.",
       "editTitle": "Edit {name}",
       "editDescription": "Update contact details, role, and branch access.",
+      "noPermissionTitle": "Staff invitations are restricted",
+      "noPermissionDescription": "Only an organization-scoped Owner or Admin can invite staff.",
+      "invalidDetails": "Check the name, email, role, and branch before sending.",
+      "successTitle": "Invitation created",
+      "successDescription": "An invitation was sent to {email} for the {role} role.",
+      "inviteAnother": "Invite another",
+      "backToStaff": "Back to staff",
       "sections": {
         "profile": "Staff profile",
         "profileDescription": "Contact details used for invitations and operational notices.",
+        "inviteProfileDescription": "The invited person must sign in with this email address.",
         "access": "Access assignment",
-        "accessDescription": "The initial release uses one role per staff member. Branch-scoped roles only see their assigned branch."
+        "accessDescription": "The initial release uses one role per staff member. Branch-scoped roles only see their assigned branch.",
+        "inviteAccessDescription": "Choose a role the backend authorizes you to invite and the branch scope it applies to."
       },
       "fields": {
         "fullName": "Full name",
@@ -578,11 +610,13 @@
       },
       "hints": {
         "phone": "E.164 format, for example +6281234567890.",
-        "scope": "Choose organization-wide or a single branch."
+        "scope": "Choose organization-wide or a single branch.",
+        "inviteScope": "Organization-wide Admin can administer all branches."
       },
       "ownerNote": "The organization owner has organization-wide access. Ownership transfer is not part of the mock workflow.",
       "orgAdminNote": "This administrator can access all branches in the organization.",
       "branchNote": "This staff member can only access the selected branch, subject to backend authorization.",
+      "inviteBranchNote": "The invited person can only access the selected branch after accepting, subject to backend authorization.",
       "send": "Send invitation",
       "save": "Save changes"
     }
@@ -1545,6 +1579,7 @@
       "station": "Station",
       "allStations": "All stations",
       "maxRangeNote": "History is limited to {days} days per request.",
+      "dateBasisNote": "Date filters use the time each ticket was created. Completion and cancellation times are shown on each ticket.",
       "reset": "Reset to last 7 days",
       "apply": "Apply filters",
       "loadErrorTitle": "Kitchen history could not be loaded",
@@ -1665,6 +1700,20 @@
       "pending": "Signing in?",
       "sessionExpired": "Your session expired. Sign in again to continue.",
       "staffOnly": "POS access is limited to authorized restaurant staff. Customer and guest links cannot be used here."
+    },
+    "acceptInvitation": {
+      "eyebrow": "Staff invitation",
+      "title": "Join your restaurant team",
+      "description": "Accept this single-use invitation to finish setting up your staff account.",
+      "accepting": "Checking your invitation and session…",
+      "signInRequired": "Sign in with the email address that received the invitation, then reopen this link.",
+      "signIn": "Sign in to accept",
+      "successTitle": "Invitation accepted",
+      "successDescription": "Your staff membership is active. Sign in again if your workspace does not open automatically.",
+      "goToDashboard": "Go to dashboard",
+      "missingToken": "This acceptance link is incomplete. Ask an organization administrator to resend the invitation.",
+      "invalidResponse": "The invitation was accepted, but the response could not be read. Contact an organization administrator.",
+      "backToLogin": "Back to sign in"
     },
     "errors": {
       "invalid_input": "Enter a valid email address and password.",

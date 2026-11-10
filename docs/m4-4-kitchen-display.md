@@ -82,6 +82,10 @@ Supabase Realtime is **not** used in this milestone.
 - The default window is the last 7 branch-local calendar days.
 - Both start and end dates are required when a user edits the filter.
 - The maximum range is 31 days.
+- Date filters are matched against the ticket **creation time** (`created_at`),
+  not the completion or cancellation timestamp. The history screen states this
+  explicitly, and each card shows the terminal timestamps separately. See
+  `m4-5-kitchen-integration-validation.md` for the follow-up recommendation.
 - Branch-local `00:00` boundaries are converted to UTC instants using the branch
   IANA timezone.
 - History is a separate view from the active board and is read-only.

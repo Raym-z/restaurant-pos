@@ -132,9 +132,10 @@ export function KitchenHistoryScreen({
           </div>
 
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-xs text-ink-subtle">
-              {t("maxRangeNote", { days: KITCHEN_HISTORY_MAX_RANGE_DAYS })}
-            </p>
+            <div className="space-y-1 text-xs text-ink-subtle">
+              <p>{t("maxRangeNote", { days: KITCHEN_HISTORY_MAX_RANGE_DAYS })}</p>
+              <p>{t("dateBasisNote")}</p>
+            </div>
             <div className="flex flex-wrap items-center gap-2">
               <Button asChild variant="ghost" size="sm">
                 <Link href="/kitchen/history">{t("reset")}</Link>

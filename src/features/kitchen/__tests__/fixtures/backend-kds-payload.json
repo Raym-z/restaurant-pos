@@ -1,0 +1,175 @@
+﻿{
+  "board": {
+    "to": null,
+    "from": null,
+    "hasMore": false,
+    "tickets": [
+      {
+        "items": [
+          {
+            "name": "Nasi Goreng 0e83c023",
+            "notes": "No onion",
+            "status": "ready",
+            "readyAt": "2026-11-10T13:25:59.98719+07:00",
+            "quantity": 2,
+            "ticketId": "5059f2e6-c008-40de-97b1-b2b36434551a",
+            "createdAt": "2026-11-10T13:25:59.890739+07:00",
+            "modifiers": [
+              {
+                "groupName": "Spice level 0e83c023",
+                "optionName": "Mild",
+                "modifierGroupId": "7ace552e-b2a7-473d-bcbe-5b8f2b5f8c91",
+                "modifierOptionId": "5ae13d0c-aaa6-4810-b4d1-def676baae98"
+              }
+            ],
+            "startedAt": "2026-11-10T13:25:59.937092+07:00",
+            "updatedAt": "2026-11-10T13:25:59.98719+07:00",
+            "menuItemId": "19cb70dd-d011-4dd2-97cb-47f1bed1a8a0",
+            "cancelledAt": null,
+            "completedAt": null,
+            "orderItemId": "fb08ea15-9a9f-463b-a56d-5b6fee5e6714",
+            "ticketItemId": "4f82a6ad-51e1-4f52-ba5b-4d5d2833bba3",
+            "cancellationReason": null,
+            "cancelledByStaffId": null,
+            "cancelledByActorType": "staff"
+          }
+        ],
+        "order": {
+          "notes": "Birthday table",
+          "source": "staff",
+          "status": "accepted",
+          "orderId": "b8a113af-63aa-4454-a2e6-0d2e59c4636c",
+          "tableId": "4b1d0411-516e-4525-a06e-f5fde6bdb19c",
+          "acceptedAt": "2026-11-10T13:25:59.890739+07:00",
+          "tableLabel": "T12 0e83c023",
+          "orderReference": "ORD-00000382"
+        },
+        "status": "ready",
+        "readyAt": "2026-11-10T13:25:59.98719+07:00",
+        "branchId": "922b607c-f826-49d7-b415-1ed025b202bd",
+        "ticketId": "5059f2e6-c008-40de-97b1-b2b36434551a",
+        "createdAt": "2026-11-10T13:25:59.890739+07:00",
+        "startedAt": "2026-11-10T13:25:59.937092+07:00",
+        "stationId": "1534a8ae-4a7f-4602-8ea3-a0547652f523",
+        "updatedAt": "2026-11-10T13:25:59.98719+07:00",
+        "generation": 1,
+        "cancelledAt": null,
+        "completedAt": null,
+        "stationName": "Hot line 0e83c023",
+        "organizationId": "b0ab7cb2-3254-47cf-8ae9-75e95c706d82",
+        "cancellationReason": null,
+        "cancelledByStaffId": null,
+        "cancelledByActorType": "staff"
+      }
+    ],
+    "branchId": "922b607c-f826-49d7-b415-1ed025b202bd",
+    "pageSize": 50,
+    "statuses": ["pending", "preparing", "ready"],
+    "stationId": null,
+    "nextOffset": null
+  },
+  "history": {
+    "to": "2026-11-10T14:26:00.024+07:00",
+    "from": "2026-11-10T12:26:00.023+07:00",
+    "hasMore": false,
+    "tickets": [
+      {
+        "items": [
+          {
+            "name": "Iced Tea 0e83c023",
+            "notes": null,
+            "status": "cancelled",
+            "readyAt": null,
+            "quantity": 1,
+            "ticketId": "f3d9818b-2faa-4772-b5db-f5926b5cdf62",
+            "createdAt": "2026-11-10T13:25:59.890739+07:00",
+            "modifiers": [],
+            "startedAt": null,
+            "updatedAt": "2026-11-10T13:25:59.996839+07:00",
+            "menuItemId": "eaaf14de-5798-45c3-a4ea-631553d438dc",
+            "cancelledAt": "2026-11-10T13:25:59.996839+07:00",
+            "completedAt": null,
+            "orderItemId": "f39d67d6-9d51-4461-b239-3345d1e674b6",
+            "ticketItemId": "4cb3148f-48f2-43b4-a03a-96faea40e79e",
+            "cancellationReason": "Guest changed mind",
+            "cancelledByStaffId": "4f47a2be-5b69-4ca1-aca6-3988cabc379f",
+            "cancelledByActorType": "staff"
+          }
+        ],
+        "order": {
+          "notes": "Birthday table",
+          "source": "staff",
+          "status": "accepted",
+          "orderId": "b8a113af-63aa-4454-a2e6-0d2e59c4636c",
+          "tableId": "4b1d0411-516e-4525-a06e-f5fde6bdb19c",
+          "acceptedAt": "2026-11-10T13:25:59.890739+07:00",
+          "tableLabel": "T12 0e83c023",
+          "orderReference": "ORD-00000382"
+        },
+        "status": "cancelled",
+        "readyAt": null,
+        "branchId": "922b607c-f826-49d7-b415-1ed025b202bd",
+        "ticketId": "f3d9818b-2faa-4772-b5db-f5926b5cdf62",
+        "createdAt": "2026-11-10T13:25:59.890739+07:00",
+        "startedAt": null,
+        "stationId": "50594576-585f-4499-9011-2c7db2942645",
+        "updatedAt": "2026-11-10T13:25:59.996839+07:00",
+        "generation": 1,
+        "cancelledAt": "2026-11-10T13:25:59.996839+07:00",
+        "completedAt": null,
+        "stationName": "Bar 0e83c023",
+        "organizationId": "b0ab7cb2-3254-47cf-8ae9-75e95c706d82",
+        "cancellationReason": "Guest changed mind",
+        "cancelledByStaffId": "4f47a2be-5b69-4ca1-aca6-3988cabc379f",
+        "cancelledByActorType": "staff"
+      }
+    ],
+    "branchId": "922b607c-f826-49d7-b415-1ed025b202bd",
+    "pageSize": 50,
+    "statuses": ["completed", "cancelled"],
+    "stationId": null,
+    "nextOffset": null
+  },
+  "transition": {
+    "items": [
+      {
+        "name": "Nasi Goreng 0e83c023",
+        "notes": "No onion",
+        "status": "preparing",
+        "orderId": "b8a113af-63aa-4454-a2e6-0d2e59c4636c",
+        "readyAt": null,
+        "branchId": "922b607c-f826-49d7-b415-1ed025b202bd",
+        "quantity": 2,
+        "ticketId": "5059f2e6-c008-40de-97b1-b2b36434551a",
+        "createdAt": "2026-11-10T13:25:59.890739+07:00",
+        "startedAt": "2026-11-10T13:25:59.937092+07:00",
+        "updatedAt": "2026-11-10T13:25:59.937092+07:00",
+        "menuItemId": "19cb70dd-d011-4dd2-97cb-47f1bed1a8a0",
+        "cancelledAt": null,
+        "completedAt": null,
+        "orderItemId": "fb08ea15-9a9f-463b-a56d-5b6fee5e6714",
+        "ticketItemId": "4f82a6ad-51e1-4f52-ba5b-4d5d2833bba3",
+        "organizationId": "b0ab7cb2-3254-47cf-8ae9-75e95c706d82",
+        "cancellationReason": null,
+        "cancelledByStaffId": null,
+        "cancelledByActorType": "staff"
+      }
+    ],
+    "status": "preparing",
+    "orderId": "b8a113af-63aa-4454-a2e6-0d2e59c4636c",
+    "readyAt": null,
+    "branchId": "922b607c-f826-49d7-b415-1ed025b202bd",
+    "ticketId": "5059f2e6-c008-40de-97b1-b2b36434551a",
+    "createdAt": "2026-11-10T13:25:59.890739+07:00",
+    "startedAt": "2026-11-10T13:25:59.937092+07:00",
+    "stationId": "1534a8ae-4a7f-4602-8ea3-a0547652f523",
+    "updatedAt": "2026-11-10T13:25:59.937092+07:00",
+    "generation": 1,
+    "cancelledAt": null,
+    "completedAt": null,
+    "organizationId": "b0ab7cb2-3254-47cf-8ae9-75e95c706d82",
+    "cancellationReason": null,
+    "cancelledByStaffId": null,
+    "cancelledByActorType": "staff"
+  }
+}

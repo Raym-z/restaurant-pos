@@ -129,9 +129,12 @@ Current implementation notes:
 
 - The KDS uses the standard authenticated application shell and a kitchen
   sub-navigation. A dedicated full-screen kitchen layout remains deferred.
-- **Supabase Realtime subscriptions are not used yet.** `BLK-008` remains open
-  because delivery and branch-isolation verification are blocked without a local
-  Supabase/Docker stack. Polling at 45 seconds is the supported fallback.
+- **Supabase Realtime subscriptions are not used yet.** `BLK-008` remains open.
+  The M4.5 validation run confirmed the publication membership, replica identity,
+  and branch-scoped RLS policies against a disposable PostgreSQL 18 cluster, but
+  an actual Realtime server is unavailable without Docker/WSL, so event delivery,
+  reconnect behavior, and branch/organization isolation remain unverified.
+  Polling at 45 seconds is the supported fallback.
 - The board and lifecycle actions use only M4.2/M4.3 RPCs. The frontend never
   queries kitchen ticket tables directly.
 - Financial data is excluded from KDS responses and UI.

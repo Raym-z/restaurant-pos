@@ -54,6 +54,30 @@ test("duplicate item submissions are rejected until the first finishes", () => {
   assert.equal(guard.tryStart("item-1"), true);
 });
 
+test("the queue releases the active slot after a failed request", () => {
+  const queue = new KitchenRequestQueue<string>();
+
+  assert.equal(queue.enqueue("first"), true);
+  assert.equal(queue.enqueue("retry"), false);
+
+  // The dashboard calls finish() from the request's finally block on success
+  // and on failure, so a queued retry becomes the next active request.
+  assert.equal(queue.finish(), "retry");
+  assert.equal(queue.busy, false);
+  assert.equal(queue.enqueue("manual-refresh"), true);
+});
+
+test("the action guard releases an item after a failed submission", () => {
+  const guard = new KitchenActionGuard();
+
+  assert.equal(guard.tryStart("item-9"), true);
+  // Simulate the finally block of a rejected server action.
+  guard.finish("item-9");
+
+  assert.equal(guard.has("item-9"), false);
+  assert.equal(guard.tryStart("item-9"), true);
+});
+
 test("stale board responses are ignored after the active target changes", () => {
   const first = kitchenBoardRequestKey(null, 1);
   const second = kitchenBoardRequestKey(null, 2);

@@ -19,6 +19,8 @@ const STATUS_KEYS: Record<string, string> = {
   new: "new",
   pending: "pending",
   accepted: "accepted",
+  revoked: "revoked",
+  expired: "expired",
   preparing: "preparing",
   ready: "ready",
   served: "served",

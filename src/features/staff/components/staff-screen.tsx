@@ -19,6 +19,9 @@ import { useMockData } from "@/features/shared/mock-data-provider";
 import { useWorkspace } from "@/providers/workspace-provider";
 import { useLocalizedFormat } from "@/i18n/use-localized-format";
 import { useRoleLabel, useStatusLabel } from "@/i18n/use-labels";
+import type { StaffInvitation } from "../invitation-contracts";
+import type { StaffInvitationActionError } from "../invitation-errors";
+import { InvitationsPanel } from "./invitations-panel";
 import type { StaffMember, StaffRole, StaffStatus } from "../types";
 import { STAFF_ROLES } from "../types";
 import { filterStaff, primaryAssignment } from "../selectors";
@@ -31,7 +34,17 @@ const STATUS_BADGES: Record<StaffStatus, "success" | "info" | "neutral"> = {
   inactive: "neutral",
 };
 
-export function StaffScreen() {
+interface StaffScreenProps {
+  invitations: StaffInvitation[];
+  invitationsError: StaffInvitationActionError | null;
+  showInvitations: boolean;
+}
+
+export function StaffScreen({
+  invitations,
+  invitationsError,
+  showInvitations,
+}: StaffScreenProps) {
   const { staff } = useMockData();
   const { branches, organization } = useWorkspace();
   const t = useTranslations("staff");
@@ -155,6 +168,13 @@ export function StaffScreen() {
           </Button>
         }
       />
+
+      {showInvitations ? (
+        <InvitationsPanel
+          invitations={invitations}
+          loadError={invitationsError}
+        />
+      ) : null}
 
       <Card className="overflow-hidden">
         <div className="grid gap-3 border-b border-line p-4 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_auto_auto_auto] lg:items-center">

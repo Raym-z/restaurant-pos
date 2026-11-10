@@ -2,7 +2,7 @@ import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 
 import { PageHeader, PageStack } from "@/components/layout/page";
-import { StaffForm } from "@/features/staff/components/staff-form";
+import { InviteStaffForm } from "@/features/staff/components/invite-staff-form";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("meta");
@@ -21,7 +21,7 @@ export default async function NewStaffPage() {
         description={t("newDescription")}
         backLink={{ href: "/staff", label: tDetail("back") }}
       />
-      <StaffForm />
+      <InviteStaffForm />
     </PageStack>
   );
 }

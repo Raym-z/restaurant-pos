@@ -154,16 +154,23 @@ Navigation is evaluated with role **and** scope:
 ## 9. Known backend dependencies
 
 - Provisioned development staff Auth account and active staff profile.
-- Hosted Auth redirect/confirmation configuration.
+- Hosted Auth redirect/confirmation configuration for invitations.
 - Self-read status for invited/suspended/deactivated staff.
 - Inactive branch historical reads.
 - Branch reactivation.
-- Free plan seed.
 - Complete organization and branch profile contracts.
-- Staff invitation/provisioning workflow.
 - Per-branch role model and atomic assignment RPC.
 - Complete RPC request/response contracts and consumable types.
 - Menu availability semantics, translations, tags, and variants.
+
+Staff invitation provisioning and the Free plan seed were implemented in M4.7.2.
+The POS `/staff/new` screen now calls the `staff-invite` Edge Function, `/staff`
+lists real invitations for organization admins, and `/accept-invitation`
+completes the single-use acceptance. Hosted deployment still requires the Auth
+email/SMTP and redirect-URL configuration described in the backend M4.7.2
+implementation report.
+
+`docs/staff-invitations.md` documents the POS flow and its security boundaries.
 
 See the M1 plan for the full dependency matrix.
 

@@ -138,6 +138,13 @@ Permissions should be defined around specific actions rather than relying only o
 
 The exact permission identifiers and their implementation must be defined centrally in `restaurant-platform-backend`.
 
+M4.7.2 implements staff invitations for **organization-scoped Owner/Admin
+only**. Owner may invite Admin, Manager, Cashier, or Kitchen Staff; Admin may
+invite Manager, Cashier, or Kitchen Staff. Manager, Cashier, and Kitchen Staff
+cannot invite. The "assigned branch staff" wording in the role descriptions below
+remains a future staff-management capability; it is not granted by the current
+invitation RPCs.
+
 ## 5. Initial Role and Permission Matrix
 
 The following matrix describes the intended default access model.

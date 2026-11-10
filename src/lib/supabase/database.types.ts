@@ -17,6 +17,7 @@ export type OrganizationStatus = "active" | "suspended" | "pending_deletion";
 export type BranchStatus = "active" | "inactive";
 export type StaffStatus = "invited" | "active" | "suspended" | "deactivated";
 export type RoleScope = "organization" | "branch";
+export type StaffInvitationStatus = "pending" | "accepted" | "revoked" | "expired";
 export type SubscriptionState = "active" | "expired" | "grace_period" | "restricted";
 export type TableStatus = "active" | "inactive";
 export type DiningSessionStatus = "active" | "closed";
@@ -155,6 +156,72 @@ export interface Database {
           invited_at?: string | null;
           activated_at?: string | null;
           deactivated_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      staff_invitations: {
+        Row: {
+          id: string;
+          organization_id: string;
+          branch_id: string | null;
+          email: string;
+          display_name: string;
+          role_code: string;
+          scope_type: RoleScope;
+          token_hash: string;
+          status: StaffInvitationStatus;
+          invited_by_staff_id: string;
+          expires_at: string;
+          last_sent_at: string | null;
+          send_count: number;
+          accepted_at: string | null;
+          accepted_by_staff_id: string | null;
+          revoked_at: string | null;
+          revoked_by_staff_id: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          organization_id: string;
+          branch_id?: string | null;
+          email: string;
+          display_name: string;
+          role_code: string;
+          scope_type: RoleScope;
+          token_hash: string;
+          status?: StaffInvitationStatus;
+          invited_by_staff_id: string;
+          expires_at: string;
+          last_sent_at?: string | null;
+          send_count?: number;
+          accepted_at?: string | null;
+          accepted_by_staff_id?: string | null;
+          revoked_at?: string | null;
+          revoked_by_staff_id?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          organization_id?: string;
+          branch_id?: string | null;
+          email?: string;
+          display_name?: string;
+          role_code?: string;
+          scope_type?: RoleScope;
+          token_hash?: string;
+          status?: StaffInvitationStatus;
+          invited_by_staff_id?: string;
+          expires_at?: string;
+          last_sent_at?: string | null;
+          send_count?: number;
+          accepted_at?: string | null;
+          accepted_by_staff_id?: string | null;
+          revoked_at?: string | null;
+          revoked_by_staff_id?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -772,12 +839,25 @@ export interface Database {
         Args: { p_ticket_item_id: string };
         Returns: Json;
       };
+      list_staff_invitations: {
+        Args: { p_limit?: number };
+        Returns: Json;
+      };
+      revoke_staff_invitation: {
+        Args: { p_invitation_id: string; p_reason: string };
+        Returns: Json;
+      };
+      accept_staff_invitation: {
+        Args: { p_token_hash_hex: string };
+        Returns: Json;
+      };
     };
     Enums: {
       organization_status: OrganizationStatus;
       branch_status: BranchStatus;
       staff_status: StaffStatus;
       role_scope: RoleScope;
+      staff_invitation_status: StaffInvitationStatus;
       subscription_state: SubscriptionState;
       table_status: TableStatus;
       dining_session_status: DiningSessionStatus;

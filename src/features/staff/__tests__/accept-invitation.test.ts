@@ -131,15 +131,23 @@ test("an incomplete RPC response is reported as invalid", async () => {
   }
 });
 
-test("the acceptance screen delegates to the hash-based helper", () => {
+test("the acceptance screen delegates to the server-side hash helper", () => {
   const screen = readFileSync(
     new URL("../components/accept-invitation-screen.tsx", import.meta.url),
     "utf8",
   );
+  const actions = readFileSync(new URL("../accept-invitation-actions.ts", import.meta.url), "utf8");
   const helper = readFileSync(new URL("../accept-invitation.ts", import.meta.url), "utf8");
 
-  assert.match(screen, /acceptStaffInvitation\(/);
-  assert.doesNotMatch(screen, /\bp_token\s*:/);
+  assert.match(screen, /acceptInvitationAction\(/);
+  assert.match(screen, /establishInvitationSessionAction\(/);
+  assert.match(screen, /parseInvitationFragment\(/);
+  assert.doesNotMatch(screen, /supabase\.rpc|createSupabaseBrowserClient/);
+  assert.doesNotMatch(screen, /localStorage|sessionStorage/);
+  assert.match(actions, /acceptStaffInvitation\(/);
+  assert.match(actions, /setSession\(/);
+  assert.match(actions, /getUser\(/);
+  assert.doesNotMatch(actions, /\bp_token\s*:/);
   assert.match(helper, /p_token_hash_hex/);
   assert.match(helper, /sha256Hex/);
 });

@@ -8,10 +8,9 @@ import { getPublicEnvironment } from "./env";
 /**
  * Browser Supabase client.
  *
- * Used only for the invitation acceptance screen, where Supabase Auth delivers
- * the session in the URL fragment after the invite or magic-link redirect. It
- * uses the publishable key and cookie-based session storage; no privileged key
- * is ever exposed to client code.
+ * Reserved for future browser-side auth features. The staff invitation flow
+ * exchanges the email-link fragment on the server so POS session cookies remain
+ * HttpOnly, so acceptance does not use this client.
  */
 export function createSupabaseBrowserClient() {
   const environment = getPublicEnvironment();

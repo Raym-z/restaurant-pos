@@ -118,7 +118,6 @@ export const NAVIGATION_SECTIONS: readonly NavSection[] = [
         href: "/staff",
         icon: Users,
         access: { orgAdmin: true },
-        availability: "unavailable",
       },
       {
         titleKey: "navigation.items.branches",

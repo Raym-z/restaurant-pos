@@ -141,13 +141,13 @@ Navigation is evaluated with role **and** scope:
 - Reports/Settings require Owner, Admin, or Manager.
 - Branch-scoped Admins do not receive organization-wide navigation.
 - Managers do not receive Staff navigation.
-- Staff and Menu navigation items are marked `Unavailable` in this milestone.
+- Queue, Reports, Billing, and Settings navigation items are marked `Unavailable` in this milestone.
 
 ## 8. Mock data policy
 
 - `MockDataProvider` is not mounted in the authenticated shell.
 - Existing mock fixtures remain in the repository for later integration and tests.
-- Staff and Menu route groups render explicit “not connected” states.
+- Staff and Menu route groups render their live screens; Billing, Queue, Reports, and Settings still render explicit “not connected” states.
 - Dashboard operational widgets render an explicit “not connected” state.
 - A failed backend request never falls back to mock data.
 

@@ -4,7 +4,7 @@
 
 This milestone connects the POS to the shared Supabase backend for:
 
-- Staff authentication with Supabase Auth email/password.
+- Staff authentication with Supabase Auth passwordless email one-time codes.
 - Session persistence, refresh, expiry, and logout.
 - Auth user → active `staff_profiles` mapping.
 - Organization context.
@@ -58,12 +58,16 @@ Business data is read on the server. Presentation components do not call Supabas
 
 ## 4. Authentication flow
 
-1. `/login` renders an email/password form.
-2. `signInAction` calls `supabase.auth.signInWithPassword`.
-3. `@supabase/ssr` stores the session in HTTP cookies.
-4. `src/proxy.ts` refreshes the session on subsequent requests.
-5. The `(app)` layout calls `supabase.auth.getUser()` and loads the workspace.
-6. Logout calls `signOut`, clears local auth cookies and the active-branch cookie, and redirects to `/login`.
+1. `/login` renders a passwordless staff email form.
+2. `requestLoginCodeAction` calls
+   `supabase.auth.signInWithOtp({ email, options: { shouldCreateUser: false } })`.
+3. The form switches to a six-digit verification step.
+4. `verifyLoginCodeAction` calls
+   `supabase.auth.verifyOtp({ email, token, type: "email" })`.
+5. `@supabase/ssr` stores the session in HTTP cookies.
+6. `src/proxy.ts` refreshes the session on subsequent requests.
+7. The `(app)` layout calls `supabase.auth.getUser()` and loads the workspace.
+8. Logout calls `signOut`, clears local auth cookies and the active-branch cookie, and redirects to `/login`.
 
 ### Session refresh failures
 

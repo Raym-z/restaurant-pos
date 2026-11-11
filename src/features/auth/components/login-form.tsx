@@ -1,27 +1,46 @@
 "use client";
 
-import { AlertCircle, LogIn } from "lucide-react";
+import { AlertCircle, Mail, ShieldCheck } from "lucide-react";
+import { useActionState, useState } from "react";
 import { useTranslations } from "next-intl";
-import { useActionState } from "react";
 
 import { FormField } from "@/components/ui/form-field";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 
-import { signInAction, type LoginActionState } from "../actions";
-
-const INITIAL_STATE: LoginActionState = { error: null };
+import { requestLoginCodeAction } from "../actions";
+import { INITIAL_LOGIN_OTP_REQUEST_STATE } from "../otp";
+import { LoginCodeForm } from "./login-code-form";
 
 interface LoginFormProps {
   next: string;
   sessionExpired: boolean;
 }
 
+/**
+ * Passwordless staff sign-in.
+ *
+ * Step one requests a one-time code for an existing staff account. Step two
+ * verifies it and lets the Server Action establish the HttpOnly POS session.
+ */
 export function LoginForm({ next, sessionExpired }: LoginFormProps) {
   const t = useTranslations("auth.login");
   const tErrors = useTranslations("auth.errors");
-  const [state, formAction, pending] = useActionState(signInAction, INITIAL_STATE);
+  const [requestState, requestAction, requestPending] = useActionState(
+    requestLoginCodeAction,
+    INITIAL_LOGIN_OTP_REQUEST_STATE,
+  );
+
+  const [emailDraft, setEmailDraft] = useState<string | null>(null);
+  const [editingEmail, setEditingEmail] = useState(false);
+
+  const codeEmail = requestState.status === "code_sent" ? requestState.email : null;
+  const step = codeEmail && !editingEmail ? "verify" : "email";
+  const email = emailDraft ?? codeEmail ?? "";
+
+  const requestError = requestState.status === "error" ? requestState.error : null;
+  const verifyEmail = codeEmail ?? email;
 
   return (
     <Card className="w-full max-w-md space-y-6 p-6 sm:p-8">
@@ -30,7 +49,9 @@ export function LoginForm({ next, sessionExpired }: LoginFormProps) {
           {t("eyebrow")}
         </p>
         <h1 className="text-2xl font-semibold tracking-tight text-ink">{t("title")}</h1>
-        <p className="text-sm leading-6 text-ink-muted">{t("description")}</p>
+        <p className="text-sm leading-6 text-ink-muted">
+          {step === "email" ? t("description") : t("verifyDescription", { email: verifyEmail })}
+        </p>
       </div>
 
       {sessionExpired ? (
@@ -42,51 +63,64 @@ export function LoginForm({ next, sessionExpired }: LoginFormProps) {
         </div>
       ) : null}
 
-      <form action={formAction} className="space-y-5" noValidate>
-        <input type="hidden" name="next" value={next} />
-
-        <FormField label={t("fields.email")} htmlFor="login-email" required>
-          <Input
-            id="login-email"
-            name="email"
-            type="email"
-            autoComplete="email"
-            required
-            aria-invalid={state.error === "invalid_credentials"}
-            aria-describedby={state.error ? "login-error" : undefined}
-          />
-        </FormField>
-
-        <FormField label={t("fields.password")} htmlFor="login-password" required>
-          <Input
-            id="login-password"
-            name="password"
-            type="password"
-            autoComplete="current-password"
-            required
-            aria-invalid={state.error === "invalid_credentials"}
-            aria-describedby={state.error ? "login-error" : undefined}
-          />
-        </FormField>
-
-        {state.error ? (
-          <div
-            id="login-error"
-            role="alert"
-            className="flex items-start gap-2 rounded-lg border border-danger/20 bg-danger-soft/50 px-3 py-2.5 text-sm text-danger"
+      {step === "email" ? (
+        <>
+          <form
+            action={requestAction}
+            className="space-y-5"
+            noValidate
+            onSubmit={() => setEditingEmail(false)}
           >
-            <AlertCircle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
-            <p>{tErrors(state.error)}</p>
-          </div>
-        ) : null}
+            <input type="hidden" name="next" value={next} />
 
-        <Button type="submit" className="w-full" disabled={pending}>
-          <LogIn aria-hidden="true" />
-          {pending ? t("pending") : t("submit")}
-        </Button>
-      </form>
+            <FormField label={t("fields.email")} htmlFor="login-email" required>
+              <Input
+                id="login-email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                autoCapitalize="none"
+                spellCheck={false}
+                required
+                value={email}
+                onChange={(event) => setEmailDraft(event.target.value)}
+                aria-invalid={requestError === "invalid_email"}
+                aria-describedby={requestError ? "login-error" : undefined}
+              />
+            </FormField>
 
-      <p className="text-xs leading-5 text-ink-subtle">{t("staffOnly")}</p>
+            {requestError ? (
+              <div
+                id="login-error"
+                role="alert"
+                className="flex items-start gap-2 rounded-lg border border-danger/20 bg-danger-soft/50 px-3 py-2.5 text-sm text-danger"
+              >
+                <AlertCircle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+                <p>{tErrors(requestError)}</p>
+              </div>
+            ) : null}
+
+            <Button type="submit" className="w-full" disabled={requestPending}>
+              <Mail aria-hidden="true" />
+              {requestPending ? t("sendingCode") : t("sendCode")}
+            </Button>
+          </form>
+
+          <p className="flex items-start gap-2 text-xs leading-5 text-ink-subtle">
+            <ShieldCheck className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+            {t("staffOnly")}
+          </p>
+        </>
+      ) : (
+        <LoginCodeForm
+          email={verifyEmail}
+          next={next}
+          onChangeEmail={() => {
+            setEmailDraft(verifyEmail);
+            setEditingEmail(true);
+          }}
+        />
+      )}
     </Card>
   );
 }

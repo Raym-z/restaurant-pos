@@ -1,0 +1,12 @@
+warning: in the working copy of 'docs/staff-invitations.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/features/auth/actions.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/features/auth/components/login-form.tsx', LF will be replaced by CRLF the next time Git touches it
+ docs/application-architecture.md            |   2 [32m+[m[31m-[m
+ docs/staff-invitations.md                   |  14 [32m++[m[31m-[m
+ docs/supabase-integration.md                |  18 [32m++[m[31m--[m
+ src/features/auth/actions.ts                | 111 [32m++++++++++++++++[m[31m--------[m
+ src/features/auth/components/login-form.tsx | 130 [32m++++++++++++++++++[m[31m----------[m
+ src/i18n/messages/en.json                   |  30 [32m+++++[m[31m--[m
+ src/i18n/messages/id.json                   |  30 [32m+++++[m[31m--[m
+ src/lib/supabase/errors.ts                  |   6 [32m+[m[31m-[m
+ 8 files changed, 225 insertions(+), 116 deletions(-)

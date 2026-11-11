@@ -32,6 +32,7 @@ const CONFIRMED_AUTH_CODES = new Set([
   "session_not_found",
   "session_expired",
   "bad_jwt",
+  "invalid_jwt",
   "user_not_found",
 ]);
 

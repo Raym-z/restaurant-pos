@@ -8,9 +8,9 @@ import { WorkspaceProvider } from "@/providers/workspace-provider";
 /**
  * Authenticated application shell.
  *
- * The proxy performs an optimistic session refresh, but this layout performs
- * the authoritative server-side check and loads the RLS-protected workspace
- * before rendering any staff screen.
+ * The proxy validates and refreshes the session against Supabase Auth. This
+ * layout verifies the same JWT locally (signature + expiry) and loads the
+ * RLS-protected workspace before rendering any staff screen.
  */
 export default async function AuthenticatedLayout({ children }: { children: React.ReactNode }) {
   const result = await getWorkspace();

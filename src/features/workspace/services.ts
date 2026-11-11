@@ -1,53 +1,27 @@
 import "server-only";
 
-import type { SupabaseClient, User } from "@supabase/supabase-js";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 import { cache } from "react";
 
 import { APP_TIMEZONE } from "@/i18n/config";
-import { classifyAuthUserResult } from "@/lib/supabase/auth-state";
+import { classifyAuthClaimsResult, type AuthIdentity } from "@/lib/supabase/auth-state";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { Database } from "@/lib/supabase/database.types";
 import { normalizeDatabaseError } from "@/lib/supabase/errors";
+import { getCachedSigningKeys } from "@/lib/supabase/jwks";
 
 import { isOrganizationAdmin } from "./access";
 import { ACTIVE_BRANCH_COOKIE } from "./constants";
 import { buildWorkspace, mapOrganization, mapRoleAssignments, mapUser } from "./mappers";
+import { resolvePlanLabel } from "./plan-label";
 import type { WorkspaceLoadResult } from "./types";
 
 type WorkspaceClient = SupabaseClient<Database>;
 
-async function loadPlanLabel(
-  supabase: WorkspaceClient,
-  organizationId: string,
-  orgAdmin: boolean,
-): Promise<string | null> {
-  if (!orgAdmin) {
-    return null;
-  }
-
-  const { data: subscription, error: subscriptionError } = await supabase
-    .from("subscriptions")
-    .select("plan_code")
-    .eq("organization_id", organizationId)
-    .maybeSingle();
-
-  if (subscriptionError || !subscription) {
-    return null;
-  }
-
-  const { data: plan } = await supabase
-    .from("plans")
-    .select("name")
-    .eq("code", subscription.plan_code)
-    .maybeSingle();
-
-  return plan?.name ?? subscription.plan_code;
-}
-
 export async function loadWorkspaceForUser(
   supabase: WorkspaceClient,
-  user: User,
+  identity: AuthIdentity,
   activeBranchCandidate: string | null,
 ): Promise<WorkspaceLoadResult> {
   const { data: profile, error: profileError } = await supabase
@@ -55,7 +29,7 @@ export async function loadWorkspaceForUser(
     .select(
       "id, auth_user_id, organization_id, display_name, status, invited_at, activated_at, deactivated_at, created_at, updated_at",
     )
-    .eq("auth_user_id", user.id)
+    .eq("auth_user_id", identity.id)
     .maybeSingle();
 
   if (profileError) {
@@ -69,7 +43,14 @@ export async function loadWorkspaceForUser(
     return { status: "no_active_staff" };
   }
 
-  const [organizationResult, rolesResult, assignmentsResult, branchesResult] = await Promise.all([
+  const [
+    organizationResult,
+    rolesResult,
+    assignmentsResult,
+    branchesResult,
+    subscriptionResult,
+    plansResult,
+  ] = await Promise.all([
     supabase
       .from("organizations")
       .select(
@@ -99,6 +80,14 @@ export async function loadWorkspaceForUser(
       .eq("organization_id", profile.organization_id)
       .eq("status", "active")
       .order("name", { ascending: true }),
+    // RLS returns no subscription for non-admins, so this query is harmless
+    // for them and keeps the plan lookup in the same parallel wave.
+    supabase
+      .from("subscriptions")
+      .select("plan_code")
+      .eq("organization_id", profile.organization_id)
+      .maybeSingle(),
+    supabase.from("plans").select("code, name"),
   ]);
 
   if (organizationResult.error) {
@@ -125,12 +114,16 @@ export async function loadWorkspaceForUser(
 
   const organizationRow = organizationResult.data;
   const orgAdmin = isOrganizationAdmin(roles);
-  const planLabel = await loadPlanLabel(supabase, organizationRow.id, orgAdmin);
+  const planLabel = resolvePlanLabel({
+    isOrgAdmin: orgAdmin,
+    subscription: subscriptionResult.data,
+    plans: plansResult.data ?? [],
+  });
   const assignedBranchIds = (assignmentsResult.data ?? []).map((row) => row.branch_id);
 
   const branches = branchesResult.data ?? [];
   const organization = mapOrganization(organizationRow, branches[0]?.timezone ?? APP_TIMEZONE);
-  const mappedUser = mapUser(profile, user.email ?? "", roles);
+  const mappedUser = mapUser(profile, identity.email ?? "", roles);
 
   if (branches.length === 0) {
     return {
@@ -143,7 +136,7 @@ export async function loadWorkspaceForUser(
   const workspace = buildWorkspace({
     organization: organizationRow,
     profile,
-    email: user.email ?? "",
+    email: identity.email ?? "",
     roleRows,
     branchRows: branches,
     assignedBranchIds,
@@ -161,15 +154,24 @@ export async function loadWorkspaceForUser(
 /**
  * Request-scoped workspace loader. `cache` deduplicates calls within one
  * server render without caching tenant data across requests.
+ *
+ * The proxy has already validated and refreshed the session against Supabase
+ * Auth. Verifying the same JWT locally (signature + expiry) avoids a second
+ * Auth-server round trip per navigation. RLS remains the authorization
+ * boundary for every workspace query.
  */
 export const getWorkspace = cache(async (): Promise<WorkspaceLoadResult> => {
   const supabase = await createSupabaseServerClient();
 
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
-  const outcome = classifyAuthUserResult({ user, error: authError });
+  const signingKeys = await getCachedSigningKeys();
+  const { data: claimsData, error: claimsError } = await supabase.auth.getClaims(
+    undefined,
+    signingKeys ? { jwks: signingKeys } : undefined,
+  );
+  const outcome = classifyAuthClaimsResult({
+    claims: claimsData?.claims ?? null,
+    error: claimsError,
+  });
 
   if (outcome.status === "unauthenticated") {
     return { status: "unauthenticated" };
@@ -182,5 +184,5 @@ export const getWorkspace = cache(async (): Promise<WorkspaceLoadResult> => {
   const cookieStore = await cookies();
   const activeBranchCandidate = cookieStore.get(ACTIVE_BRANCH_COOKIE)?.value ?? null;
 
-  return loadWorkspaceForUser(supabase, outcome.user, activeBranchCandidate);
+  return loadWorkspaceForUser(supabase, outcome.identity, activeBranchCandidate);
 });

@@ -29,11 +29,32 @@ visible for audit and have no actions.
 
 ### Acceptance
 
-`/accept-invitation?invitation=<token>` is a public auth route. The browser client
-parses the Supabase session from the invite/magic-link redirect, removes the
-token from the address bar, hashes the raw token with Web Crypto SHA-256, and
-calls `accept_staff_invitation` with `p_token_hash_hex`. The raw token is never
-sent to the RPC.
+`/accept-invitation?invitation=<token>` is a public auth route.
+
+1. Supabase Auth invite and magic-link emails redirect here with the session in
+   the URL fragment (`#access_token=...&refresh_token=...`). The browser reads the
+   fragment and posts the short-lived tokens to a same-origin Server Action. The
+   server stores them with the normal HttpOnly POS cookie policy, then the page
+   reloads without the fragment. No auth token is written to browser storage.
+2. Acceptance itself runs in a Server Action. The server verifies the request
+   cookies with `auth.getUser()` and calls `accept_staff_invitation` with the
+   authenticated server client. The browser never calls the RPC, because the POS
+   session cookie is deliberately unreadable by JavaScript.
+3. When no server session exists, the page shows "Sign in to accept", which links
+   to `/login?next=/accept-invitation?invitation=<token>`. The existing password
+   login then returns to the acceptance page. Invited new staff normally establish
+   their session by opening the invitation email, not by setting a password first.
+4. On success the token is removed from the address bar and the recipient is
+   offered the dashboard. Failures keep the token so the recipient can retry or
+   sign in with the invited address; expired and revoked links show the backend
+   reason. Refreshing during the handoff is safe: the fragment remains in the URL
+   until the server session is established, and the exchange is retried.
+   Authenticated failures offer the dashboard instead of a `/login` link, so a
+   live session cannot cause a redirect loop.
+
+The acceptance flow handles these backend outcomes explicitly: success,
+already-accepted, expired, revoked, invalid or missing token, and email mismatch.
+For authenticated failures the UI also shows the signed-in email address.
 
 - The authenticated email must match the invitation.
 - The inviter must still hold organization administration (Owner for an Admin
@@ -46,10 +67,15 @@ sent to the RPC.
 
 - Tokens are single-use, 256-bit, expiry-bound, and stored only as SHA-256
   hashes. The POS sends only the SHA-256 hex digest to the acceptance RPC.
-- The token is held in component state for the acceptance request only; it is
+- The invitation token is carried only in the `invitation` query parameter and is
   never written to localStorage, sessionStorage, cookies, or logs.
+- Invite/magic-link session tokens are read from the URL fragment, posted to a
+  same-origin Server Action, and persisted only as HttpOnly cookies.
+- Login redirects use internal paths validated by `safeNextPath`; no external
+  callback URL is accepted.
 - The service-role key is used only inside the Edge Function.
 - Frontend role filtering is UX only; the RPCs enforce authorization.
+- Client-supplied email addresses are never used for authorization.
 
 ## Known limits
 

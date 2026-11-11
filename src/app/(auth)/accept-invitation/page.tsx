@@ -19,5 +19,5 @@ export default async function AcceptInvitationPage({ searchParams }: AcceptInvit
   const params = await searchParams;
   const token = isInvitationToken(params.invitation) ? params.invitation : null;
 
-  return <AcceptInvitationScreen token={token} />;
+  return <AcceptInvitationScreen key={token ?? "missing-token"} token={token} />;
 }

@@ -17,7 +17,7 @@ export interface NormalizedError {
   transient: boolean;
 }
 
-interface ErrorLike {
+export interface ErrorLike {
   name?: string;
   message?: string;
   code?: string;
@@ -36,7 +36,7 @@ const CONFIRMED_AUTH_CODES = new Set([
   "user_not_found",
 ]);
 
-function asErrorLike(error: unknown): ErrorLike {
+export function asErrorLike(error: unknown): ErrorLike {
   if (!error || typeof error !== "object") {
     return {};
   }
@@ -50,7 +50,7 @@ function asErrorLike(error: unknown): ErrorLike {
   };
 }
 
-function isNetworkFailure(error: ErrorLike): boolean {
+export function isNetworkFailure(error: ErrorLike): boolean {
   if (error.status === 0) {
     return true;
   }

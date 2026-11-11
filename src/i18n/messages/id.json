@@ -1696,13 +1696,23 @@
     "login": {
       "eyebrow": "Akses staf",
       "title": "Masuk ke Restaurant POS",
-      "description": "Gunakan email dan kata sandi staf untuk membuka ruang kerja restoran Anda.",
+      "description": "Gunakan email staf untuk mengakses ruang kerja restoran Anda.",
       "fields": {
         "email": "Email",
-        "password": "Kata sandi"
+        "code": "Kode masuk"
       },
-      "submit": "Masuk",
-      "pending": "Sedang masuk?",
+      "sendCode": "Kirim kode masuk",
+      "sendingCode": "Mengirim kode…",
+      "verifyDescription": "Masukkan kode enam digit yang kami kirim ke {email}.",
+      "codeHint": "Kode ini segera kedaluwarsa.",
+      "verify": "Verifikasi dan masuk",
+      "verifying": "Memverifikasi…",
+      "resend": "Kirim ulang kode",
+      "resending": "Mengirim kode baru…",
+      "resendIn": "Kirim ulang dalam {seconds} dtk",
+      "changeEmail": "Ubah email",
+      "codeResent": "Kode masuk baru telah dikirim.",
+      "codeSecurity": "Masukkan kode ini hanya di Restaurant POS. Kami tidak akan pernah meminta Anda membagikannya melalui email, chat, atau telepon.",
       "sessionExpired": "Sesi Anda telah berakhir. Silakan masuk lagi untuk melanjutkan.",
       "staffOnly": "Akses POS hanya untuk staf restoran yang berwenang. Tautan pelanggan dan tamu tidak dapat digunakan di sini."
     },
@@ -1735,11 +1745,13 @@
       "backToLogin": "Kembali ke halaman masuk"
     },
     "errors": {
-      "invalid_input": "Masukkan alamat email dan kata sandi yang valid.",
-      "invalid_credentials": "Email atau kata sandi salah.",
-      "unavailable": "Autentikasi sementara tidak tersedia. Silakan coba lagi.",
-      "generic": "Proses masuk tidak dapat diselesaikan. Silakan coba lagi.",
-      "email_not_confirmed": "Alamat email akun ini belum dikonfirmasi. Hubungi administrator organisasi."
+      "invalid_email": "Masukkan alamat email yang valid.",
+      "rate_limited": "Terlalu banyak percobaan. Tunggu sebentar, lalu coba lagi.",
+      "unavailable": "Masuk sementara tidak tersedia. Silakan coba lagi.",
+      "generic": "Kami tidak dapat mengirim kode masuk. Silakan coba lagi.",
+      "invalid_code": "Kode salah atau sudah kedaluwarsa. Periksa enam digit atau minta kode baru.",
+      "expired_code": "Kode sudah kedaluwarsa. Minta kode baru.",
+      "session_failed": "Kode diterima, tetapi sesi tidak dapat dimulai. Silakan coba lagi."
     },
     "states": {
       "title": "Akses ruang kerja",

@@ -27,6 +27,18 @@ real invitation list above the existing staff directory. Pending invitations can
 be resent (token rotation) or revoked. Accepted and revoked invitations remain
 visible for audit and have no actions.
 
+### Sign in
+
+`/login` is passwordless. Staff enter their staff email and receive a six-digit
+one-time code from Supabase Auth (`signInWithOtp` with `shouldCreateUser: false`).
+The code is verified by a Server Action (`verifyOtp` with type `email`), which
+writes the session through the normal HttpOnly POS cookie policy. Login never
+creates an Auth user; accounts are provisioned only through invitations.
+
+Signing in only establishes a session. Organization membership is created by
+`accept_staff_invitation` during acceptance, so a regular login never consumes,
+approves, or bypasses an invitation.
+
 ### Acceptance
 
 `/accept-invitation?invitation=<token>` is a public auth route.
@@ -41,9 +53,9 @@ visible for audit and have no actions.
    authenticated server client. The browser never calls the RPC, because the POS
    session cookie is deliberately unreadable by JavaScript.
 3. When no server session exists, the page shows "Sign in to accept", which links
-   to `/login?next=/accept-invitation?invitation=<token>`. The existing password
-   login then returns to the acceptance page. Invited new staff normally establish
-   their session by opening the invitation email, not by setting a password first.
+   to `/login?next=/accept-invitation?invitation=<token>`. The passwordless email
+   code login then returns to the acceptance page. Invited new staff normally
+   establish their session by opening the invitation email link.
 4. On success the token is removed from the address bar and the recipient is
    offered the dashboard. Failures keep the token so the recipient can retry or
    sign in with the invited address; expired and revoked links show the backend

@@ -1691,13 +1691,23 @@
     "login": {
       "eyebrow": "Staff access",
       "title": "Sign in to Restaurant POS",
-      "description": "Use your staff email and password to open your restaurant workspace.",
+      "description": "Use your staff email to access your restaurant workspace.",
       "fields": {
         "email": "Email",
-        "password": "Password"
+        "code": "Login code"
       },
-      "submit": "Sign in",
-      "pending": "Signing in?",
+      "sendCode": "Send login code",
+      "sendingCode": "Sending code…",
+      "verifyDescription": "Enter the six-digit code we sent to {email}.",
+      "codeHint": "The code expires shortly.",
+      "verify": "Verify and sign in",
+      "verifying": "Verifying…",
+      "resend": "Resend code",
+      "resending": "Sending a new code…",
+      "resendIn": "Resend code in {seconds}s",
+      "changeEmail": "Change email",
+      "codeResent": "A new login code was sent.",
+      "codeSecurity": "Only enter this code in Restaurant POS. We will never ask you to share it by email, chat, or phone.",
       "sessionExpired": "Your session expired. Sign in again to continue.",
       "staffOnly": "POS access is limited to authorized restaurant staff. Customer and guest links cannot be used here."
     },
@@ -1730,11 +1740,13 @@
       "backToLogin": "Back to sign in"
     },
     "errors": {
-      "invalid_input": "Enter a valid email address and password.",
-      "invalid_credentials": "The email or password is incorrect.",
-      "unavailable": "Authentication is temporarily unavailable. Please try again.",
-      "generic": "Sign-in could not be completed. Please try again.",
-      "email_not_confirmed": "This account's email address has not been confirmed. Contact an organization administrator."
+      "invalid_email": "Enter a valid email address.",
+      "rate_limited": "Too many attempts. Wait a moment, then try again.",
+      "unavailable": "Sign-in is temporarily unavailable. Please try again.",
+      "generic": "We could not send a login code. Please try again.",
+      "invalid_code": "That code is incorrect or has expired. Check the six digits or request a new code.",
+      "expired_code": "That code has expired. Request a new code.",
+      "session_failed": "Your code was accepted, but the session could not be started. Please try again."
     },
     "states": {
       "title": "Workspace access",

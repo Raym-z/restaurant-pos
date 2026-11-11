@@ -125,7 +125,7 @@ The frontend must not be treated as the security boundary.
 
 The POS application is intended exclusively for authenticated restaurant staff.
 
-- Staff authenticate with Supabase Auth email/password.
+- Staff authenticate with Supabase Auth passwordless email one-time codes.
 - Sessions are persisted in SSR cookies and refreshed by `src/proxy.ts`.
 - Protected routes require an active `staff_profiles` membership.
 - Public customer QR ordering must not grant access to the POS application.

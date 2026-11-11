@@ -36,9 +36,12 @@ Rules:
 
 `npm run verify:hosted` signs in with a Development staff account and checks
 the hosted workspace, branch-scoped roles, table/menu/order reads, and
-mutation rejection paths against the live project. Credentials are read from
-`POS_DEV_STAFF_EMAIL` and `POS_DEV_STAFF_PASSWORD`; they are never written to
-the repository or printed. The script refuses Production, secret keys, and
+mutation rejection paths against the live project. Sign-in is passwordless: the
+script requests a six-digit email OTP (`signInWithOtp` with
+`shouldCreateUser: false`) and prompts for it interactively, or reads
+`POS_DEV_STAFF_OTP` for non-interactive runs. `POS_DEV_STAFF_EMAIL` and the
+optional OTP are read from the environment only; they are never written to the
+repository or printed. The script refuses Production, secret keys, and
 service-role JWTs.
 
 ## 3. Client architecture

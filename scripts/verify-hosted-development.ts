@@ -7,19 +7,24 @@
  *
  * Usage (credentials are read from the process environment only):
  *
- *   POS_DEV_STAFF_EMAIL=... POS_DEV_STAFF_PASSWORD=... npm run verify:hosted
+ *   POS_DEV_STAFF_EMAIL=owner@example.com npm run verify:hosted
+ *
+ * The script requests a six-digit Supabase email OTP for the Development staff
+ * account and prompts for it interactively. For non-interactive runs, set
+ * POS_DEV_STAFF_OTP to the current six-digit code from the login email. Never
+ * commit, print, or hardcode an OTP value.
  *
  * Safety properties:
  * - Only the Development project ref is accepted; Production fails closed.
  * - Only the publishable/anon key is accepted. Secret keys, personal access
  *   tokens, service-role JWTs, and database URLs are rejected.
- * - No credential or token value is printed.
+ * - No credential or OTP value is printed.
  * - The default run performs reads plus mutation requests that the backend
  *   rejects before any write. It does not create orders or dining sessions.
  * - Every tested rejected mutation re-reads the affected order and compares
  *   status, totals, and item counts to prove nothing was committed.
  */
-import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient, type User } from "@supabase/supabase-js";
 
 import {
   BranchOrderListResponseSchema,
@@ -97,6 +102,193 @@ function requireCredential(name: string): string {
     throw new Error(`Missing ${name}. Provide Development staff credentials via the environment.`);
   }
   return value;
+}
+
+/**
+ * Passwordless login helpers for the hosted verification.
+ *
+ * The POS no longer accepts passwords: staff request a six-digit Supabase email
+ * OTP and verify it. The script therefore requests a code, reads it either from
+ * POS_DEV_STAFF_OTP or from a masked interactive prompt, and verifies it with
+ * the same API the application uses.
+ */
+
+const LOGIN_OTP_PATTERN = /^\d{6}$/;
+const LOGIN_OTP_MAX_ATTEMPTS = 3;
+
+function normalizeLoginOtp(value: string): string | null {
+  const token = value.replace(/\s+/g, "");
+  return LOGIN_OTP_PATTERN.test(token) ? token : null;
+}
+
+/** Never print the full staff address; the report is often pasted into issues. */
+function maskEmail(email: string): string {
+  const [local, domain] = email.split("@");
+  if (!local || !domain) {
+    return "the Development account";
+  }
+  return `${local.slice(0, 1)}${"*".repeat(Math.max(1, local.length - 1))}@${domain}`;
+}
+
+function canReadOtpInteractively(): boolean {
+  return Boolean(
+    process.stdin.isTTY &&
+      process.stdout.isTTY &&
+      typeof process.stdin.setRawMode === "function",
+  );
+}
+
+/** Read a six-digit code without echoing it to the terminal. */
+async function readOtpInteractively(prompt: string): Promise<string> {
+  if (!canReadOtpInteractively()) {
+    throw new Error(
+      "No interactive terminal is available. Set POS_DEV_STAFF_OTP to the six-digit code from the login email.",
+    );
+  }
+
+  const stdin = process.stdin;
+  const wasRaw = Boolean(stdin.isRaw);
+
+  return new Promise<string>((resolve, reject) => {
+    let buffer = "";
+
+    const cleanup = () => {
+      stdin.setRawMode(wasRaw);
+      stdin.pause();
+      stdin.off("data", onData);
+      stdin.off("error", onError);
+      process.stdout.write("\n");
+    };
+
+    const onData = (chunk: string) => {
+      for (const char of chunk) {
+        if (char === "\u0003") {
+          cleanup();
+          reject(new Error("OTP entry cancelled."));
+          return;
+        }
+
+        if (char === "\r" || char === "\n") {
+          cleanup();
+          resolve(buffer);
+          return;
+        }
+
+        if (char === "\u007f" || char === "\b") {
+          if (buffer.length > 0) {
+            buffer = buffer.slice(0, -1);
+            process.stdout.write("\b \b");
+          }
+          continue;
+        }
+
+        if (/^\d$/.test(char)) {
+          buffer += char;
+          process.stdout.write("*");
+        }
+      }
+    };
+
+    const onError = (error: Error) => {
+      cleanup();
+      reject(error);
+    };
+
+    process.stdout.write(prompt);
+    stdin.setRawMode(true);
+    stdin.setEncoding("utf8");
+    stdin.resume();
+    stdin.on("data", onData);
+    stdin.on("error", onError);
+  });
+}
+
+async function sendLoginCode(sb: Client, email: string): Promise<void> {
+  const { error } = await sb.auth.signInWithOtp({
+    email,
+    options: { shouldCreateUser: false },
+  });
+
+  if (error) {
+    console.log(`AUTH_WARN OTP delivery request was rejected: ${safeError(error)}`);
+    console.log(
+      "AUTH_WARN If you already received a code from an earlier run, you can still enter it.",
+    );
+    return;
+  }
+
+  console.log(`AUTH OTP delivery requested for ${maskEmail(email)}`);
+}
+
+async function verifyLoginCode(sb: Client, email: string, token: string): Promise<User | null> {
+  const { data, error } = await sb.auth.verifyOtp({
+    email,
+    token,
+    type: "email",
+  });
+
+  if (error) {
+    console.log(`AUTH_WARN OTP verification failed: ${safeError(error)}`);
+    return null;
+  }
+
+  if (!data.user || !data.session) {
+    console.log("AUTH_WARN OTP verification returned no authenticated session.");
+    return null;
+  }
+
+  return data.user;
+}
+
+/**
+ * Sign in through the passwordless email OTP flow and return the verified user.
+ *
+ * POS_DEV_STAFF_OTP skips delivery and the prompt for non-interactive runs. The
+ * value is read from the environment only and is never printed.
+ */
+async function signInWithLoginCode(sb: Client, email: string): Promise<User> {
+  const providedOtp = process.env.POS_DEV_STAFF_OTP?.trim();
+  const providedToken = providedOtp ? normalizeLoginOtp(providedOtp) : null;
+
+  if (providedOtp && !providedToken) {
+    throw new Error("POS_DEV_STAFF_OTP must be exactly six digits.");
+  }
+
+  if (providedToken) {
+    const user = await verifyLoginCode(sb, email, providedToken);
+    if (!user) {
+      throw new Error("OTP verification failed for POS_DEV_STAFF_OTP.");
+    }
+    return user;
+  }
+
+  await sendLoginCode(sb, email);
+
+  for (let attempt = 1; attempt <= LOGIN_OTP_MAX_ATTEMPTS; attempt += 1) {
+    const entry = (await readOtpInteractively("Six-digit login code (r to resend): "))
+      .trim()
+      .toLowerCase();
+
+    if (entry === "r") {
+      await sendLoginCode(sb, email);
+      continue;
+    }
+
+    const token = normalizeLoginOtp(entry);
+    if (!token) {
+      console.log("AUTH_WARN Enter exactly six digits, or r to request a new code.");
+      continue;
+    }
+
+    const user = await verifyLoginCode(sb, email, token);
+    if (user) {
+      return user;
+    }
+
+    console.log(`AUTH_WARN Code not accepted (attempt ${attempt}/${LOGIN_OTP_MAX_ATTEMPTS}).`);
+  }
+
+  throw new Error("OTP verification failed. Run the script again to request a new code.");
 }
 
 async function loadWorkspaceRows(sb: Client, authUserId: string) {
@@ -886,28 +1078,28 @@ async function main(): Promise<void> {
   check("Supabase URL is not Production", !environment.supabaseUrl.includes(PRODUCTION_REF));
 
   const email = requireCredential("POS_DEV_STAFF_EMAIL");
-  const password = requireCredential("POS_DEV_STAFF_PASSWORD");
 
   const sb = createClient<Database>(environment.supabaseUrl, environment.supabasePublishableKey, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
 
-  const { data: authData, error: authError } = await sb.auth.signInWithPassword({
-    email,
-    password,
-  });
+  const signedInUser = await signInWithLoginCode(sb, email);
   check(
-    "Owner sign-in succeeds",
-    Boolean(authData.user) && !authError,
-    authError ? safeError(authError) : "",
+    "Owner passwordless sign-in succeeds",
+    Boolean(signedInUser.id),
+    `user=${signedInUser.id}`,
   );
-  if (!authData.user) {
-    throw new Error("Cannot continue without an authenticated Development staff account.");
-  }
+
+  const { data: currentUserData, error: currentUserError } = await sb.auth.getUser();
+  check(
+    "Authenticated session resolves the signed-in staff user",
+    !currentUserError && currentUserData.user?.id === signedInUser.id,
+    currentUserError ? safeError(currentUserError) : "",
+  );
 
   const { profile, organization, roleRows, assignments, branches } = await loadWorkspaceRows(
     sb,
-    authData.user.id,
+    signedInUser.id,
   );
 
   check("Active staff profile loads", profile.status === "active");

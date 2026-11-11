@@ -69,12 +69,21 @@ function transient(error: ErrorLike): boolean {
   );
 }
 
+function retryableCode(code: string): boolean {
+  return (
+    code === "RATE_LIMIT_EXCEEDED" ||
+    code === "SERVICE_UNAVAILABLE" ||
+    code === "INVITATION_DELIVERY_FAILED"
+  );
+}
+
 /**
  * Normalize RPC and Edge Function failures into a stable UI shape.
  *
  * RPC errors use SQLSTATE P0001 with the application code in `message` and the
  * safe explanation in `details`. Edge errors use the shared API envelope and
- * are flattened before this function is called.
+ * are flattened before this function is called; that envelope carries the
+ * application code in `code` and the safe explanation in `message`.
  */
 export function normalizeStaffInvitationError(error: unknown): StaffInvitationActionError {
   const candidate = asErrorLike(error);
@@ -84,10 +93,17 @@ export function normalizeStaffInvitationError(error: unknown): StaffInvitationAc
     return {
       code: message,
       message: candidate.details?.trim() || message,
-      retryable:
-        message === "RATE_LIMIT_EXCEEDED" ||
-        message === "SERVICE_UNAVAILABLE" ||
-        message === "INVITATION_DELIVERY_FAILED",
+      retryable: retryableCode(message),
+    };
+  }
+
+  // Preserve structured Edge Function failures. Without this, every non-RPC
+  // error envelope was reported as the generic INTERNAL_ERROR.
+  if (candidate.code !== undefined && CODE_SET.has(candidate.code)) {
+    return {
+      code: candidate.code,
+      message: message || candidate.details?.trim() || candidate.code,
+      retryable: retryableCode(candidate.code),
     };
   }
 

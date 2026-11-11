@@ -107,6 +107,44 @@ test("marks delivery and transient failures as retryable", () => {
   assert.equal(normalizeStaffInvitationError({ message: "fetch failed" }).retryable, true);
 });
 
+test("preserves structured Edge Function error envelopes", () => {
+  assert.deepEqual(
+    normalizeStaffInvitationError({
+      code: "INVITATION_DELIVERY_FAILED",
+      message: "The invitation could not be delivered. No account access was granted.",
+      details: null,
+    }),
+    {
+      code: "INVITATION_DELIVERY_FAILED",
+      message: "The invitation could not be delivered. No account access was granted.",
+      retryable: true,
+    },
+  );
+
+  assert.deepEqual(
+    normalizeStaffInvitationError({
+      code: "PERMISSION_DENIED",
+      message: "Only the Owner may invite an Admin",
+      details: null,
+    }),
+    {
+      code: "PERMISSION_DENIED",
+      message: "Only the Owner may invite an Admin",
+      retryable: false,
+    },
+  );
+});
+
+test("unknown Edge error codes are not surfaced to the user", () => {
+  const result = normalizeStaffInvitationError({
+    code: "NOT_A_REAL_CODE",
+    message: "internal detail",
+  });
+
+  assert.equal(result.code, "INTERNAL_ERROR");
+  assert.equal(result.message, "The invitation operation could not be completed.");
+});
+
 test("invitation and acceptance translation keys exist in both locales", () => {
   const read = (locale: "en" | "id") =>
     JSON.parse(

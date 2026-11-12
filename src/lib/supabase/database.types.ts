@@ -31,6 +31,7 @@ export type KitchenTicketStatus =
   "pending" | "preparing" | "ready" | "completed" | "cancelled";
 export type KitchenTicketItemStatus =
   "pending" | "preparing" | "ready" | "completed" | "cancelled";
+export type WaitlistStatus = "waiting" | "notified" | "seated" | "cancelled" | "no_show";
 
 export interface Database {
   public: {
@@ -851,6 +852,16 @@ export interface Database {
         Args: { p_token_hash_hex: string };
         Returns: Json;
       };
+      list_waitlist_entries: {
+        Args: {
+          p_branch_id: string;
+          p_statuses?: WaitlistStatus[] | null;
+          p_search?: string | null;
+          p_limit?: number;
+          p_offset?: number;
+        };
+        Returns: Json;
+      };
     };
     Enums: {
       organization_status: OrganizationStatus;
@@ -867,6 +878,7 @@ export interface Database {
       kitchen_station_status: KitchenStationStatus;
       kitchen_ticket_status: KitchenTicketStatus;
       kitchen_ticket_item_status: KitchenTicketItemStatus;
+      waitlist_status: WaitlistStatus;
     };
     CompositeTypes: { [_ in never]: never };
   };

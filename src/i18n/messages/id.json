@@ -70,6 +70,8 @@
     "new": "Baru",
     "pending": "Menunggu",
     "accepted": "Diterima",
+    "waiting": "Dalam antrean",
+    "notified": "Diberitahu",
     "revoked": "Dicabut",
     "expired": "Kedaluwarsa",
     "preparing": "Disiapkan",
@@ -1690,6 +1692,93 @@
       "SERVICE_UNAVAILABLE": "Layanan dapur sementara tidak tersedia. Coba lagi.",
       "WORKSPACE_NOT_READY": "Ruang kerja Anda belum siap untuk operasi dapur.",
       "INTERNAL_ERROR": "Operasi dapur tidak dapat diselesaikan."
+    }
+  },
+  "queue": {
+    "title": "Antrean",
+    "eyebrow": "Layanan depan",
+    "description": "Antrean aktif untuk {branch}.",
+    "loadErrorTitle": "Antrean tidak dapat dimuat",
+    "errorTitle": "Antrean tidak dapat dimuat",
+    "backToDashboard": "Kembali ke dasbor",
+    "unauthorizedTitle": "Akses antrean dibatasi",
+    "unauthorizedDescription": "Peran atau penugasan cabang Anda tidak mencakup antrean.",
+    "readOnlyBadge": "Hanya-baca",
+    "readOnlyNotice": "Akses kasir hanya-baca. Nomor telepon disamarkan oleh backend.",
+    "refresh": "Muat ulang",
+    "lastRefreshed": "Snapshot antrean {time}",
+    "autoRefresh": "Diperbarui otomatis setiap {seconds} detik.",
+    "staleTitle": "Menampilkan data yang mungkin sudah usang",
+    "staleDescription": "Pemuatan ulang terakhir gagal. Antrean menampilkan data dari {time}. Periksa koneksi lalu muat ulang.",
+    "loading": "Memuat antrean…",
+    "filters": {
+      "searchLabel": "Cari berdasarkan nama pelanggan",
+      "searchPlaceholder": "Cari antrean berdasarkan nama",
+      "apply": "Cari",
+      "statusLabel": "Status antrean",
+      "all": "Semua aktif",
+      "waiting": "Dalam antrean",
+      "notified": "Diberitahu"
+    },
+    "summary": {
+      "activeScope": "Antrean aktif di halaman ini",
+      "filteredScope": "Hasil filter di halaman ini",
+      "pageEntries": "{count, plural, one {# entri} other {# entri}}",
+      "waiting": "{count} dalam antrean",
+      "notified": "{count} diberitahu"
+    },
+    "entry": {
+      "ariaLabel": "Posisi antrean {position}: {name}",
+      "position": "Posisi {position}",
+      "unnamed": "Tamu tanpa nama",
+      "partySizeLabel": "Rombongan",
+      "partySize": "Rombongan {count}",
+      "elapsed": "{minutes} menit menunggu",
+      "lessThanMinute": "Kurang dari satu menit",
+      "joinedLabel": "Bergabung",
+      "joinedAt": "Bergabung {time}",
+      "notifiedAt": "Diberitahu {time}",
+      "phoneLabel": "Telepon",
+      "noPhone": "Tidak ada telepon",
+      "maskedPhone": "Telepon disamarkan",
+      "source": {
+        "customer": "Aplikasi pelanggan",
+        "walk_in": "Datang langsung"
+      }
+    },
+    "empty": {
+      "title": "Antrean kosong",
+      "description": "Tamu yang menunggu atau telah diberitahu akan muncul di sini secara otomatis.",
+      "filteredTitle": "Tidak ada entri yang cocok",
+      "filteredDescription": "Coba nama atau filter status lain.",
+      "pageTitle": "Tidak ada entri di halaman ini",
+      "pageDescription": "Antrean mungkin berubah. Kembali ke halaman pertama.",
+      "backToFirst": "Kembali ke halaman pertama"
+    },
+    "pagination": {
+      "page": "Halaman {page}",
+      "liveBadge": "Snapshot langsung",
+      "notLive": "Menampilkan halaman {page}, halaman yang diminta secara eksplisit. Ini bukan snapshot antrean langsung dan mungkin sudah usang.",
+      "backToLive": "Kembali ke antrean langsung",
+      "autoPaused": "Pembaruan otomatis dijeda di halaman berikutnya."
+    },
+    "errors": {
+      "AUTH_REQUIRED": "Sesi Anda telah berakhir. Masuk lagi.",
+      "PERMISSION_DENIED": "Anda tidak memiliki izin untuk melihat antrean ini.",
+      "ROLE_REQUIRED": "Peran cabang Anda tidak mengizinkan akses antrean.",
+      "BRANCH_NOT_FOUND": "Cabang tidak ditemukan.",
+      "BRANCH_ACCESS_DENIED": "Anda tidak memiliki akses ke antrean cabang ini.",
+      "STAFF_NOT_ACTIVE": "Akses staf Anda tidak aktif.",
+      "ORGANIZATION_NOT_OPERATIONAL": "Organisasi ini tidak beroperasi.",
+      "SUBSCRIPTION_RESTRICTED": "Pembacaan antrean tetap tersedia saat langganan dibatasi, tetapi ruang kerja mungkin terbatas.",
+      "RESOURCE_CONFLICT": "Antrean berubah saat dimuat. Muat ulang lagi.",
+      "VALIDATION_ERROR": "Periksa filter antrean lalu coba lagi.",
+      "RATE_LIMIT_EXCEEDED": "Terlalu banyak permintaan. Coba lagi sebentar lagi.",
+      "NOT_FOUND": "Catatan antrean yang diminta tidak ditemukan.",
+      "SERVICE_UNAVAILABLE": "Layanan antrean sementara tidak tersedia. Coba lagi.",
+      "INVALID_RESPONSE": "Layanan antrean mengembalikan respons yang tidak dapat dibaca. Muat ulang sebelum mencoba lagi.",
+      "WORKSPACE_NOT_READY": "Ruang kerja Anda belum siap untuk operasi antrean.",
+      "INTERNAL_ERROR": "Antrean tidak dapat dimuat."
     }
   },
   "auth": {

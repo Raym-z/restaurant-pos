@@ -133,17 +133,26 @@ test("unavailable modules are marked and never imply functional access", () => {
     .filter((item) => item.availability === "unavailable")
     .map((item) => item.href);
 
-  assert.deepEqual(unavailableHrefs.sort(), [
-    "/billing",
-    "/queue",
-    "/reports",
-    "/settings",
-  ]);
+  assert.deepEqual(unavailableHrefs.sort(), ["/billing", "/reports", "/settings"]);
 
+  assert.ok(!unavailableHrefs.includes("/queue"));
   assert.ok(!unavailableHrefs.includes("/tables"));
   assert.ok(!unavailableHrefs.includes("/orders"));
   assert.ok(!unavailableHrefs.includes("/kitchen"));
   assert.ok(!unavailableHrefs.includes("/staff"));
+});
+
+test("queue navigation is available to floor roles and hidden from kitchen staff", () => {
+  for (const role of ["owner", "admin", "manager", "cashier"] as const) {
+    const queue = getNavigationForContext(context([role]))
+      .flatMap((section) => section.items)
+      .find((item) => item.href === "/queue");
+
+    assert.ok(queue, role);
+    assert.equal(queue.availability ?? "available", "available", role);
+  }
+
+  assert.ok(!navigationHrefs(context(["kitchen_staff"])).includes("/queue"));
 });
 
 test("navigation never emits unknown role identifiers", () => {

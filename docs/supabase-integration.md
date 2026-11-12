@@ -148,13 +148,14 @@ Navigation is evaluated with role **and** scope:
 - Reports/Settings require Owner, Admin, or Manager.
 - Branch-scoped Admins do not receive organization-wide navigation.
 - Managers do not receive Staff navigation.
-- Queue, Reports, Billing, and Settings navigation items are marked `Unavailable` in this milestone.
+- Reports, Billing, and Settings navigation items are marked `Unavailable` in this milestone.
+- Queue navigation is available to Owner/Admin/Manager/Cashier. Kitchen Staff does not receive it, and `/queue` renders an explicit unauthorized state if opened directly.
 
 ## 8. Mock data policy
 
 - `MockDataProvider` is not mounted in the authenticated shell.
 - Existing mock fixtures remain in the repository for later integration and tests.
-- Staff and Menu route groups render their live screens; Billing, Queue, Reports, and Settings still render explicit “not connected” states.
+- Staff and Menu route groups render their live screens. Queue renders the live M5.2 waitlist board through `list_waitlist_entries`. Billing, Reports, and Settings still render explicit “not connected” states.
 - Dashboard operational widgets render an explicit “not connected” state.
 - A failed backend request never falls back to mock data.
 

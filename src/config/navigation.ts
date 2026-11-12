@@ -92,7 +92,6 @@ export const NAVIGATION_SECTIONS: readonly NavSection[] = [
       {
         titleKey: "navigation.items.queue",
         href: "/queue",
-        availability: "unavailable",
         icon: ListOrdered,
         access: { roles: FLOOR },
       },

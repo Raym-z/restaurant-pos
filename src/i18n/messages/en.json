@@ -70,6 +70,8 @@
     "new": "New",
     "pending": "Pending",
     "accepted": "Accepted",
+    "waiting": "Waiting",
+    "notified": "Notified",
     "revoked": "Revoked",
     "expired": "Expired",
     "preparing": "Preparing",
@@ -1685,6 +1687,93 @@
       "SERVICE_UNAVAILABLE": "The kitchen service is temporarily unavailable. Try again.",
       "WORKSPACE_NOT_READY": "Your workspace is not ready for kitchen operations.",
       "INTERNAL_ERROR": "The kitchen operation could not be completed."
+    }
+  },
+  "queue": {
+    "title": "Queue",
+    "eyebrow": "Front of house",
+    "description": "Live active queue for {branch}.",
+    "loadErrorTitle": "The queue could not be loaded",
+    "errorTitle": "Queue could not be loaded",
+    "backToDashboard": "Back to dashboard",
+    "unauthorizedTitle": "Queue access is restricted",
+    "unauthorizedDescription": "Your role or branch assignment does not include the queue.",
+    "readOnlyBadge": "Read-only",
+    "readOnlyNotice": "Cashier access is read-only. Phone numbers are masked by the backend.",
+    "refresh": "Refresh",
+    "lastRefreshed": "Queue snapshot {time}",
+    "autoRefresh": "Updates automatically every {seconds} seconds.",
+    "staleTitle": "Showing possibly stale data",
+    "staleDescription": "The last refresh failed. The queue shows data from {time}. Check the connection and refresh again.",
+    "loading": "Loading the queue…",
+    "filters": {
+      "searchLabel": "Search by customer name",
+      "searchPlaceholder": "Search queue by name",
+      "apply": "Search",
+      "statusLabel": "Queue status",
+      "all": "All active",
+      "waiting": "Waiting",
+      "notified": "Notified"
+    },
+    "summary": {
+      "activeScope": "Active queue on this page",
+      "filteredScope": "Filtered results on this page",
+      "pageEntries": "{count, plural, one {# entry} other {# entries}}",
+      "waiting": "{count} waiting",
+      "notified": "{count} notified"
+    },
+    "entry": {
+      "ariaLabel": "Queue position {position}: {name}",
+      "position": "Position {position}",
+      "unnamed": "Unnamed guest",
+      "partySizeLabel": "Party",
+      "partySize": "Party of {count}",
+      "elapsed": "{minutes} min waiting",
+      "lessThanMinute": "Less than a minute",
+      "joinedLabel": "Joined",
+      "joinedAt": "Joined {time}",
+      "notifiedAt": "Notified {time}",
+      "phoneLabel": "Phone",
+      "noPhone": "No phone provided",
+      "maskedPhone": "Phone masked",
+      "source": {
+        "customer": "Customer app",
+        "walk_in": "Walk-in"
+      }
+    },
+    "empty": {
+      "title": "The queue is empty",
+      "description": "New waiting or notified guests will appear here automatically.",
+      "filteredTitle": "No matching queue entries",
+      "filteredDescription": "Try a different name or status filter.",
+      "pageTitle": "No entries on this page",
+      "pageDescription": "The queue may have changed. Return to the first page.",
+      "backToFirst": "Back to first page"
+    },
+    "pagination": {
+      "page": "Page {page}",
+      "liveBadge": "Live snapshot",
+      "notLive": "Viewing page {page}, an explicitly requested page. It is not the live queue snapshot and may be out of date.",
+      "backToLive": "Back to live queue",
+      "autoPaused": "Automatic refresh is paused on later pages."
+    },
+    "errors": {
+      "AUTH_REQUIRED": "Your session has expired. Sign in again.",
+      "PERMISSION_DENIED": "You do not have permission to view this queue.",
+      "ROLE_REQUIRED": "Your branch role does not allow queue access.",
+      "BRANCH_NOT_FOUND": "The branch could not be found.",
+      "BRANCH_ACCESS_DENIED": "You do not have access to this branch's queue.",
+      "STAFF_NOT_ACTIVE": "Your staff access is not active.",
+      "ORGANIZATION_NOT_OPERATIONAL": "This organization is not operational.",
+      "SUBSCRIPTION_RESTRICTED": "Queue reads remain available while the subscription is restricted, but the workspace may be limited.",
+      "RESOURCE_CONFLICT": "The queue changed while loading. Refresh again.",
+      "VALIDATION_ERROR": "Check the queue filters and try again.",
+      "RATE_LIMIT_EXCEEDED": "Too many requests. Try again shortly.",
+      "NOT_FOUND": "The requested queue record was not found.",
+      "SERVICE_UNAVAILABLE": "The queue service is temporarily unavailable. Try again.",
+      "INVALID_RESPONSE": "The queue service returned an unreadable response. Refresh before retrying.",
+      "WORKSPACE_NOT_READY": "Your workspace is not ready for queue operations.",
+      "INTERNAL_ERROR": "The queue could not be loaded."
     }
   },
   "auth": {

@@ -241,7 +241,8 @@
     "billing": "Tagihan",
     "settings": "Pengaturan",
     "appDescription": "Ruang kerja manajemen restoran, kasir, dan operasional dapur untuk staf.",
-    "login": "Masuk"
+    "login": "Masuk",
+    "loginDemo": "Masuk demo"
   },
   "dashboard": {
     "title": "Dasbor",
@@ -1782,6 +1783,41 @@
     }
   },
   "auth": {
+    "demo": {
+      "eyebrow": "Demo portofolio",
+      "title": "Selamat datang kembali",
+      "description": "Masuk untuk mengakses ruang kerja restoran Anda.",
+      "fields": {
+        "email": "Email",
+        "password": "Kata sandi"
+      },
+      "emailPlaceholder": "anda@restoran.com",
+      "passwordPlaceholder": "Masukkan kata sandi Anda",
+      "showPassword": "Tampilkan kata sandi",
+      "hidePassword": "Sembunyikan kata sandi",
+      "signIn": "Masuk",
+      "signingIn": "Sedang masuk…",
+      "noteEyebrow": "Akun demo",
+      "noteTitle": "Gunakan akun ini untuk tujuan demo",
+      "noteDescription": "Lihat ruang kerja staf dengan akun demo bersama.",
+      "noteEmailLabel": "Email",
+      "notePasswordLabel": "Kata sandi",
+      "copy": "Salin",
+      "copied": "Tersalin",
+      "copyFailed": "Tidak dapat menyalin. Pilih nilai dan salin secara manual.",
+      "noteFootnote": "Akun demo bersama. Mohon jangan memasukkan informasi pribadi.",
+      "staffOnly": "Akses demo hanya untuk ruang kerja staf Restaurant POS.",
+      "errors": {
+        "invalid_email": "Masukkan alamat email yang valid.",
+        "password_required": "Masukkan kata sandi Anda.",
+        "invalid_credentials": "Email atau kata sandi salah.",
+        "email_not_confirmed": "Email akun ini belum dikonfirmasi.",
+        "unsupported": "Masuk dengan email dan kata sandi tidak diaktifkan untuk proyek ini.",
+        "unavailable": "Masuk sementara tidak tersedia. Silakan coba lagi.",
+        "session_failed": "Kredensial diterima, tetapi sesi tidak dapat dimulai. Silakan coba lagi.",
+        "generic": "Kami tidak dapat memasukkan Anda. Silakan coba lagi."
+      }
+    },
     "login": {
       "eyebrow": "Akses staf",
       "title": "Masuk ke Restaurant POS",

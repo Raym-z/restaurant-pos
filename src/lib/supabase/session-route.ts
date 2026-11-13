@@ -13,21 +13,24 @@ export type SessionRouteDecision =
   | { action: "redirect-authenticated" }
   | { action: "preserve" };
 
+/** Routes an unauthenticated visitor may open without a session. */
+const PUBLIC_SESSION_PATHS = new Set(["/login", "/accept-invitation", "/logindemo"]);
+
 export function decideSessionRoute(
   outcome: AuthUserOutcome,
   pathname: string,
 ): SessionRouteDecision {
   const onLoginPage = pathname === "/login";
-  const onAcceptInvitationPage = pathname === "/accept-invitation";
+  const onDemoLoginPage = pathname === "/logindemo";
 
   if (outcome.status === "authenticated") {
-    return onLoginPage
+    return onLoginPage || onDemoLoginPage
       ? { action: "redirect-authenticated" }
       : { action: "allow", clearSession: false };
   }
 
   if (outcome.status === "unauthenticated") {
-    if (onLoginPage || onAcceptInvitationPage) {
+    if (PUBLIC_SESSION_PATHS.has(pathname)) {
       return { action: "allow", clearSession: true };
     }
 

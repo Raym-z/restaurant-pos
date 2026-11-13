@@ -241,7 +241,8 @@
     "billing": "Billing",
     "settings": "Settings",
     "appDescription": "Staff-facing restaurant management, point of sale, and kitchen operations workspace.",
-    "login": "Sign in"
+    "login": "Sign in",
+    "loginDemo": "Demo sign in"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -1777,6 +1778,41 @@
     }
   },
   "auth": {
+    "demo": {
+      "eyebrow": "Portfolio demo",
+      "title": "Welcome back",
+      "description": "Sign in to access your restaurant workspace.",
+      "fields": {
+        "email": "Email",
+        "password": "Password"
+      },
+      "emailPlaceholder": "you@restaurant.com",
+      "passwordPlaceholder": "Enter your password",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
+      "signIn": "Sign in",
+      "signingIn": "Signing in…",
+      "noteEyebrow": "Demo account",
+      "noteTitle": "Use this account for demo purposes",
+      "noteDescription": "View the staff workspace with the shared demo account.",
+      "noteEmailLabel": "Email",
+      "notePasswordLabel": "Password",
+      "copy": "Copy",
+      "copied": "Copied",
+      "copyFailed": "Could not copy. Select the value and copy it manually.",
+      "noteFootnote": "Shared demo account. Please do not enter personal information.",
+      "staffOnly": "Demo access is limited to the Restaurant POS staff workspace.",
+      "errors": {
+        "invalid_email": "Enter a valid email address.",
+        "password_required": "Enter your password.",
+        "invalid_credentials": "The email or password is incorrect.",
+        "email_not_confirmed": "This account has not confirmed its email address.",
+        "unsupported": "Email and password sign-in is not enabled for this project.",
+        "unavailable": "Sign-in is temporarily unavailable. Please try again.",
+        "session_failed": "Your credentials were accepted, but the session could not be started. Please try again.",
+        "generic": "We could not sign you in. Please try again."
+      }
+    },
     "login": {
       "eyebrow": "Staff access",
       "title": "Sign in to Restaurant POS",

@@ -1,9 +1,11 @@
 "use client";
 
+import { Receipt } from "lucide-react";
 import { useTranslations } from "next-intl";
+import Link from "next/link";
 import { useMemo, useState } from "react";
 
-import { Badge } from "@/components/ui/badge";
+import { EmptyState } from "@/components/states/empty-state";
 import { Card } from "@/components/ui/card";
 import { Select } from "@/components/ui/select";
 import {
@@ -15,106 +17,103 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { OrderStatusBadge } from "@/features/pos/components/pos-status-badges";
+import type { OrderStatus } from "@/features/pos/contracts";
 import { useLocalizedFormat } from "@/i18n/use-localized-format";
 import { useStatusLabel } from "@/i18n/use-labels";
-import type { Branch } from "@/features/branches/types";
-import type { DashboardOrderStatus, RecentOrder } from "../types";
 
-const STATUS_FILTERS: Array<DashboardOrderStatus | "all"> = [
-  "all",
-  "new",
-  "preparing",
-  "ready",
-  "completed",
-  "cancelled",
-];
+import { dashboardOrderStatuses } from "../aggregation";
+import type { DashboardOrder } from "../types";
 
-const STATUS_BADGES: Record<
-  DashboardOrderStatus,
-  "info" | "warning" | "success" | "neutral" | "danger"
-> = {
-  new: "info",
-  preparing: "warning",
-  ready: "success",
-  completed: "neutral",
-  cancelled: "danger",
-};
+type StatusFilter = OrderStatus | "all";
 
 export function RecentOrdersTable({
   orders,
-  branches,
   timeZone,
+  truncated,
 }: {
-  orders: RecentOrder[];
-  branches: Branch[];
+  orders: DashboardOrder[];
   timeZone: string;
+  truncated: boolean;
 }) {
   const t = useTranslations("dashboard.recentOrders");
   const tCommon = useTranslations("common");
   const statusLabel = useStatusLabel();
   const format = useLocalizedFormat();
-  const [status, setStatus] = useState<DashboardOrderStatus | "all">("all");
-  const branchById = useMemo(
-    () => new Map(branches.map((branch) => [branch.id, branch])),
-    [branches],
-  );
+  const [status, setStatus] = useState<StatusFilter>("all");
+  const statuses = dashboardOrderStatuses();
 
-  const visibleOrders = orders.filter((order) => status === "all" || order.status === status);
+  const visibleOrders = useMemo(
+    () => orders.filter((order) => status === "all" || order.status === status),
+    [orders, status],
+  );
 
   return (
     <Card className="overflow-hidden">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-4">
         <div>
           <h2 className="text-base font-semibold text-ink">{t("title")}</h2>
-          <p className="text-sm text-ink-muted">{t("subtitle")}</p>
+          <p className="mt-1 text-sm text-ink-muted">{t("subtitle")}</p>
         </div>
         <label className="flex items-center gap-2 text-sm text-ink-muted">
           <span>{t("status")}</span>
           <Select
             value={status}
-            onChange={(event) => setStatus(event.target.value as DashboardOrderStatus | "all")}
-            className="h-9 w-40"
+            onChange={(event) => setStatus(event.target.value as StatusFilter)}
+            className="h-9 w-44"
           >
-            {STATUS_FILTERS.map((value) => (
+            <option value="all">{t("allStatuses")}</option>
+            {statuses.map((value) => (
               <option key={value} value={value}>
-                {value === "all" ? t("allStatuses") : statusLabel(value)}
+                {statusLabel(value)}
               </option>
             ))}
           </Select>
         </label>
       </div>
 
-      {visibleOrders.length === 0 ? (
-        <div className="px-5 py-10 text-center text-sm text-ink-muted">{t("noMatch")}</div>
+      {orders.length === 0 ? (
+        <EmptyState
+          bordered={false}
+          compact
+          icon={Receipt}
+          title={t("emptyTitle")}
+          description={t("emptyDescription")}
+        />
+      ) : visibleOrders.length === 0 ? (
+        <p className="px-5 py-10 text-center text-sm text-ink-muted">{t("noMatch")}</p>
       ) : (
         <TableContainer>
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>{t("order")}</TableHead>
-                <TableHead>{t("branch")}</TableHead>
                 <TableHead>{t("table")}</TableHead>
                 <TableHead>{t("status")}</TableHead>
                 <TableHead>{t("placed")}</TableHead>
-                <TableHead className="text-right">{t("total")}</TableHead>
+                <TableHead className="text-right">{t("subtotal")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {visibleOrders.map((order) => (
-                <TableRow key={order.id}>
-                  <TableCell className="font-medium">{order.orderNumber}</TableCell>
+                <TableRow key={order.orderId}>
                   <TableCell>
-                    {branchById.get(order.branchId)?.name ?? tCommon("unknown")}
+                    <Link
+                      href={`/orders/${order.orderId}`}
+                      className="font-medium text-ink hover:text-brand"
+                    >
+                      {order.orderReference}
+                    </Link>
                   </TableCell>
-                  <TableCell>{order.tableLabel}</TableCell>
+                  <TableCell>{order.tableLabel ?? tCommon("unknown")}</TableCell>
                   <TableCell>
-                    <Badge variant={STATUS_BADGES[order.status]}>{statusLabel(order.status)}</Badge>
+                    <OrderStatusBadge status={order.status} />
                   </TableCell>
                   <TableCell className="text-ink-muted">
-                    {format.dateTime(order.placedAt, timeZone)}
+                    {format.dateTime(order.createdAt, timeZone)}
                   </TableCell>
                   <TableCell className="text-right font-medium">
-                    {format.money(order.total)}
+                    {format.currencyAmount(order.payableSubtotalMinor, order.currency)}
                   </TableCell>
                 </TableRow>
               ))}
@@ -122,6 +121,11 @@ export function RecentOrdersTable({
           </Table>
         </TableContainer>
       )}
+
+      <div className="border-t border-line px-5 py-3 text-xs text-ink-subtle">
+        <p>{t("subtotalNote")}</p>
+        {truncated ? <p className="mt-1">{t("truncated")}</p> : null}
+      </div>
     </Card>
   );
 }

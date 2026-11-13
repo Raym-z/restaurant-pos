@@ -1,9 +1,10 @@
 "use client";
 
+import { Store } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 
-import { Badge } from "@/components/ui/badge";
+import { EmptyState } from "@/components/states/empty-state";
 import { Card } from "@/components/ui/card";
 import {
   Table,
@@ -14,101 +15,104 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { canManageBranches } from "@/features/workspace/access";
 import { useLocalizedFormat } from "@/i18n/use-localized-format";
-import { useStatusLabel } from "@/i18n/use-labels";
-import type { Branch } from "@/features/branches/types";
-import type { BranchPerformance } from "../types";
+import type { StaffRole } from "@/types/roles";
 
-interface BranchPerformanceTableProps {
-  rows: BranchPerformance[];
-  branches: Branch[];
-}
+import type { DashboardBranchPerformance } from "../types";
 
-export function BranchPerformanceTable({ rows, branches }: BranchPerformanceTableProps) {
+export function BranchPerformanceTable({
+  rows,
+  roles,
+  unavailable,
+}: {
+  rows: DashboardBranchPerformance[];
+  roles: readonly StaffRole[];
+  unavailable: number;
+}) {
   const t = useTranslations("dashboard.branchPerformance");
-  const tCommon = useTranslations("common");
-  const statusLabel = useStatusLabel();
   const format = useLocalizedFormat();
-  const branchById = new Map(branches.map((branch) => [branch.id, branch]));
+  const canViewBranches = canManageBranches(roles);
 
   return (
     <Card className="overflow-hidden">
-      <div className="flex items-center justify-between gap-3 border-b border-line px-5 py-4">
+      <div className="flex flex-wrap items-start justify-between gap-3 border-b border-line px-5 py-4">
         <div>
           <h2 className="text-base font-semibold text-ink">{t("title")}</h2>
-          <p className="text-sm text-ink-muted">{t("subtitle")}</p>
+          <p className="mt-1 text-sm text-ink-muted">{t("subtitle")}</p>
         </div>
-        <Link href="/branches" className="text-sm font-medium text-brand hover:text-brand-strong">
-          {t("viewBranches")}
-        </Link>
+        {canViewBranches ? (
+          <Link href="/branches" className="text-sm font-medium text-brand hover:text-brand-strong">
+            {t("viewBranches")}
+          </Link>
+        ) : null}
       </div>
-      <TableContainer>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>{t("branch")}</TableHead>
-              <TableHead className="text-right">{t("netSales")}</TableHead>
-              <TableHead className="text-right">{t("orders")}</TableHead>
-              <TableHead className="text-right">{t("averageOrder")}</TableHead>
-              <TableHead>{t("revenueShare")}</TableHead>
-              <TableHead className="text-right">{t("change")}</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {rows.map((row) => {
-              const branch = branchById.get(row.branchId);
-              const isOpen = branch?.status === "active";
-              return (
+
+      {rows.length === 0 ? (
+        <EmptyState
+          bordered={false}
+          compact
+          icon={Store}
+          title={t("emptyTitle")}
+          description={t("emptyDescription")}
+        />
+      ) : (
+        <TableContainer>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>{t("branch")}</TableHead>
+                <TableHead className="text-right">{t("orders")}</TableHead>
+                <TableHead className="text-right">{t("activeOrders")}</TableHead>
+                <TableHead className="text-right">{t("activeSessions")}</TableHead>
+                <TableHead>{t("occupancy")}</TableHead>
+                <TableHead className="text-right">{t("tables")}</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {rows.map((row) => (
                 <TableRow key={row.branchId}>
                   <TableCell>
-                    <div className="font-medium text-ink">{branch?.name ?? t("unknownBranch")}</div>
-                    <div className="text-xs text-ink-subtle">
-                      {branch ? `${branch.timezone} · ${statusLabel(branch.status)}` : "—"}
-                    </div>
+                    <div className="font-medium text-ink">{row.branchName}</div>
+                    <div className="text-xs text-ink-subtle">{row.timezone}</div>
                   </TableCell>
                   <TableCell className="text-right font-medium">
-                    {isOpen ? format.money(row.revenue) : "—"}
+                    {format.number(row.totalOrders)}
                   </TableCell>
-                  <TableCell className="text-right">
-                    {isOpen ? format.number(row.orders) : "—"}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {isOpen ? format.money(row.averageOrderValue) : "—"}
-                  </TableCell>
+                  <TableCell className="text-right">{format.number(row.activeOrders)}</TableCell>
+                  <TableCell className="text-right">{format.number(row.activeSessions)}</TableCell>
                   <TableCell>
-                    {isOpen ? (
-                      <div className="flex items-center gap-2">
-                        <div className="h-1.5 w-24 overflow-hidden rounded-full bg-surface-muted">
-                          <div
-                            className="h-full rounded-full bg-brand"
-                            style={{
-                              width: `${Math.round(row.revenueShare * 100)}%`,
-                            }}
-                          />
-                        </div>
-                        <span className="text-xs text-ink-muted">
-                          {format.percent(row.revenueShare)}
-                        </span>
+                    <div className="flex items-center gap-2">
+                      <div className="h-1.5 w-24 overflow-hidden rounded-full bg-surface-muted">
+                        <div
+                          className="h-full rounded-full bg-brand"
+                          style={{ width: `${Math.round(row.occupancyRate * 100)}%` }}
+                        />
                       </div>
-                    ) : (
-                      <Badge variant="neutral">{tCommon("notOpenYet")}</Badge>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {isOpen ? (
-                      <span className={row.changeRatio >= 0 ? "text-success" : "text-danger"}>
-                        {format.signedPercent(row.changeRatio)}
+                      <span className="text-xs text-ink-muted">
+                        {format.percent(row.occupancyRate)}
                       </span>
-                    ) : (
-                      <span className="text-ink-subtle">—</span>
-                    )}
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-right text-ink-muted">
+                    {t("tableCount", {
+                      occupied: row.occupiedTables,
+                      total: row.totalTables,
+                    })}
                   </TableCell>
                 </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </TableContainer>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      )}
+
+      <div className="border-t border-line px-5 py-3 text-xs text-ink-subtle">
+        <p>{t("scopeNote")}</p>
+        {unavailable > 0 ? (
+          <p className="mt-1">{t("unavailableNote", { count: unavailable })}</p>
+        ) : null}
+      </div>
     </Card>
   );
 }

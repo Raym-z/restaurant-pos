@@ -247,92 +247,133 @@
   "dashboard": {
     "title": "Dasbor",
     "openBranches": "{count, plural, one {# cabang buka} other {# cabang buka}}",
-    "asOf": "Per {date}",
+    "metricsLabel": "Metrik operasional utama",
+    "noValue": "—",
+    "loadErrorTitle": "Dasbor tidak dapat dimuat",
+    "loadErrorDescription": "Ringkasan operasional untuk cabang ini tidak dapat dimuat. Coba lagi atau pilih rentang tanggal lain.",
+    "summary": {
+      "label": "Ringkasan ruang kerja",
+      "organization": "Organisasi",
+      "accessibleBranches": "Cabang yang dapat diakses",
+      "activeBranch": "Cabang aktif",
+      "primaryRole": "Peran utama"
+    },
+    "filters": {
+      "rangeLabel": "Rentang tanggal",
+      "branchLabel": "Cabang",
+      "singleDay": "{date}",
+      "range": "{from} – {to}",
+      "timezone": "Zona waktu: {timezone}",
+      "asOf": "Per {date}",
+      "refresh": "Muat ulang",
+      "branchSwitchFailed": "Cabang ini tidak dapat dipilih. Coba lagi.",
+      "ranges": {
+        "today": "Hari ini",
+        "7d": "7 hari terakhir",
+        "30d": "30 hari terakhir"
+      }
+    },
     "metrics": {
-      "net-sales": "Penjualan bersih",
-      "orders": "Pesanan",
-      "average-order-value": "Rata-rata nilai pesanan",
-      "staff-on-shift": "Staf bertugas"
+      "totalOrders": "Total pesanan",
+      "totalOrdersHint": "Pesanan yang dibuat pada periode terpilih.",
+      "activeOrders": "Pesanan aktif",
+      "activeOrdersHint": "Menunggu, diterima, disiapkan, siap, atau disajikan.",
+      "completedOrders": "Pesanan selesai",
+      "completedOrdersHint": "Pesanan yang selesai pada periode terpilih.",
+      "cancelledOrders": "Pesanan dibatalkan",
+      "cancelledOrdersHint": "Pesanan yang dibatalkan pada periode terpilih.",
+      "activeSessions": "Sesi makan aktif",
+      "activeSessionsHint": "Meja dengan sesi aktif saat ini.",
+      "occupiedTables": "Meja terisi",
+      "occupiedTablesHint": "Meja aktif yang sedang digunakan.",
+      "availableTables": "Meja tersedia",
+      "availableTablesHint": "Meja aktif tanpa sesi aktif.",
+      "averageOrderValue": "Rata-rata nilai pesanan",
+      "averageOrderValueHint": "Subtotal pesanan yang harus dibayar, bukan pendapatan yang sudah diselesaikan."
     },
-    "comparison": {
-      "vs-last-sunday": "dibanding Minggu lalu",
-      "across-open-branches": "Di {count, plural, one {# cabang yang buka} other {# cabang yang buka}}"
+    "orderActivity": {
+      "title": "Aktivitas pesanan",
+      "subtitle": "Pesanan berdasarkan status saat ini.",
+      "viewOrders": "Lihat pesanan",
+      "emptyTitle": "Tidak ada pesanan pada periode ini",
+      "emptyDescription": "Pesanan akan muncul di sini setelah dibuat untuk cabang ini.",
+      "truncated": "Hitungan didasarkan pada 1.000 pesanan terbaru pada periode ini."
     },
-    "salesTrend": {
-      "title": "Tren penjualan",
-      "subtitle": "7 hari terakhir di semua cabang",
-      "netSales": "Penjualan bersih",
-      "orders": "Pesanan",
-      "barLabel": "{date}: {revenue} dari {orders} pesanan",
-      "barTitle": "{date} · {revenue} · {orders} pesanan"
-    },
-    "operations": {
-      "title": "Operasional saat ini",
-      "subtitle": "Di cabang yang sedang buka",
-      "kitchenOrders": "Pesanan dapur",
-      "guestsWaiting": "Tamu menunggu",
-      "staffOnShift": "Staf bertugas",
-      "tablesSeated": "Meja terisi",
-      "seatingOccupancy": "Keterisian meja"
-    },
-    "branchPerformance": {
-      "title": "Performa cabang",
-      "subtitle": "Penjualan hari ini per cabang",
-      "viewBranches": "Lihat cabang",
-      "branch": "Cabang",
-      "netSales": "Penjualan bersih",
-      "orders": "Pesanan",
-      "averageOrder": "Rata-rata pesanan",
-      "revenueShare": "Porsi pendapatan",
-      "change": "Perubahan",
-      "unknownBranch": "Cabang tidak dikenal"
-    },
-    "topItems": {
-      "title": "Item terlaris",
-      "today": "Hari ini",
-      "sold": "{count} terjual",
-      "empty": "Belum ada penjualan item hari ini."
+    "tableUtilization": {
+      "title": "Penggunaan meja",
+      "subtitle": "Keterisian meja dan sesi aktif saat ini.",
+      "emptyTitle": "Tidak ada meja aktif",
+      "emptyDescription": "Tambahkan meja ke cabang ini untuk melihat keterisian dan data sesi.",
+      "occupancyDescription": "Meja aktif yang terisi",
+      "occupiedLegend": "{count, plural, one {# terisi} other {# terisi}}",
+      "availableLegend": "{count, plural, one {# tersedia} other {# tersedia}}",
+      "activeSessions": "Sesi aktif",
+      "totalTables": "Meja aktif",
+      "occupiedTables": "Meja yang sedang terisi"
     },
     "recentOrders": {
       "title": "Pesanan terbaru",
-      "subtitle": "Aktivitas layanan dalam satu jam terakhir",
+      "subtitle": "Pesanan terbaru yang dibuat pada periode terpilih.",
       "status": "Status",
       "allStatuses": "Semua status",
       "noMatch": "Tidak ada pesanan yang cocok dengan filter status ini.",
       "order": "Pesanan",
-      "branch": "Cabang",
       "table": "Meja",
       "placed": "Waktu",
-      "total": "Total"
+      "subtotal": "Subtotal",
+      "emptyTitle": "Belum ada pesanan terbaru",
+      "emptyDescription": "Pesanan terbaru akan muncul di sini setelah layanan dimulai.",
+      "subtotalNote": "Subtotal pesanan adalah nilai operasional. Nilai ini bukan pendapatan yang sudah diselesaikan dan dapat berubah sampai tagihan difinalisasi.",
+      "truncated": "Menampilkan 1.000 pesanan terbaru pada periode ini."
     },
-    "attention": {
-      "title": "Perlu perhatian",
-      "staff": "Staf",
-      "empty": "Tidak ada yang perlu diperhatikan saat ini.",
-      "menuUnavailableTitle": "{count, plural, one {# item menu ditandai tidak tersedia} other {# item menu ditandai tidak tersedia}}",
-      "menuUnavailableDescription": "{item} tidak tersedia di {branch} dan ditandai habis di tingkat organisasi.",
-      "staffInvitesTitle": "{count, plural, one {# undangan staf menunggu diterima} other {# undangan staf menunggu diterima}}",
-      "staffInvitesDescription": "{first} ({firstRole}, {firstBranch}) dan {second} ({secondRole}, {secondBranch}) belum masuk.",
-      "managerVacancyTitle": "{branch} belum memiliki manajer cabang",
-      "managerVacancyDescription": "Undangan manajer cabang untuk {name} masih menunggu diterima."
+    "branchPerformance": {
+      "title": "Performa cabang",
+      "subtitle": "Volume pesanan, sesi, dan keterisian per cabang yang dapat diakses.",
+      "viewBranches": "Lihat cabang",
+      "branch": "Cabang",
+      "orders": "Pesanan",
+      "activeOrders": "Aktif",
+      "activeSessions": "Sesi",
+      "occupancy": "Keterisian",
+      "tables": "Meja",
+      "tableCount": "{occupied} / {total} terisi",
+      "scopeNote": "Hanya cabang yang Anda berwenang akses yang disertakan.",
+      "unavailableNote": "{count, plural, one {# cabang tidak dapat dimuat dan dihilangkan.} other {# cabang tidak dapat dimuat dan dihilangkan.}}",
+      "emptyTitle": "Tidak ada data cabang",
+      "emptyDescription": "Performa cabang akan muncul setelah cabang tersedia."
     },
-    "metricsLabel": "Metrik utama",
-    "unavailable": {
-      "badge": "Terbatas pada milestone ini",
-      "summaryLabel": "Ringkasan ruang kerja",
-      "organization": "Organisasi",
-      "accessibleBranches": "Cabang yang dapat diakses",
-      "activeBranch": "Cabang aktif",
-      "primaryRole": "Peran utama",
-      "title": "Dasbor operasional",
-      "emptyTitle": "Data operasional belum terhubung",
-      "emptyDescription": "Metrik dasbor, tren penjualan, pesanan, dan performa cabang akan muncul setelah integrasi pesanan, pembayaran, dan laporan diterapkan.",
-      "planned": [
-        "Metrik penjualan",
-        "Aktivitas pesanan",
-        "Performa cabang",
-        "Peringatan operasional"
-      ]
+    "alerts": {
+      "title": "Peringatan operasional",
+      "subtitle": "Kondisi saat ini yang mungkin memerlukan tindakan.",
+      "emptyTitle": "Tidak ada yang perlu diperhatikan",
+      "emptyDescription": "Tidak ada pesanan menunggu, pesanan siap, tamu menunggu, atau meja terisi.",
+      "pending": {
+        "title": "Pesanan menunggu penerimaan",
+        "description": "{count, plural, one {# pesanan menunggu penerimaan.} other {# pesanan menunggu penerimaan.}}",
+        "link": "Tinjau pesanan menunggu"
+      },
+      "ready": {
+        "title": "Pesanan siap disajikan",
+        "description": "{count, plural, one {# pesanan siap dan menunggu disajikan.} other {# pesanan siap dan menunggu disajikan.}}",
+        "link": "Tinjau pesanan siap"
+      },
+      "waitlist": {
+        "title": "Tamu menunggu",
+        "description": "{count, plural, one {# rombongan} other {# rombongan}} · {guests, plural, one {# tamu} other {# tamu}} di antrean aktif.",
+        "truncated": "Menampilkan 500 entri antrean aktif pertama.",
+        "link": "Buka antrean"
+      },
+      "occupied": {
+        "title": "Meja sedang digunakan",
+        "description": "{count, plural, one {# meja memiliki sesi makan aktif.} other {# meja memiliki sesi makan aktif.}}",
+        "link": "Buka meja"
+      }
+    },
+    "sales": {
+      "title": "Penjualan dan penyelesaian",
+      "badge": "Belum terhubung",
+      "description": "Metrik pendapatan memerlukan kontrak baca penagihan dan penyelesaian yang telah disetujui. Dasbor ini tidak menganggap subtotal pesanan sebagai pendapatan yang diakui.",
+      "note": "Penjualan bruto, pembayaran yang diselesaikan, dan tagihan yang diselesaikan tetap tidak tersedia sampai aturan penagihan dan kontrak baca disetujui."
     }
   },
   "organization": {

@@ -247,87 +247,133 @@
   "dashboard": {
     "title": "Dashboard",
     "openBranches": "{count, plural, one {# open branch} other {# open branches}}",
-    "asOf": "As of {date}",
+    "metricsLabel": "Key operational metrics",
+    "noValue": "—",
+    "loadErrorTitle": "The dashboard could not be loaded",
+    "loadErrorDescription": "We could not load the operational summary for this branch. Try again or choose a different date range.",
+    "summary": {
+      "label": "Workspace summary",
+      "organization": "Organization",
+      "accessibleBranches": "Accessible branches",
+      "activeBranch": "Active branch",
+      "primaryRole": "Primary role"
+    },
+    "filters": {
+      "rangeLabel": "Date range",
+      "branchLabel": "Branch",
+      "singleDay": "{date}",
+      "range": "{from} – {to}",
+      "timezone": "Timezone: {timezone}",
+      "asOf": "As of {date}",
+      "refresh": "Refresh",
+      "branchSwitchFailed": "This branch could not be selected. Try again.",
+      "ranges": {
+        "today": "Today",
+        "7d": "Last 7 days",
+        "30d": "Last 30 days"
+      }
+    },
     "metrics": {
-      "net-sales": "Net sales",
-      "orders": "Orders",
-      "average-order-value": "Average order value",
-      "staff-on-shift": "Staff on shift"
+      "totalOrders": "Total orders",
+      "totalOrdersHint": "Orders created in the selected period.",
+      "activeOrders": "Active orders",
+      "activeOrdersHint": "Pending, accepted, preparing, ready, or served.",
+      "completedOrders": "Completed orders",
+      "completedOrdersHint": "Orders completed in the selected period.",
+      "cancelledOrders": "Cancelled orders",
+      "cancelledOrdersHint": "Orders cancelled in the selected period.",
+      "activeSessions": "Active dining sessions",
+      "activeSessionsHint": "Tables with an active session right now.",
+      "occupiedTables": "Occupied tables",
+      "occupiedTablesHint": "Active tables currently in service.",
+      "availableTables": "Available tables",
+      "availableTablesHint": "Active tables without an active session.",
+      "averageOrderValue": "Average order value",
+      "averageOrderValueHint": "Payable order subtotals, not settled revenue."
     },
-    "comparison": {
-      "vs-last-sunday": "vs. last Sunday",
-      "across-open-branches": "Across {count, plural, one {# open branch} other {# open branches}}"
+    "orderActivity": {
+      "title": "Order activity",
+      "subtitle": "Orders by their current status.",
+      "viewOrders": "View orders",
+      "emptyTitle": "No orders in this period",
+      "emptyDescription": "Orders will appear here once they are created for this branch.",
+      "truncated": "Counts are based on the latest 1,000 orders in this period."
     },
-    "salesTrend": {
-      "title": "Sales trend",
-      "subtitle": "Last 7 days across all branches",
-      "netSales": "Net sales",
-      "orders": "Orders",
-      "barLabel": "{date}: {revenue} from {orders} orders",
-      "barTitle": "{date} · {revenue} · {orders} orders"
-    },
-    "operations": {
-      "title": "Operations now",
-      "subtitle": "Across the open branches",
-      "kitchenOrders": "Kitchen orders",
-      "guestsWaiting": "Guests waiting",
-      "staffOnShift": "Staff on shift",
-      "tablesSeated": "Tables seated",
-      "seatingOccupancy": "Seating occupancy"
-    },
-    "branchPerformance": {
-      "title": "Branch performance",
-      "subtitle": "Today’s sales by branch",
-      "viewBranches": "View branches",
-      "branch": "Branch",
-      "netSales": "Net sales",
-      "orders": "Orders",
-      "averageOrder": "Avg. order",
-      "revenueShare": "Revenue share",
-      "change": "Change",
-      "unknownBranch": "Unknown branch"
-    },
-    "topItems": {
-      "title": "Top selling items",
-      "today": "Today",
-      "sold": "{count} sold",
-      "empty": "No item sales have been recorded today."
+    "tableUtilization": {
+      "title": "Table utilization",
+      "subtitle": "Current table occupancy and active sessions.",
+      "emptyTitle": "No active tables",
+      "emptyDescription": "Add tables to this branch to see occupancy and session data.",
+      "occupancyDescription": "Occupied active tables",
+      "occupiedLegend": "{count, plural, one {# occupied} other {# occupied}}",
+      "availableLegend": "{count, plural, one {# available} other {# available}}",
+      "activeSessions": "Active sessions",
+      "totalTables": "Active tables",
+      "occupiedTables": "Tables currently occupied"
     },
     "recentOrders": {
       "title": "Recent orders",
-      "subtitle": "Live service activity from the last hour",
+      "subtitle": "Latest orders created in the selected period.",
       "status": "Status",
       "allStatuses": "All statuses",
       "noMatch": "No orders match this status filter.",
       "order": "Order",
-      "branch": "Branch",
       "table": "Table",
       "placed": "Placed",
-      "total": "Total"
+      "subtotal": "Subtotal",
+      "emptyTitle": "No recent orders",
+      "emptyDescription": "Recent orders will appear here once service begins.",
+      "subtotalNote": "Order subtotals are operational amounts. They are not settled revenue and may change until billing is finalized.",
+      "truncated": "Showing the latest 1,000 orders in this period."
     },
-    "attention": {
-      "title": "Needs attention",
-      "staff": "Staff",
-      "empty": "Nothing needs attention right now.",
-      "menuUnavailableTitle": "{count, plural, one {# menu item is marked unavailable} other {# menu items are marked unavailable}}",
-      "menuUnavailableDescription": "{item} is unavailable at {branch} and sold out at organization level.",
-      "staffInvitesTitle": "{count, plural, one {# staff invitation is awaiting acceptance} other {# staff invitations are awaiting acceptance}}",
-      "staffInvitesDescription": "{first} ({firstRole}, {firstBranch}) and {second} ({secondRole}, {secondBranch}) have not signed in yet.",
-      "managerVacancyTitle": "{branch} has no branch manager",
-      "managerVacancyDescription": "The branch manager invitation for {name} is still pending acceptance."
+    "branchPerformance": {
+      "title": "Branch performance",
+      "subtitle": "Order volume, sessions, and occupancy by accessible branch.",
+      "viewBranches": "View branches",
+      "branch": "Branch",
+      "orders": "Orders",
+      "activeOrders": "Active",
+      "activeSessions": "Sessions",
+      "occupancy": "Occupancy",
+      "tables": "Tables",
+      "tableCount": "{occupied} / {total} occupied",
+      "scopeNote": "Only branches you are authorized to access are included.",
+      "unavailableNote": "{count, plural, one {# branch could not be loaded and was omitted.} other {# branches could not be loaded and were omitted.}}",
+      "emptyTitle": "No branch data",
+      "emptyDescription": "Branch performance will appear once branches are available."
     },
-    "metricsLabel": "Key metrics",
-    "unavailable": {
-      "badge": "Limited in this milestone",
-      "summaryLabel": "Workspace summary",
-      "organization": "Organization",
-      "accessibleBranches": "Accessible branches",
-      "activeBranch": "Active branch",
-      "primaryRole": "Primary role",
-      "title": "Operational dashboard",
-      "emptyTitle": "Operational data is not connected",
-      "emptyDescription": "Dashboard metrics, sales trends, orders, and branch performance will appear after order, payment, and reporting integrations are implemented.",
-      "planned": ["Sales metrics", "Order activity", "Branch performance", "Operational alerts"]
+    "alerts": {
+      "title": "Operational alerts",
+      "subtitle": "Current conditions that may need action.",
+      "emptyTitle": "Nothing needs attention",
+      "emptyDescription": "There are no pending orders, ready orders, waiting guests, or occupied tables.",
+      "pending": {
+        "title": "Orders awaiting acceptance",
+        "description": "{count, plural, one {# order is waiting for acceptance.} other {# orders are waiting for acceptance.}}",
+        "link": "Review pending orders"
+      },
+      "ready": {
+        "title": "Orders ready to serve",
+        "description": "{count, plural, one {# order is ready and waiting to be served.} other {# orders are ready and waiting to be served.}}",
+        "link": "Review ready orders"
+      },
+      "waitlist": {
+        "title": "Guests waiting",
+        "description": "{count, plural, one {# party} other {# parties}} · {guests, plural, one {# guest} other {# guests}} in the active queue.",
+        "truncated": "Showing the first 500 active queue entries.",
+        "link": "Open queue"
+      },
+      "occupied": {
+        "title": "Tables in service",
+        "description": "{count, plural, one {# table has an active dining session.} other {# tables have an active dining session.}}",
+        "link": "Open tables"
+      }
+    },
+    "sales": {
+      "title": "Sales and settlement",
+      "badge": "Not connected",
+      "description": "Revenue metrics require the approved billing and settlement read contract. This dashboard does not treat order subtotals as recognized revenue.",
+      "note": "Gross sales, settled payments, and settled bills remain unavailable until the billing rules and read contract are approved."
     }
   },
   "organization": {
